@@ -1,0 +1,53 @@
+# === Backend: Java / Spring Boot ===
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ
+*.iml
+.idea/
+out/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# === Frontend: React / Node.js ===
+
+# Node Modules
+node_modules/
+
+# Build Output
+build/
+dist/
+
+# VSCode
+.vscode/
+
+# React Cache
+.cache/
+*.cache
+*.tsbuildinfo
+
+# NPM/Yarn Lock (선택)
+# package-lock.json
+# yarn.lock

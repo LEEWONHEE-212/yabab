@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import './main_stadium.css';
-import Modal from './RestaurantPage';
+import './StadiumPage.css';
+import RestaurantPage from './RestaurantPage';
 
-const MainStadium = () => {
+const StadiumPage = () => {
   const [activeTab, setActiveTab] = useState('facility'); // 기본값을 시설소개로 변경
   const [selectedFilter, setSelectedFilter] = useState('rating');
   const [activeSubTab, setActiveSubTab] = useState('inside');
@@ -488,7 +488,7 @@ const MainStadium = () => {
       </footer>
 
       {/* 모달 */}
-      <Modal 
+      <RestaurantPage 
         isOpen={isModalOpen} 
         onClose={closeModal} 
         restaurant={selectedRestaurant}
@@ -497,4 +497,4 @@ const MainStadium = () => {
   );
 };
 
-export default MainStadium;
+export default StadiumPage;

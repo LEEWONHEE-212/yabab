@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import './modal.css';
+import './RestaurantPage.css';
 
-const Modal = ({ isOpen, onClose, restaurant }) => {
+const RestaurantPage = ({ isOpen, onClose, restaurant }) => {
   const [activeTab, setActiveTab] = useState('info'); // 'info' 또는 'review'
   const [reviewText, setReviewText] = useState('');
 
@@ -132,4 +132,4 @@ const Modal = ({ isOpen, onClose, restaurant }) => {
   );
 };
 
-export default Modal; 
+export default RestaurantPage; 

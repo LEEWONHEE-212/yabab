@@ -1,0 +1,385 @@
+/* 모달 오버레이 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* 모달 컨테이너 */
+.modal-container {
+  background-color: #ffffff;
+  border-radius: 16px;
+  width: 600px;
+  height: 800px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* 닫기 버튼 */
+.modal-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  width: 24px;
+  height: 24px;
+  background-color: #e5e5e5;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.close-icon {
+  width: 12px;
+  height: 12px;
+  position: relative;
+}
+
+.close-icon::before,
+.close-icon::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 2px;
+  background-color: #666;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.close-icon::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* 이미지 섹션 */
+.modal-image-section {
+  padding: 30px 40px 0 40px;
+}
+
+.modal-image-placeholder {
+  width: 100%;
+  height: 200px;
+  background-color: #e4e4e4;
+  border: 1px solid #a8a8a8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px;
+  font-weight: 350;
+  color: #000000;
+  margin: 0 auto;
+}
+
+/* 탭 네비게이션 */
+.modal-tabs {
+  display: flex;
+  margin-top: 30px;
+  justify-content: center;
+  gap: 0;
+}
+
+.modal-tab {
+  width: 76px;
+  height: 42px;
+  border: 1px solid #b3b3b3;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.modal-tab:first-child {
+  border-radius: 0;
+}
+
+.modal-tab:last-child {
+  border-radius: 0;
+  border-left: none;
+}
+
+.modal-tab.active {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.modal-tab:not(.active) {
+  background-color: #e4e4e4;
+  color: #7c7c7c;
+}
+
+/* 모달 컨텐츠 */
+.modal-content {
+  padding: 20px 40px 0 40px;
+  height: calc(100% - 380px);
+  overflow-y: auto;
+}
+
+/* 정보 컨텐츠 */
+.info-content {
+  height: 100%;
+}
+
+.restaurant-info {
+  margin-bottom: 30px;
+}
+
+.restaurant-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: #000000;
+  margin: 0 0 8px 0;
+}
+
+.restaurant-address {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #000000;
+  margin: 0;
+  line-height: 22.4px;
+}
+
+.restaurant-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.detail-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #666;
+}
+
+/* 리뷰 컨텐츠 */
+.review-content {
+  height: 100%;
+}
+
+.review-input-section {
+  background-color: #e4e4e4;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.review-textarea {
+  width: 100%;
+  height: 80px;
+  border: none;
+  background: transparent;
+  resize: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #000000;
+  outline: none;
+  padding: 0;
+  margin-bottom: 15px;
+}
+
+.review-textarea::placeholder {
+  color: #b3b3b3;
+}
+
+.review-submit-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 95px;
+  height: 34px;
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 6px;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #000000;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.review-submit-btn:hover {
+  background-color: #f8f8f8;
+}
+
+.existing-reviews {
+  margin-top: 20px;
+}
+
+.existing-reviews h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 20px;
+}
+
+.review-item {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.reviewer-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.review-rating {
+  color: #ffd700;
+  font-size: 14px;
+}
+
+.review-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #666;
+  line-height: 1.4;
+  margin: 0 0 8px 0;
+}
+
+.review-date {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  color: #999;
+}
+
+/* 모달 푸터 */
+.modal-footer {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.reservation-btn {
+  width: 180px;
+  height: 48px;
+  background-color: #000000;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  color: #f5f5f5;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.reservation-btn:hover {
+  background-color: #333;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .modal-container {
+    width: 90vw;
+    height: 90vh;
+    max-width: 500px;
+    max-height: 700px;
+  }
+  
+  .modal-image-section {
+    padding: 20px;
+  }
+  
+  .modal-image-placeholder {
+    width: 100%;
+    height: 200px;
+  }
+  
+  .modal-tabs {
+    margin-left: 20px;
+    margin-right: 20px;
+    justify-content: center;
+  }
+  
+  .modal-content {
+    padding: 20px;
+    height: calc(100% - 350px);
+  }
+  
+  .restaurant-name {
+    font-size: 20px;
+  }
+  
+  .restaurant-address {
+    font-size: 14px;
+  }
+  
+  .review-textarea {
+    font-size: 16px;
+    height: 80px;
+  }
+  
+  .modal-footer {
+    bottom: 20px;
+  }
+  
+  .reservation-btn {
+    width: 150px;
+    height: 40px;
+    font-size: 14px;
+  }
+} 

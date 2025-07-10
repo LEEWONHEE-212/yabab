@@ -1,6 +1,6 @@
 import './App.css';
-import MainStadium from './components/main_stadium';
-
+import MainStadium from './pages/StadiumPage';
+import RestaurantPage from './pages/RestaurantPage';
 function App() {
   return (
     <div className="App">

@@ -37,14 +37,14 @@ const StadiumPage = () => {
     if (!container) return;
 
     const options = {
-      center: new window.kakao.maps.LatLng(37.5683, 126.8974), // 서울월드컵경기장 좌표
+      center: new window.kakao.maps.LatLng(36.316262, 127.431303), // 대전한화생명볼파크 좌표
       level: 3
     };
 
     const map = new window.kakao.maps.Map(container, options);
 
     // 마커 추가
-    const markerPosition = new window.kakao.maps.LatLng(37.5683, 126.8974);
+    const markerPosition = new window.kakao.maps.LatLng(36.316262, 127.431303);
     const marker = new window.kakao.maps.Marker({
       position: markerPosition
     });
@@ -52,27 +52,22 @@ const StadiumPage = () => {
 
     // 인포윈도우 추가
     const infowindow = new window.kakao.maps.InfoWindow({
-      content: '<div style="padding:5px;font-size:12px;width:150px;text-align:center;">서울월드컵경기장</div>'
+      content: '<div style="padding:5px;font-size:12px;width:150px;text-align:center;">대전한화생명볼파크</div>'
     });
     infowindow.open(map, marker);
   };
 
   // 시설 소개 데이터
   const facilityData = {
-    name: '서울월드컵경기장',
-    description: '2002년 FIFA 월드컵을 위해 건설된 대한민국 최대 규모의 축구 전용 경기장입니다.',
-    capacity: '66,704명',
+    name: '대전한화생명볼파크',
+    description: '',
+    capacity: '',
     location: '서울특별시 마포구 월드컵로 240',
     facilities: [
-      '주차장 (2,000대)',
-      'VIP 라운지',
-      '프레스 센터',
-      '의무실',
-      '매점 및 편의시설',
-      '장애인 편의시설'
+      '',
     ],
-    openingHours: '경기 일정에 따라 운영',
-    contact: '02-2128-2002'
+    openingHours: '',
+    contact: ''
   };
 
   // 맛집 데이터 (구장 내부/외부 구분)
@@ -283,25 +278,26 @@ const StadiumPage = () => {
   return (
     <div className="stadium-page">
       {/* Header */}
-      <header className="stadium-header">
-        <div className="container">
-          <div className="logo-section">
-            <div className="logo-placeholder">로고</div>
+      <header className="main-header">
+        <div className="header-container">
+
+          <div className="header-left">
+            <img src="./yabab-logo.png" alt="로고" />
           </div>
-          <div className="login-section">
-            <button className="login-btn">로그인/회원가입</button>
+
+          <nav className="header-center">
+            <a href="#">홈</a>
+            <a href="#">응원피드</a>
+            <a href="#">선수 추천 맛집</a>
+            <a href="#">마이페이지</a>
+          </nav>
+
+          <div className="header-right">
+            <a href="#">로그인</a>
           </div>
+
         </div>
       </header>
-
-      {/* Back Button */}
-      <section className="back-section">
-        <div className="container">
-          <div className="back-button">
-            <span>이전으로 &gt;</span>
-          </div>
-        </div>
-      </section>
 
       {/* Kakao Map Section */}
       <section className="map-section">

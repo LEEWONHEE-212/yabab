@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "fs.human.yabab.auth.dao.AuthDAO">
+
+    <insert id="insertUser" parameterType="fs.human.yabab.auth.vo.UserVO">
+        INSERT INTO TB_USER (
+            USER_ID,
+            USER_NAME,
+            USER_NICKNAME,
+            USER_EMAIL,
+            USER_PASSWORD,
+            USER_PHONE,
+            USER_ROLE,
+            USER_IMAGE_PATH,
+            USER_IMAGE_NAME,
+            USER_JOINDATE,
+            USER_FAVORITE_TEAM,
+            CREATED_DATE,
+            CREATED_BY,
+            UPDATED_DATE,
+            UPDATED_BY
+        ) VALUES (
+            #{userId},
+            #{userName},
+            #{userNickname},
+            #{userEmail},
+            #{userPassword},
+            #{userPhone},
+            #{userRole},
+            #{userImagePath},
+            #{userFavoriteTeam},
+            SYSDATE,
+            #{userEmail}
+            NULL,
+            NULL
+        )
+    </insert>
+</mapper>

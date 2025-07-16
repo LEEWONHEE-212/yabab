@@ -9,7 +9,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = "userPassword")
+@ToString(exclude = {"userPassword", "confirmPassword"})
 public class UserVO extends BaseVO {
     private String userId;
     private String userName;
@@ -23,4 +23,8 @@ public class UserVO extends BaseVO {
     private String userImageName;
     private Date userJoindate;
     private String userFavoriteTeam;
+
+    //  비밀번호 확인용 필드 (DB 컬럼 없음)
+    //  MyBatis 매핑, JPA 매핑, JSON 직렬화 모두 제외
+    private transient String confirmPassword;
 }

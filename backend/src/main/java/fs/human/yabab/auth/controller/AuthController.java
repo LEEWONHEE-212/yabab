@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -23,19 +24,18 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> insertUser(@RequestBody UserVO userVO) {
         Map<String, Object> responseMap = new HashMap<>();
 
+        //  역할 유효성 검사
+        List<String> allowedRoles = List.of("GUEST", "OWNER");
+        if(!allowedRoles.contains(userVO.getUserRole())) {
+            responseMap.put("success", false);
+            responseMap.put("message", "허용되지 않은 사용자 역할입니다.");
+            return ResponseEntity.badRequest().body(responseMap);
+        }
         //  비밀번호 일치 여부 검사
         //  요청으로 들어온 password와 confirmPassword가 동일해야 회원가입 진행
         if(!userVO.getUserPassword().equals(userVO.getConfirmPassword())) {
             responseMap.put("success", false);
             responseMap.put("message", "비밀번호가 일치하지 않습니다.");
-            return ResponseEntity.badRequest().body(responseMap);
-        }
-
-        //  이메일 인증 여부 확인
-        boolean checkVerified = authService.checkEmailVerified(userVO.getUserEmail());
-        if(!checkVerified) {
-            responseMap.put("success", false);
-            responseMap.put("message", "이메일 인증이 완료되지 않았습니다.");
             return ResponseEntity.badRequest().body(responseMap);
         }
 
@@ -94,6 +94,19 @@ public class AuthController {
     }
 
     //  이메일 인증번호 전송
-    @PostMapping("/sendVerification")
-    public ResponseEntity<Map<String, Object>> sendVerificationCode(@RequestParam String)
+    @PostMapping("/sendAuthCode")
+    public ResponseEntity<Map<String, Object>> sendAuthCode(@RequestParam String email) {
+        Map<String, Object> responseMap = new HashMap<>();
+
+        try{
+            authService.createAndSendAuthCode(email);
+            responseMap.put("result", true);
+            responseMap.put("message", "인증 코드가 이메일로 전송되었습니다.");
+            return ResponseEntity.ok(responseMap);
+        } catch (Exception e) {
+            responseMap.put("result", false);
+            responseMap.put("message", "인증 코드 전송 중 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+        }
+    }
 }

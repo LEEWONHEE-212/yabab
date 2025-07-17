@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.auth.dao.ResetTokenDAO">
+    <insert id="insertResetToken" parameterType="fs.human.yabab.auth.vo.ResetTokenVO">
+        INSERT INTO TB_RESET_TOKEN (
+            TOKEN_ID,
+            TARGET_EMAIL,
+            AUTH_CODE,
+            EXPIRED_TIME,
+            USED_FLAG
+        ) VALUES (
+            #{tokenId},
+            #{targetEmail},
+            #{authCode},
+            #{expiredTime},
+            #{usedFlag}
+        )
+    </insert>
+
+    <select id="countVerifiedTokenByEmail" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM TB_RESET_TOKEN
+        WHERE TARGET_EMAIL = #{email}
+            AND AUTH_CODE = #{code}
+            AND USED_FLAG = 0
+            AND EXPIRED_TIME > SYSDATE
+    </select>
+
+    <update id="markTokenAsUsed">
+        UPDATE TB_RESET_TOKEN
+        SET USED_FLAG = 1
+        WHERE TARGET_EMAIL = #{email}
+            AND AUTH_CODE = #{code}
+    </update>
+</mapper>

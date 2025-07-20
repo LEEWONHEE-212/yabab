@@ -1,0 +1,240 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  background-color: #fff;
+}
+
+    
+/* 헤더 전체 */
+.main-header {
+  background-color:#2D2A32;
+  padding: 25px 40px;
+  border-bottom: 1px solid #2e2e2e;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 왼쪽 로고 */
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-left img {
+  height: 40px;
+}
+
+/* 중앙 메뉴 */
+.header-center {
+  display: flex;
+  gap: 40px;
+}
+
+.header-center a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.header-center a:hover {
+  color: orange;
+}
+
+/* 오른쪽 메뉴 */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-right a {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.header-right a:hover {
+  color: orange;
+}
+
+.center a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.center a:hover {
+  color: orange;
+}
+
+/* 오른쪽 로그인 텍스트 */
+.right {
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+
+.home-btn {
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  background: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-btn {
+  background: #666;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.container {
+  display: flex;
+  max-width: 1000px;
+  margin: 60px auto;
+  padding: 0 40px;
+}
+
+.sidebar {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  font-size: 14px;
+  color: #666;
+  margin-top: 30px;
+}
+
+.sidebar .active {
+  font-weight: bold;
+  color: black;
+}
+
+.sidebar a {
+  color: #666;
+  text-decoration: none;
+}
+
+.login-form {
+  width: 70%;
+  padding-left: 40px;
+}
+
+.login-form h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+.login-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-form label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.login-form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.password-wrap {
+  position: relative;
+}
+
+/* .eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  cursor: pointer;
+  color: #999;
+} */
+
+.submit-btn {
+  background-color: #999;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+  margin-top: 10px;
+}
+
+.kakao-submit-btn {
+  background-color: #FEE500;
+  color: #000;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+  margin-top: 10px;
+}
+
+.signup-wrap {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.signup-btn {
+  background: #999;
+  color: white;
+  padding: 10px 40px;
+  text-decoration: none;
+  border-radius: 30px;
+  font-size: 14px;
+  display: inline-block;
+}
+
+.login-extra {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.login-extra a {
+  color: orange;
+  text-decoration: none;
+}
+
+.login-extra a:hover {
+  text-decoration: underline;
+}
+
+.login-extra p {
+  margin: 5px 0;
+}

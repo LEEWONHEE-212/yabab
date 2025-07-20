@@ -1,0 +1,82 @@
+/* 헤더 전체 */
+.main-header {
+  background-color:#2D2A32;
+  padding: 25px 40px;
+  border-bottom: 1px solid #2e2e2e;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 왼쪽 로고 */
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-left img {
+  height: 40px;
+}
+
+/* 중앙 메뉴 */
+.header-center {
+  display: flex;
+  gap: 40px;
+}
+
+.header-center a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.header-center a:hover {
+  color: orange;
+}
+
+/* 오른쪽 메뉴 */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-right a {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.header-right a:hover {
+  color: orange;
+}
+
+.center a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.center a:hover {
+  color: orange;
+}
+
+/* 오른쪽 로그인 텍스트 */
+.right {
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+}

@@ -2,6 +2,7 @@ package fs.human.yabab.auth.controller;
 
 import fs.human.yabab.auth.service.AuthService;
 import fs.human.yabab.auth.vo.UserVO;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +24,10 @@ public class AuthController {
     @PostMapping("/addUser")
     public ResponseEntity<Map<String, Object>> insertUser(@RequestBody UserVO userVO) {
         Map<String, Object> responseMap = new HashMap<>();
+        System.out.println("🔍 [회원가입 요청] 받은 값: " + userVO);
 
         //  역할 유효성 검사
-        List<String> allowedRoles = List.of("GUEST", "OWNER");
+        List<Integer> allowedRoles = List.of(1, 2);
         if(!allowedRoles.contains(userVO.getUserRole())) {
             responseMap.put("success", false);
             responseMap.put("message", "허용되지 않은 사용자 역할입니다.");
@@ -53,6 +55,7 @@ public class AuthController {
                 return ResponseEntity.badRequest().body(responseMap);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             responseMap.put("success", false);
             responseMap.put("message", "서버 오류" + e.getMessage());
             return ResponseEntity.internalServerError().body(responseMap);
@@ -108,5 +111,76 @@ public class AuthController {
             responseMap.put("message", "인증 코드 전송 중 오류가 발생했습니다.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
         }
+    }
+
+    //  이메일 인증번호 확인
+    @PostMapping("/verifyAuthCode")
+    public ResponseEntity<Map<String, Object>> verifyAuthCode(@RequestBody Map<String, String> request) {
+        Map<String, Object> responseMap = new HashMap<>();
+        String email = request.get("email");
+        String authCode = request.get("authCode");
+
+        boolean verified = authService.verifyAuthCode(email, authCode);
+
+        responseMap.put("verified", verified);
+        responseMap.put("message", verified
+                            ? "이메일 인증이 완료되었습니다."
+                            : "인증 코드가 올바르지 않거나 만료되었습니다."
+        );
+        return ResponseEntity.ok(responseMap);
+    }
+
+    //  로그인
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(@RequestBody UserVO userVO, HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
+
+        //  사용자 정보 DB에서 조회 (아이디 + 비밀번호 확인용")
+        UserVO loginUser = authService.authenticateUser(userVO.getUserId(), userVO.getUserPassword());
+
+        if(loginUser == null) {
+            //  로그인 실패 시 메세지 전송
+            responseMap.put("success", false);
+            responseMap.put("message", "아이디 또는 비밀번호가 일치하지 않습니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        } else {
+
+            //  로그인 성공 - 세션에 사용자 정보 저장
+            session.setAttribute("loginUser", loginUser);
+
+            //  성공 응답
+            responseMap.put("success", true);
+            responseMap.put("message", "로그인 성공");
+            responseMap.put("user",loginUser);
+            return ResponseEntity.ok(responseMap);
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
+        //  현재 세션 무효화 -> 로그인 정보 초기화
+        session.invalidate();
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("success", true);
+        responseMap.put("message","로그아웃 완료");
+        return ResponseEntity.ok(responseMap);
+    }
+
+    @PostMapping("/findId")
+    public ResponseEntity<Map<String, Object>> findId(@RequestBody UserVO userVO) {
+        Map<String, Object> responseMap = new HashMap<>();
+
+        String foundId = authService.findUserId(userVO.getUserName(), userVO.getUserEmail());
+
+        if(foundId != null) {
+            responseMap.put("success", true);
+            responseMap.put("userId", foundId);
+        } else {
+            responseMap.put("success", false);
+            responseMap.put("message", "일치하는 회원 정보가 없습니다.");
+        }
+
+        return ResponseEntity.ok(responseMap);
     }
 }

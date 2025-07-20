@@ -1,0 +1,210 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
+    }
+
+/* 헤더 전체 */
+.main-header {
+  background-color:#2D2A32;
+  padding: 25px 40px;
+  border-bottom: 1px solid #2e2e2e;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 왼쪽 로고 */
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-left img {
+  height: 40px;
+}
+
+/* 중앙 메뉴 */
+.header-center {
+  display: flex;
+  gap: 40px;
+}
+
+.header-center a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.header-center a:hover {
+  color: orange;
+}
+
+/* 오른쪽 메뉴 */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-right a {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.header-right a:hover {
+  color: orange;
+}
+
+.center a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.center a:hover {
+  color: orange;
+}
+
+/* 오른쪽 로그인 텍스트 */
+.right {
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.banner {
+  margin: 40px auto;
+  width: 90%;
+  max-width: 1060px;
+  height: 150px;
+  background-color: #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  color: #666;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.banner a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 경기 일정 */
+.schedule-section {
+  width: 90%;
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.schedule-section h2 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.schedule-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.game-card {
+  background-color: #f4f4f4;
+  border-radius: 12px;
+  width: 152px;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.game-card .stadium {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.match {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.team-logo {
+  width: 40px;
+  height: 40px;
+}
+
+.team-names {
+  font-size: 13px;
+  margin-top: 4px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/*팀 카드*/
+.team-section {
+width: 90%;
+max-width: 1000px;
+margin: 40px auto;
+background-color: #fff;
+padding: 32px;
+border-radius: 12px;
+box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+.team-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+gap: 24px;
+margin-top: 20px;
+}
+.team-card {
+background-color: #f0f0f0;
+border-radius: 8px;
+padding: 16px;
+text-align: center;
+}
+.team-card img {
+width: 100px;
+height: 100px;
+object-fit: contain;
+}
+.team-card h3 {
+margin: 12px 0 8px;
+font-size: 16px;
+}
+.team-card button {
+padding: 6px 12px;
+font-size: 14px;
+margin: 4px;
+border: none;
+border-radius: 6px;
+background-color: #333;
+color: white;
+cursor: pointer;
+}
+.team-card button:hover {
+background-color: #555;
+}

@@ -40,10 +40,10 @@ public class AuthService {
         return authDAO.countUserNickname(userNickname) > 0;
     }
 
-    //  이메일 인증 여부 확인
-    public boolean checkEmailVerified(String email) {
-        return resetTokenDAO.countVerifiedTokenByEmail(email) > 0;
-    }
+//    //  이메일 인증 여부 확인
+//    public boolean checkEmailVerified(String email) {
+//        return resetTokenDAO.countVerifiedTokenByEmail(email) > 0;
+//    }
 
     //  이메일 인증코드 생성 및 전송
     public void createAndSendAuthCode(String email) {
@@ -64,5 +64,26 @@ public class AuthService {
     //  인증 코드 생성 (6자리)
     private String generateAuthCode() {
         return String.format("%06d", new Random().nextInt(1000000));
+    }
+
+    //  인증 코드 확인
+    public boolean verifyAuthCode(String email, String authCode) {
+        ResetTokenVO token = resetTokenDAO.findTokenByEmailAndCode(email, authCode);
+        if(token != null ) {
+            //  인증성공 -> 사용 처리
+            resetTokenDAO.useToken(token.getTokenId());
+            return true;
+        }
+        return false;
+    }
+
+    //  사용자 인증( userId, userPassword 일치 여부)
+    public UserVO authenticateUser(String userId, String userPassword) {
+        return authDAO.findUserByIdAndPw(userId, userPassword);
+    }
+
+    //  아이디 찾기
+    public String findUserId(String userName, String userEmail) {
+        return authDAO.findUserIdByNameAndEmail(userName, userEmail);
     }
 }

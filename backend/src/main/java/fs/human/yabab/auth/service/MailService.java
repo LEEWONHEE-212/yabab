@@ -12,7 +12,9 @@ public class MailService {
 
     public void sendVerificationEmail(String toEmail, String authCode) {
         String subject = "[YABAB] 이메일 인증 코드";
-        String content = "다음 인증 코드를 입력해주세요" + authCode + "\n\n유효 시간: 5분";
+        String content = "다음 인증 코드를 입력해주세요\n\n" +
+                         "인증 코드: " + authCode + "\n\n" +
+                         "유효 시간: 5분";
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);

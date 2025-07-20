@@ -37,14 +37,14 @@ const StadiumPage = () => {
     if (!container) return;
 
     const options = {
-      center: new window.kakao.maps.LatLng(36.316262, 127.431303), // 대전한화생명볼파크 좌표
+      center: new window.kakao.maps.LatLng(36.31615273951669, 127.43152938414454), // 대전한화생명볼파크 좌표
       level: 3
     };
 
     const map = new window.kakao.maps.Map(container, options);
 
     // 마커 추가
-    const markerPosition = new window.kakao.maps.LatLng(36.316262, 127.431303);
+    const markerPosition = new window.kakao.maps.LatLng(36.31615273951669, 127.43152938414454);
     const marker = new window.kakao.maps.Marker({
       position: markerPosition
     });

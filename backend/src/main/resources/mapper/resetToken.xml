@@ -20,19 +20,21 @@
         )
     </insert>
 
-    <select id="countVerifiedTokenByEmail" parameterType="string" resultType="int">
-        SELECT COUNT(*)
+    <!-- 유효한 인증 코드 조회 -->
+    <select id="findTokenByEmailAndCode" resultType="fs.human.yabab.auth.vo.ResetTokenVO">
+        SELECT *
         FROM TB_RESET_TOKEN
         WHERE TARGET_EMAIL = #{email}
             AND AUTH_CODE = #{code}
             AND USED_FLAG = 0
             AND EXPIRED_TIME > SYSDATE
+        ORDER BY EXPIRED_TIME DESC
+        FETCH FIRST 1 ROWS ONLY
     </select>
-
-    <update id="markTokenAsUsed">
+    <!-- 인증 성공 시 사용 처리 -->
+    <update id="useToken" parameterType="string">
         UPDATE TB_RESET_TOKEN
         SET USED_FLAG = 1
-        WHERE TARGET_EMAIL = #{email}
-            AND AUTH_CODE = #{code}
+        WHERE TOKEN_ID = #{tokenId}
     </update>
 </mapper>

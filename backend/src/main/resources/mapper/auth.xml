@@ -30,10 +30,12 @@
             #{userPassword},
             #{userPhone},
             #{userRole},
-            #{userImagePath},
-            #{userFavoriteTeam},
+            #{userImagePath, jdbcType=VARCHAR},
+            #{userImageName, jdbcType=VARCHAR},
             SYSDATE,
-            #{userEmail}
+            #{userFavoriteTeam, jdbcType=VARCHAR},
+            SYSDATE,
+            #{userEmail},
             NULL,
             NULL
         )
@@ -52,4 +54,15 @@
     <select id="countVerifiedTokenByEmail" parameterType="string" resultType="int">
         SELECT COUNT(*) FROM TB_RESET_TOKEN WHERE TARGET_MAIL = #{email}
     </select>
+
+    <!-- 사용자 인증 -->
+    <select id="findUserByIdAndPw" resultType="UserVO">
+        SELECT * FROM TB_USER WHERE USER_ID = #{userId} AND USER_PASSWORD = #{userPassword} AND USER_DELETED_FLAG = 0
+    </select>
+
+    <!-- 아이디 찾기 -->
+    <select id="findUserIdByNameAndEmail" resultType="string">
+        SELECT USER_ID FROM TB_USER WHERE USER_NAME = #{userName} AND USER_EMAIL = #{userEmail}
+    </select>
+
 </mapper>

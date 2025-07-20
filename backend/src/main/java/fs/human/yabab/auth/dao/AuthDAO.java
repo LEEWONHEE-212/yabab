@@ -15,4 +15,10 @@ public interface AuthDAO {
 
     //  닉네임 중복 확인
     int countUserNickname(String userNickname);
+
+    //  사용자 인증
+    UserVO findUserByIdAndPw(@Param("userId") String userId, @Param("userPassword") String userPassword);
+
+    //  아이디 찾기
+    String findUserIdByNameAndEmail(@Param("userName") String userName, @Param("userEmail") String userEmail);
 }

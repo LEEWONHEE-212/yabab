@@ -35,7 +35,7 @@ const Header = () => {
                         </>
                     ) : (
                         <>
-                            <Link to="/login">로그인</Link>
+                            <Link to="/auth/login">로그인</Link>
                         </>
                     )}
                 </div>

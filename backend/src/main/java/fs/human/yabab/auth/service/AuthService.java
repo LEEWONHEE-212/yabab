@@ -86,4 +86,18 @@ public class AuthService {
     public String findUserId(String userName, String userEmail) {
         return authDAO.findUserIdByNameAndEmail(userName, userEmail);
     }
+
+    //  비밀번호 재설정
+    public boolean updatePassword(UserVO userVO) {
+        //  해당 아이디 + 이메일 조합이 존재하는지 확인
+        int count = authDAO.countUserByIdAndEmail(userVO.getUserId(), userVO.getUserEmail());
+
+        if(count == 0) {
+            return false;
+        } else {
+            //  존재하면 비밀번호 업데이트 진행
+            int updateRows = authDAO.updateUserPassword(userVO);
+            return updateRows > 0;
+        }
+    }
 }

@@ -21,4 +21,10 @@ public interface AuthDAO {
 
     //  아이디 찾기
     String findUserIdByNameAndEmail(@Param("userName") String userName, @Param("userEmail") String userEmail);
+
+    //  유저 존재 확인
+    int countUserByIdAndEmail(@Param("userId") String userId, @Param("userEmail") String userEmail);
+
+    //  비밀번호 업데이트
+    int updateUserPassword(UserVO userVo);
 }

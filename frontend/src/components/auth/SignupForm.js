@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import axios from 'axios';
 import './SignupForm.css';
 import Header from '../common/Header';
+import { Link } from 'react-router-dom';
 
 const SignupForm = () => {
     //  입력된 사용자 정보를 상태로 관리
@@ -184,10 +185,10 @@ const SignupForm = () => {
             {/*본문*/}
             <main className='container'>
                 <aside className='sidebar'>
-                    <a href='#'>로그인</a>
+                    <Link to="/auth/login">로그인</Link>
                     <span className='active'>회원가입</span>
-                    <a href='#'>아이디 찾기</a>
-                    <a href='#'>비밀번호 찾기</a>
+                    <Link to="/auth/find-id">아이디 찾기</Link>
+                    <Link to="/auth/find-pwd">비밀번호 찾기</Link>
                 </aside>
 
                 <section className='signup-form'>

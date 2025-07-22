@@ -1,6 +1,6 @@
 import React, {useContext, useState} from "react";
 import './LoginForm.css';
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import Header from "../common/Header";
 import { UserContext } from "../../context/UserContext";
@@ -41,10 +41,10 @@ const LoginForm = () => {
                 setUser(loginUser);     //  UserContext에 저장
                 sessionStorage.setItem("user", JSON.stringify(loginUser));     //  새로고침에도 유지
 
-                 // ✅ 디버깅용 로그
-            console.log("로그인한 사용자 정보:", loginUser);
-            console.log("Context 상태 확인:", loginUser);  // 여기선 user보다 loginUser 출력이 정확함
-            
+                 // 디버깅용 로그
+                console.log("로그인한 사용자 정보:", loginUser);
+                console.log("Context 상태 확인:", loginUser);  // 여기선 user보다 loginUser 출력이 정확함
+
                 alert("로그인 성공");
                 navigate('/');  //  홈 페이지로 이동
             } else {
@@ -63,9 +63,9 @@ const LoginForm = () => {
             <main className="container">
                 <aside className="sidebar">
                     <span className="active">로그인</span>
-                    <a href="#">회원가입</a>
-                    <a href="#">아이디 찾기</a>
-                    <a href="#">비밀번호 찾기</a>
+                    <Link to="/auth/signup">회원가입</Link>
+                    <Link to="/auth/find-id">아이디 찾기</Link>
+                    <Link to="/auth/find-pwd">비밀번호 찾기</Link>
                 </aside>
 
                 <section className="login-form">
@@ -105,10 +105,10 @@ const LoginForm = () => {
 
                         {/* 회원가입 및 계정 찾기 링크 */}
                         <div className="login-extra">
-                            <p>yabab 회원이 아니세요? <a href="#">회원가입</a></p>
+                            <p>yabab 회원이 아니세요? <Link to="/auth/signup">회원가입</Link></p>
                             <p>
-                                <a href="#">아이디 찾기</a> &nbsp; | &nbsp;
-                                <a href="#">비밀번호 찾기</a>
+                                <Link to="/auth/find-id">아이디 찾기</Link> &nbsp; | &nbsp;
+                                <Link to="/auth/find-pwd">비밀번호 찾기</Link>
                             </p>
                         </div>
                     </form>

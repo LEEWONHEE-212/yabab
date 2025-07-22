@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import axios from "axios";
 import './FindIdForm.css';
 import Header from "../common/Header";
+import { Link } from "react-router-dom";
 
 const FindIdForm = () => {
     const [formData, setFormData] = useState({
         userName:'',
         userEmail:'',
-        emailCode:'',
     });
 
+    const [emailCode, setEmailCode] = useState('');
     const [emailVerifed, setEmailverified] = useState(false);
     const [foundId, setFoundId] = useState('');
 
@@ -50,7 +51,7 @@ const FindIdForm = () => {
                 'http://localhost:18090/auth/verifyAuthCode',
                 {
                     email: formData.userEmail,
-                    authCode: formData.emailCode,
+                    authCode: emailCode,
                 },
                 {
                     headers: {
@@ -105,10 +106,10 @@ const FindIdForm = () => {
             <Header />
             <main className="container">
                 <aside className="sidebar">
-                    <a href="#">로그인</a>
-                    <a href="#">회원가입</a>
+                    <Link to="/auth/login">로그인</Link>
+                    <Link to="/auth/signup">회원가입</Link>
                     <span className="active">아이디 찾기</span>
-                    <a href="#">비밀번호 찾기</a>
+                    <Link to="/auth/find-pwd">비밀번호 찾기</Link>
                 </aside>
 
                 <section className="form-box">
@@ -148,8 +149,8 @@ const FindIdForm = () => {
                                     type="text"
                                     id="emailCode"
                                     name="emailCode"
-                                    value={formData.emailCode}
-                                    onChange={handleChange}
+                                    value={emailCode}
+                                    onChange={(e) => setEmailCode(e.target.value)}
                                 />
                                 <button type="button" onClick={handleVerifyAuthCode}>인증번호 확인</button>
                             </div>

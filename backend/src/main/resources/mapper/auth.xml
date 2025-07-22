@@ -55,7 +55,7 @@
         SELECT COUNT(*) FROM TB_RESET_TOKEN WHERE TARGET_MAIL = #{email}
     </select>
 
-    <!-- 사용자 인증 -->
+    <!-- 사용자 인증 (로그인)-->
     <select id="findUserByIdAndPw" resultType="UserVO">
         SELECT * FROM TB_USER WHERE USER_ID = #{userId} AND USER_PASSWORD = #{userPassword} AND USER_DELETED_FLAG = 0
     </select>
@@ -64,5 +64,15 @@
     <select id="findUserIdByNameAndEmail" resultType="string">
         SELECT USER_ID FROM TB_USER WHERE USER_NAME = #{userName} AND USER_EMAIL = #{userEmail}
     </select>
+
+    <!-- 유저 존재 확인 (비밀번호 찾기) -->
+    <select id="countUserByIdAndEmail" resultType="int">
+        SELECT COUNT(*) FROM TB_USER WHERE USER_ID = #{userId} AND USER_EMAIL = #{userEmail}
+    </select>
+
+    <!-- 비밀번호 업데이트 -->
+    <update id="updateUserPassword" parameterType="fs.human.yabab.auth.vo.UserVO">
+        UPDATE TB_USER SET USER_PASSWORD = #{userPassword} WHERE USER_ID = #{userId} AND USER_EMAIL = #{userEmail}
+    </update>
 
 </mapper>

@@ -32,8 +32,6 @@ const Main = () => {
                         <div className="team-card" key={index}>
                             <img src={`./Emblem/${team.emblem}`} alt={`${team.name} 팀 로고`} />
                             <h3>{team.name}</h3>
-                            <button>구장 내 보기</button>
-                            <button>구장 주변 보기</button>
                         </div>
                     ))}
                 </div>

@@ -183,4 +183,30 @@ public class AuthController {
 
         return ResponseEntity.ok(responseMap);
     }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, Object>> resetPassword(@RequestBody UserVO userVO) {
+        Map<String, Object> responseMap = new HashMap<>();
+
+        //  유효성 검사
+        if(userVO.getUserId() == null || userVO.getUserEmail() == null || userVO.getUserPassword() == null) {
+            responseMap.put("success", false);
+            responseMap.put("message", "입력값이 누락되었습니다.");
+            return ResponseEntity.badRequest().body(responseMap);
+        }
+
+        //  비밀번호 업데이트 시도
+        boolean result = authService.updatePassword(userVO);
+
+        if(result) {
+            responseMap.put("success", true);
+            responseMap.put("message", "비밀번호가 성공적으로 변경되었습니다.");
+        } else {
+            responseMap.put("success", false);
+            responseMap.put("message", "일치하는 회원 정보가 없습니다.");
+        }
+
+        return ResponseEntity.ok(responseMap);
+
+    }
 }

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.main.dao.GameScheduleDAO">
+
+    <select id="selectGameScheduleByDate" resultType="fs.human.yabab.main.vo.GameScheduleVO">
+        SELECT
+        g.GAME_ID             AS gameId,
+        g.HOME_TEAM_ID        AS homeTeamId,
+        g.AWAY_TEAM_ID        AS awayTeamId,
+        g.STADIUM_ID          AS stadiumId,
+        g.GAME_DATE           AS gameDate,
+        g.START_TIME          AS startTime,
+
+        ht.TEAM_NAME          AS homeTeamName,
+        at.TEAM_NAME          AS awayTeamName,
+        s.STADIUM_NAME        AS stadiumName,
+
+        CASE
+        WHEN s.STADIUM_NAME LIKE '%랜더스%' THEN '문학'
+        WHEN s.STADIUM_NAME LIKE '%잠실%' THEN '잠실'
+        WHEN s.STADIUM_NAME LIKE '%대전%' THEN '대전'
+        WHEN s.STADIUM_NAME LIKE '%광주%' THEN '광주'
+        WHEN s.STADIUM_NAME LIKE '%수원%' THEN '수원'
+        WHEN s.STADIUM_NAME LIKE '%대구%' THEN '대구'
+        WHEN s.STADIUM_NAME LIKE '%부산%' THEN '사직'
+        WHEN s.STADIUM_NAME LIKE '%고척%' THEN '고척'
+        WHEN s.STADIUM_NAME LIKE '%창원%' THEN '창원'
+        ELSE s.STADIUM_NAME
+        END AS stadiumAlias
+
+        FROM TB_GAME_SCHEDULE g
+        JOIN TB_TEAM ht ON g.HOME_TEAM_ID = ht.TEAM_ID
+        JOIN TB_TEAM at ON g.AWAY_TEAM_ID = at.TEAM_ID
+        JOIN TB_STADIUM s ON g.STADIUM_ID = s.STADIUM_ID
+        WHERE TO_CHAR(g.GAME_DATE, 'YYYY-MM-DD') = #{date}
+        ORDER BY g.START_TIME
+    </select>
+
+</mapper>

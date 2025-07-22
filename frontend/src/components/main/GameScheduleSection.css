@@ -1,0 +1,58 @@
+.calendar-container {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.nav-btn {
+  padding: 6px 10px;
+  font-size: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.recent-btn {
+  padding: 6px 14px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background-color: white;
+  color: black;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.recent-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.current-date {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.calendar-btn {
+  font-size: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* 오늘 날짜 강조 */
+.react-datepicker__day.today {
+  background-color: #e6f0ff;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.react-datepicker__day--outside-month {
+  visibility: hidden;
+}

@@ -1,6 +1,7 @@
 import React from "react";
 import './Main.css';
 import Header from "../common/Header";
+import GameScheduleSection from "./GameScheduleSection";
 
 const Main = () => {
     return (
@@ -13,6 +14,8 @@ const Main = () => {
                 </a>
             </div>
 
+            <GameScheduleSection />
+            
             {/*야구팀 목록 섹션*/}
             <section className="team-section">
                 <h2>야구팀</h2>

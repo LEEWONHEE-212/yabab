@@ -1,0 +1,33 @@
+.game-card {
+  background-color: #f4f4f4;
+  border-radius: 12px;
+  width: 152px;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.game-card .stadium {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.match {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.team-logo {
+  width: 40px;
+  height: 40px;
+}
+
+.team-names {
+  font-size: 13px;
+  margin-top: 4px;
+  font-weight: 600;
+  text-align: center;
+}

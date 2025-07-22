@@ -1,0 +1,19 @@
+.schedule-section {
+  width: 90%;
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.schedule-section h2 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.schedule-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}

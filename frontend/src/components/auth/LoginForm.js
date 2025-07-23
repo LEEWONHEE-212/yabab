@@ -81,6 +81,7 @@ const LoginForm = () => {
                                 placeholder="아이디를 입력해주세요"
                                 value={formData.userId}
                                 onChange={handleChange}
+                                required
                             />
                         </div>
 
@@ -94,6 +95,7 @@ const LoginForm = () => {
                                 placeholder="비밀번호를 입력해주세요"
                                 value={formData.userPassword}
                                 onChange={handleChange}
+                                required
                             />
                         </div>
 
@@ -101,7 +103,7 @@ const LoginForm = () => {
                         <button type="submit" className="submit-btn">로그인</button>
 
                         {/* 카카오 로그인 버튼 */}
-                        <button type="button" className="kakao-submit-btn">카카오로 로그인</button>
+                        <button type="button" className="kakao-btn">카카오로 로그인</button>
 
                         {/* 회원가입 및 계정 찾기 링크 */}
                         <div className="login-extra">

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.Stadium.dao.KakaoMapDAO">
+
+    <resultMap id="stadiumResultMap" type="fs.human.yabab.Stadium.vo.KakaoMapDTO">
+        <id property="stadiumId" column="STADIUM_ID"/>
+        <result property="stadiumName" column="STADIUM_NAME"/>
+        <result property="teamName1" column="TEAM_NAME1"/>
+        <result property="teamName2" column="TEAM_NAME2"/>
+        <result property="stadiumAddr1" column="STADIUM_ADDR1"/>
+        <result property="stadiumAddr2" column="STADIUM_ADDR2"/>
+        <result property="stadiumMapX" column="STADIUM_MAPX"/>
+        <result property="stadiumMapY" column="STADIUM_MAPY"/>
+        <result property="stadiumContent" column="STADIUM_CONTENT" jdbcType="CLOB"/> <result property="createdDate" column="CREATED_DATE"/>
+        <result property="createdBy" column="CREATED_BY"/>
+        <result property="updatedDate" column="UPDATED_DATE"/>
+        <result property="updatedBy" column="UPDATED_BY"/>
+    </resultMap>
+
+    <select id="findStadiumById" parameterType="long" resultMap="stadiumResultMap">
+        SELECT
+        STADIUM_ID,
+        STADIUM_NAME,
+        TEAM_NAME1,
+        TEAM_NAME2,
+        STADIUM_ADDR1,
+        STADIUM_ADDR2,
+        STADIUM_MAPX,
+        STADIUM_MAPY,
+        STADIUM_CONTENT,
+        CREATED_DATE,
+        CREATED_BY,
+        UPDATED_DATE,
+        UPDATED_BY
+        FROM tb_STADIUM
+        WHERE STADIUM_ID = #{stadiumId}
+    </select>
+
+</mapper>

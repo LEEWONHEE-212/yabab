@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.AddRestaurant.dao.AddRestaurantDAO">
+
+    <select id="selectAllStadiumNamesAndIds" resultType="fs.human.yabab.AddRestaurant.vo.StadiumDTO">
+        SELECT
+        STADIUM_ID AS id,
+        STADIUM_NAME AS name
+        FROM
+        tb_stadium
+    </select>
+
+    <select id="getZonesByStadiumId" resultType="fs.human.yabab.AddRestaurant.vo.ZoneDTO">
+        SELECT
+        ZONE_ID AS id,
+        ZONE_NAME AS name
+        FROM
+        TB_ZONE
+        WHERE
+        STADIUM_ID = #{stadiumId}
+        ORDER BY ZONE_NAME
+    </select>
+
+    <insert id="insertRestaurant" parameterType="fs.human.yabab.AddRestaurant.vo.RestaurantRegisterRequest">
+        INSERT INTO TB_RESTAURANT (
+        RESTAURANT_ID,
+        OWNER_ID,
+        STADIUM_ID,
+        ZONE_ID,
+        RESTAURANT_NAME,
+        RESTAURANT_ADDR1,
+        RESTAURANT_ADDR2,
+        RESTAURANT_LOCATION,
+        RESTAURANT_MAPX, RESTAURANT_MAPY, RESTAURANT_INSIDE_FLAG,
+        RESTAURANT_TEL,
+        RESTAURANT_IMAGE_PATH,
+        RESTAURANT_IMAGE_NAME,
+        RESTAURANT_OPEN_TIME,
+        RESTAURANT_LAST_ORDER,
+        RESTAURANT_BREAK_TIME,
+        RESTAURANT_REST_DAY,
+        RESTAURANT_RESV_STATUS,
+        CREATED_DATE,
+        CREATED_BY
+        ) VALUES (
+        1,
+        #{ownerId},
+        #{stadiumId},
+        #{zoneId},
+        #{restaurantName},
+        #{restaurantAddr1, jdbcType=VARCHAR},
+        #{restaurantAddr2, jdbcType=VARCHAR},
+        #{restaurantLocation, jdbcType=VARCHAR},
+        #{restaurantMapX, jdbcType=NUMERIC}, #{restaurantMapY, jdbcType=NUMERIC}, #{restaurantInsideFlag},
+        #{restaurantTel, jdbcType=VARCHAR},
+        #{restaurantImagePath, jdbcType=VARCHAR},
+        #{restaurantImageName, jdbcType=VARCHAR},
+        #{restaurantOpenTime, jdbcType=VARCHAR},
+        #{restaurantLastOrder, jdbcType=VARCHAR},
+        #{restaurantBreakTime, jdbcType=VARCHAR},
+        #{restaurantRestDay, jdbcType=VARCHAR},
+        #{restaurantResvStatus},
+        SYSDATE,
+        #{ownerId}
+        )
+    </insert>
+</mapper>

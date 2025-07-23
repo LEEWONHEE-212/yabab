@@ -1,0 +1,530 @@
+/* Restaurant.css */
+
+/* 모달 백드롭 (배경 어둡게) */
+.restaurant-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* 어두운 배경 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* 다른 요소들 위에 표시 */
+}
+
+/* 모달 내용 컨테이너 (모달 자체) */
+.restaurant-modal-content-wrapper {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    width: 50%; /* 모바일에서 90% */
+    max-width: 800px; /* 최대 너비 설정 */
+    height: 90%; /* 모바일에서 90% */
+    max-height: 90vh; /* 최대 높이 설정 (뷰포트 높이의 90%) */
+    display: flex;
+    flex-direction: column; /* 내부 요소를 수직으로 정렬 */
+    overflow: hidden; /* 내부 스크롤이 필요한 경우 대비 */
+}
+
+/* 닫기 버튼 */
+.restaurant-modal-close-button {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #555;
+    transition: color 0.2s ease-in-out;
+    z-index: 1010; /* 내용보다 위에 표시 */
+}
+
+.restaurant-modal-close-button:hover {
+    color: #333;
+}
+
+/* Restaurant 컴포넌트의 실제 내용을 담는 최상위 컨테이너 */
+.restaurant-modal-container {
+    flex-grow: 1; /* 남은 공간을 채우도록 설정 */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* 내용이 많아지면 스크롤 가능하게 */
+    padding-right: 15px; /* 스크롤바 공간 확보 */
+}
+
+/* 이미지 플레이스홀더 및 실제 이미지 중앙 정렬 */
+.restaurant-images-placeholder {
+    width: 100%;
+    min-height: 180px; /* 최소 높이 설정 (너무 작아지지 않게) */
+    max-height: 350px; /* 최대 높이 설정 (너무 커지지 않게) */
+    background-color: #e0e0e0; /* 플레이스홀더 배경색 */
+    display: flex; /* Flexbox 사용 */
+    justify-content: center; /* 수평 중앙 정렬 */
+    align-items: center; /* 수직 중앙 정렬 */
+    border-radius: 4px;
+    overflow: hidden; /* 이미지가 넘치는 것을 방지 */
+    margin-bottom: 20px;
+}
+
+.restaurant-detail-img {
+    width: 100%;
+    height: 100%;
+    object-fit: fill; /* 이미지가 잘리더라도 컨테이너를 가득 채움 */
+}
+
+.restaurant-image-text {
+    color: #888;
+    font-size: 18px;
+    text-align: center;
+}
+
+/* 탭 메뉴 */
+.restaurant-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.restaurant-tab-button {
+    background-color: transparent;
+    border: none;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    color: #888;
+    transition: color 0.2s ease-in-out, border-bottom 0.2s ease-in-out;
+}
+
+.restaurant-tab-button.active {
+    color: #333;
+    border-bottom: 3px solid #2D2A32; /* 활성 탭 밑줄 색상 변경 */
+}
+
+.restaurant-tab-button:hover:not(.active) {
+    color: #555;
+}
+
+/* 정보 섹션 */
+.restaurant-section-content {
+    padding: 10px;
+    flex-grow: 1; /* 남은 공간을 채우도록 설정 */
+    overflow-y: auto; /* 내용이 길어지면 스크롤 */
+    margin-bottom: 20px; /* 예약하기 버튼과의 간격 */
+    max-height: 400px; /* 이 값은 모달 내용 전체의 최대 높이에 따라 조정될 수 있음 */
+}
+
+/* 음식점 이름 글씨 크기 키움 */
+.restaurant-info-name {
+    font-size: 40px;
+    margin-bottom: 60px;
+    color: #333;
+    text-align: center;
+}
+
+/* 음식 정보 글자 줄 간격 늘림 */
+.restaurant-info-detail-text {
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #666;
+    line-height: 2.8;
+}
+
+.restaurant-info-detail-text strong {
+    color: #333;
+}
+
+/* 메뉴 섹션 */
+.restaurant-menu-section h2,
+.restaurant-review-section h2 {
+    font-size: 36px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.restaurant-menu-list {
+    list-style: none;
+    padding: 0;
+}
+
+.restaurant-menu-item {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.restaurant-menu-item:last-child {
+    border-bottom: none;
+}
+
+.restaurant-menu-item-name {
+    font-weight: bold;
+    font-size: 17px;
+    color: #444;
+    flex-basis: 70%;
+}
+
+.restaurant-menu-item-price {
+    font-size: 17px;
+    color: #2D2A32;
+    font-weight: bold;
+    flex-basis: 25%;
+    text-align: right;
+}
+
+.restaurant-menu-item-description {
+    font-size: 14px;
+    color: #777;
+    margin-top: 5px;
+    flex-basis: 100%;
+}
+
+/* 후기 섹션 */
+.restaurant-review-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.restaurant-review-item {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #eee;
+}
+
+.restaurant-review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.restaurant-review-author {
+    font-weight: bold;
+    color: #555;
+    font-size: 15px;
+}
+
+.restaurant-review-rating .star {
+    color: #ccc;
+    font-size: 20px;
+    margin-right: 2px;
+}
+
+.restaurant-review-rating .star.on {
+    color: gold;
+}
+
+/* 페이지네이션 컨트롤 */
+.restaurant-pagination-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.restaurant-page-button {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #555;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.restaurant-page-button.active {
+    background-color: #2D2A32;
+    color: white;
+    border-color: #2D2A32;
+}
+
+.restaurant-page-button:hover:not(.active) {
+    background-color: #e0e0e0;
+}
+
+/* 후기 작성 입력란 */
+.restaurant-review-input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 10px;
+    border: 1px solid #eee;
+}
+
+.restaurant-review-input-section h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 20px;
+}
+
+.restaurant-review-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 15px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+/* 별점 선택 컴포넌트 */
+.restaurant-star-rating {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.restaurant-star-rating button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    position: relative;
+    z-index: 1;
+}
+
+.restaurant-star-rating button:hover {
+    background-color: rgba(255, 215, 0, 0.1);
+    border-radius: 50%;
+}
+
+.restaurant-star-rating .star {
+    font-size: 30px;
+    color: #ccc;
+    transition: color 0.2s;
+}
+
+/* --- 여기가 핵심: 별점 활성화 시 색상 변경 --- */
+.restaurant-star-rating button.on .star {
+    color: gold;
+}
+
+.restaurant-star-rating button.off .star {
+    color: #ccc;
+}
+
+/* 작성 완료 버튼을 감싸는 div (가운데 정렬로 변경) */
+.restaurant-submit-button-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* 예약하기 버튼 (모달 하단에 고정) */
+.restaurant-reserve-button {
+    background-color: #2D2A32;
+    color: white;
+    border: none;
+    padding: 15px 0;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+    margin-top: auto;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.restaurant-reserve-button:hover {
+    background-color: #555;
+}
+
+/* 후기 작성 완료 버튼 (기본 크기 및 스타일) */
+.restaurant-submit-review-button {
+    background-color: #2D2A32;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+    width: auto;
+    min-width: 100px;
+}
+
+.restaurant-submit-review-button:hover {
+    background-color: #555;
+}
+
+/* 모바일 반응형 (768px 이하) - 통합 및 수정 */
+@media (max-width: 768px) {
+    .restaurant-modal-content-wrapper {
+        width: 95%;
+        height: 95%;
+        padding: 15px;
+    }
+
+    .restaurant-modal-close-button {
+        font-size: 24px;
+        top: 10px;
+        right: 15px;
+    }
+
+    .restaurant-images-placeholder {
+        height: 200px;
+    }
+
+    .restaurant-tab-button {
+        font-size: 15px;
+        padding: 10px 15px;
+    }
+
+    .restaurant-info-name {
+        font-size: 26px;
+    }
+
+    .restaurant-info-detail-text,
+    .restaurant-menu-item-name,
+    .restaurant-menu-item-price,
+    .restaurant-review-author,
+    .restaurant-review-text {
+        font-size: 14px;
+    }
+
+    .restaurant-menu-item-description,
+    .restaurant-review-date {
+        font-size: 12px;
+    }
+
+    .restaurant-star-rating .star {
+        font-size: 25px;
+    }
+
+    .restaurant-reserve-button,
+    .restaurant-submit-review-button {
+        font-size: 14px;
+        padding: 10px 15px;
+        min-width: 80px;
+    }
+}
+
+.restaurant-review-image-upload {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.restaurant-image-upload-label {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: #555;
+    transition: background-color 0.2s ease;
+}
+
+.restaurant-image-upload-label:hover {
+    background-color: #e0e0e0;
+}
+
+.restaurant-selected-image-name {
+    font-size: 0.85em;
+    color: #666;
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* --- 개별 리뷰에 첨부된 이미지 스타일 --- */
+.restaurant-review-image {
+    width: 100px; /* 리뷰 내 사진을 작게 표시 */
+    height: auto; /* 비율 유지 */
+    border-radius: 5px; /* 모서리 둥글게 */
+    margin-top: 10px; /* 위쪽 여백 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+    cursor: pointer; /* 클릭 가능한 요소임을 나타냄 */
+    transition: transform 0.2s ease-in-out; /* 확대/축소 애니메이션 */
+}
+
+.restaurant-review-image:hover {
+    transform: scale(1.05); /* 마우스 오버 시 약간 확대 */
+}
+
+/* --- 이미지 모달 (새로 추가) --- */
+.image-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* 어두운 배경 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* 모든 다른 모달보다 위에 표시 (높은 z-index) */
+}
+
+.image-modal-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent; /* 배경색 없음 */
+}
+
+.image-modal-content img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* 이미지가 잘리지 않고 전체 보이도록 */
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.image-modal-close-button {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    z-index: 2001; /* 이미지 위로 올라오도록 */
+    text-shadow: 0 0 5px rgba(0,0,0,0.5); /* 닫기 버튼 가독성 높이기 */
+}
+
+.image-modal-close-button:hover {
+    color: #f0f0f0;
+}

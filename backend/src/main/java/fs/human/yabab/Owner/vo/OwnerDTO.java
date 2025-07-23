@@ -1,4 +1,4 @@
-package fs.human.yabab.Owner.dto;
+package fs.human.yabab.Owner.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

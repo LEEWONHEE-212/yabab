@@ -115,7 +115,7 @@
         WHERE RESTAURANT_ID = #{id}
     </update>
 
-    <select id="findMenusByRestaurantId" parameterType="java.lang.Long" resultType="fs.human.yabab.Owner.vo.OwnerDTO">
+    <select id="findMenusByRestaurantId" parameterType="java.lang.Long" resultType="fs.human.yabab.Owner.vo.Owner_MenuDTO">
         SELECT
         MENU_ID AS menuId,
         RESTAURANT_ID AS restaurantId,

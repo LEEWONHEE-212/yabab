@@ -1,0 +1,247 @@
+.register-restaurant-container {
+    width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+}
+
+.page-title {
+    display: block;
+    text-align: center;
+    margin: 0 auto 30px auto;
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center; /* 라벨과 인풋을 세로 중앙 정렬 */
+    gap: 10px; /* 라벨과 인풋 사이 간격 */
+}
+
+.form-label {
+    flex: 0 0 120px; /* 라벨 너비 고정 */
+    font-weight: bold;
+    color: #555;
+    font-size: 1.1em;
+    white-space: nowrap; /* 라벨 텍스트가 잘리지 않도록 */
+}
+
+.form-input,
+.form-select { /* 🚨 form-select 추가 */
+    flex-grow: 1; /* 남은 공간을 채우도록 확장 */
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    min-width: 0; /* 🚨 추가: flex 아이템의 최소 너비 재설정 (글자 잘림 방지) */
+    box-sizing: border-box; /* 🚨 추가: padding과 border가 width에 포함되도록 */
+    height: 44px; /* 🚨 높이 일관성 유지 */
+}
+
+.form-input:focus,
+.form-select:focus { /* 🚨 form-select 추가 */
+    border-color: #6a1b9a; /* 보라색 계열 */
+    box-shadow: 0 0 0 3px rgba(106, 27, 154, 0.2);
+    outline: none;
+}
+
+.check-button, .edit-button {
+    background-color: #cccccc; /* 밝은 회색 */
+    color: #333333; /* 진한 회색 텍스트 */
+    border: 1px solid #b3b3b3; /* 테두리도 회색 */
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0; /* 내용이 줄어들지 않도록 함 */
+    height: 44px; /* 🚨 높이 일관성 유지 */
+    box-sizing: border-box;
+}
+
+.check-button {
+    background-color: #b3b3b3; /* 진한 회색 */
+    color: white;
+}
+
+.check-button:hover:not(:disabled) {
+    background-color: #999999; /* 호버 시 약간 더 진하게 */
+}
+
+.check-button:disabled {
+    background-color: #e0e0e0;
+    color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+.edit-button {
+    background-color: #5a6268; /* 주황색 계열 */
+    color: white;
+}
+
+.edit-button:hover {
+    background-color: #5a6268;
+}
+
+.message {
+    margin-top: -10px; /* 인풋과 메시지 사이 간격 조정 */
+    margin-bottom: 15px;
+    padding-left: 130px; /* 라벨 너비만큼 들여쓰기 */
+    font-size: 0.95em;
+    font-weight: 500;
+}
+
+.message.success {
+    color: #28a745; /* 녹색 */
+}
+
+.message.error {
+    color: #dc3545; /* 빨간색 */
+}
+
+/* 파일 업로드 그룹 */
+.file-upload-group {
+    align-items: center;
+}
+
+.file-input-wrapper {
+    position: relative; /* 🚨 추가: 자식 absolute 요소의 기준점 */
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    height: 44px; /* 🚨 높이 일관성 유지 */
+    box-sizing: border-box;
+    cursor: pointer; /* 🚨 추가: 전체 wrapper를 클릭 가능하게 */
+}
+
+/* 🚨 파일 선택 버튼 스타일 (가상 요소) */
+.file-input-wrapper::before {
+    content: '파일 선택'; /* 버튼 텍스트 */
+    display: flex; /* flex로 변경하여 내부 텍스트 중앙 정렬 */
+    align-items: center;
+    justify-content: center;
+    background-color: #e9e9e9; /* 버튼 배경색 */
+    color: #555; /* 버튼 텍스트 색상 */
+    padding: 12px 15px; /* 버튼 패딩 */
+    border-right: 1px solid #ddd; /* 🚨 추가: 버튼과 파일명 사이 구분선 */
+    border-radius: 6px 0 0 6px; /* 왼쪽 모서리만 둥글게 */
+    cursor: pointer;
+    font-size: 1em;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+    height: 100%; /* wrapper의 높이를 채우도록 */
+    box-sizing: border-box;
+    flex-shrink: 0; /* 버튼이 줄어들지 않도록 */
+}
+
+.file-input-wrapper:hover::before {
+    background-color: #dcdcdc; /* 호버 시 배경색 변경 */
+}
+
+.file-input {
+    /* 🚨 파일 입력 필드 숨기기 */
+    position: absolute; /* 🚨 추가: wrapper 내에서 절대 위치 */
+    top: 0;
+    left: 0;
+    width: 100%; /* 🚨 추가: wrapper 전체 영역 덮음 */
+    height: 100%; /* 🚨 추가: wrapper 전체 영역 덮음 */
+    opacity: 0; /* 🚨 추가: 완벽하게 투명 */
+    cursor: pointer; /* 🚨 추가: 클릭 커서 유지 */
+    z-index: 10; /* 🚨 추가: 다른 요소 위에 위치하여 클릭 이벤트 받음 */
+    padding: 0; /* 🚨 패딩 제거 */
+    border: none; /* 🚨 테두리 제거 */
+    background-color: transparent; /* 🚨 배경색 제거 */
+}
+
+.selected-file-name {
+    /* 🚨 파일 이름 표시 영역 */
+    padding: 0 15px; /* 좌우 패딩 */
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 파일 이름 길 때 ... 처리 */
+    flex-grow: 1; /* 남은 공간을 채우도록 확장 */
+    line-height: 1; /* 텍스트 세로 정렬 보정 */
+    /* 🚨 파일이 없을 때 숨겨지도록 */
+    /* JS에서 restaurantImage 상태에 따라 렌더링되므로 CSS에서 별도 display: none; 처리는 필요 없음 */
+}
+
+
+/* 완료 버튼 스타일 */
+.submit-button {
+    width: 100%;
+    padding: 15px 20px;
+    background-color: #808080; /* 중간 회색 */
+    color: white; /* 흰색 텍스트 */
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+}
+
+.submit-button:hover {
+    background-color: #666666;
+    transform: translateY(-2px);
+}
+
+.arrow-icon {
+    margin-left: 10px;
+    font-size: 1.2em;
+}
+
+/* 추가적으로 라디오 버튼 그룹도 높이 일관성을 위해 조정할 수 있습니다. */
+.radio-group {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.radio-group .form-label {
+    margin-bottom: 0;
+    margin-right: 20px; /* 기존 간격 유지 */
+    white-space: nowrap;
+    text-align: left;
+    width: auto; /* flex-shrink: 0 대신 auto로 유연하게 */
+    flex-shrink: unset; /* 라디오 그룹 내에서는 줄어들 수 있도록 unset */
+}
+
+.radio-options {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+    align-items: center; /* 라디오 옵션 세로 중앙 정렬 */
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    color: #333;
+    cursor: pointer;
+    height: 44px; /* 🚨 라디오 라벨도 높이 일관성 */
+}
+
+.radio-label input[type="radio"] {
+    margin-right: 8px;
+    /* 🚨 필요시 input[type="radio"]의 크기 조절 */
+    transform: scale(1.2); /* 라디오 버튼 크기 약간 키우기 */
+}

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.RestaurantReview.dao.RestaurantReviewDAO">
+
+    <resultMap id="reviewDetailDTOMap" type="fs.human.yabab.RestaurantReview.vo.ReviewDetailDTO">
+        <id property="reviewId" column="REVIEW_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="reviewContent" column="REVIEW_CONTENT"/>
+        <result property="reviewRating" column="REVIEW_RATING"/>
+        <result property="reviewImagePath" column="REVIEW_IMAGE_PATH"/>
+        <result property="reviewImageName" column="REVIEW_IMAGE_NAME"/>
+        <result property="createdDate" column="CREATED_DATE"/>
+    </resultMap>
+
+    <resultMap id="restaurantReviewDTOMap" type="fs.human.yabab.RestaurantReview.vo.RestaurantReviewDTO">
+        <id property="id" column="RESTAURANT_ID"/>
+        <result property="ownerId" column="OWNER_ID"/>
+        <result property="restaurantName" column="RESTAURANT_NAME"/>
+        <result property="restaurantImagePath" column="RESTAURANT_IMAGE_PATH"/>
+        <result property="restaurantImageName" column="RESTAURANT_IMAGE_NAME"/>
+        <result property="stadiumId" column="STADIUM_ID"/>
+        <result property="stadiumName" column="STADIUM_NAME"/>
+        <result property="restaurantResvStatus" column="RESTAURANT_RESV_STATUS"/>
+        <result property="zoneName" column="ZONE_NAME"/>
+        <result property="restaurantLocation" column="RESTAURANT_LOCATION"/>
+        <result property="averageRating" column="AVERAGE_RATING"/>
+        <result property="reviewCount" column="REVIEW_COUNT"/>
+
+        <collection property="menus" ofType="fs.human.yabab.RestaurantReview.vo.Restaurant_MenuDTO">
+            <id property="menuId" column="MENU_ID"/>
+            <result property="restaurantId" column="MENU_RESTAURANT_ID"/>
+            <result property="menuName" column="MENU_NAME"/>
+            <result property="menuPrice" column="MENU_PRICE"/>
+            <result property="createdDate" column="MENU_CREATED_DATE"/>
+            <result property="createdBy" column="MENU_CREATED_BY"/>
+            <result property="updatedDate" column="MENU_UPDATED_DATE"/>
+            <result property="updatedBy" column="MENU_UPDATED_BY"/>
+        </collection>
+
+        <collection property="reviews" ofType="fs.human.yabab.RestaurantReview.vo.ReviewDetailDTO"
+                    column="RESTAURANT_ID" select="getReviewsByRestaurantId"/>
+
+    </resultMap>
+
+    <select id="getRestaurantDetailsWithMenusAndReviews" parameterType="long" resultMap="restaurantReviewDTOMap">
+        SELECT
+        r.RESTAURANT_ID,
+        r.OWNER_ID,
+        r.RESTAURANT_NAME,
+        r.RESTAURANT_IMAGE_PATH,
+        r.RESTAURANT_IMAGE_NAME,
+        r.STADIUM_ID,
+        s.STADIUM_NAME,
+        r.RESTAURANT_RESV_STATUS,
+        z.ZONE_NAME,
+        r.RESTAURANT_LOCATION,
+        -- ✨ AVERAGE_RATING 계산
+        (SELECT COALESCE(ROUND(AVG(sub_rv.REVIEW_RATING), 2), 0.0)
+        FROM TB_REVIEW sub_rv
+        WHERE sub_rv.RESTAURANT_ID = r.RESTAURANT_ID AND sub_rv.REVIEW_DELETED_FLAG = 0) AS AVERAGE_RATING,
+        -- ✨ REVIEW_COUNT 계산
+        (SELECT COUNT(sub_rv.REVIEW_ID)
+        FROM TB_REVIEW sub_rv
+        WHERE sub_rv.RESTAURANT_ID = r.RESTAURANT_ID AND sub_rv.REVIEW_DELETED_FLAG = 0) AS REVIEW_COUNT,
+        -- 메뉴 정보
+        m.MENU_ID,
+        m.RESTAURANT_ID AS MENU_RESTAURANT_ID,
+        m.MENU_NAME,
+        m.MENU_PRICE,
+        m.CREATED_DATE AS MENU_CREATED_DATE,
+        m.CREATED_BY AS MENU_CREATED_BY,
+        m.UPDATED_DATE AS MENU_UPDATED_DATE,
+        m.UPDATED_BY AS MENU_UPDATED_BY
+        FROM
+        TB_RESTAURANT r
+        LEFT JOIN
+        TB_STADIUM s ON r.STADIUM_ID = s.STADIUM_ID
+        LEFT JOIN
+        TB_ZONE z ON r.ZONE_ID = z.ZONE_ID
+        LEFT JOIN
+        TB_MENU m ON r.RESTAURANT_ID = m.RESTAURANT_ID
+        WHERE
+        r.RESTAURANT_ID = #{restaurantId}
+        ORDER BY
+        m.MENU_NAME ASC
+    </select>
+
+    <select id="getReviewsByRestaurantId" parameterType="long" resultMap="reviewDetailDTOMap">
+        SELECT
+        REVIEW_ID,
+        USER_ID,
+        REVIEW_CONTENT,
+        REVIEW_RATING,
+        REVIEW_IMAGE_PATH,
+        REVIEW_IMAGE_NAME,
+        CREATED_DATE
+        FROM
+        TB_REVIEW
+        WHERE
+        RESTAURANT_ID = #{restaurantId}
+        AND REVIEW_DELETED_FLAG = 0
+        ORDER BY
+        CREATED_DATE DESC
+    </select>
+
+    <insert id="insertReview" parameterType="map">
+        INSERT INTO TB_REVIEW (
+        REVIEW_ID,
+        RESTAURANT_ID,
+        USER_ID,
+        REVIEW_CONTENT,
+        REVIEW_RATING,
+        REVIEW_IMAGE_PATH,
+        REVIEW_IMAGE_NAME,
+        CREATED_DATE,
+        CREATED_BY,
+        UPDATED_DATE,
+        UPDATED_BY,
+        REVIEW_DELETED_FLAG
+        ) VALUES (
+        1,  #{restaurantId},
+        #{review.userId},
+        #{review.reviewContent},
+        #{review.reviewRating},
+        #{review.reviewImagePath, jdbcType=VARCHAR},
+        #{review.reviewImageName, jdbcType=VARCHAR},
+        SYSDATE,
+        #{review.userId},
+        SYSDATE,
+        #{review.userId},
+        0
+        )
+    </insert>
+
+</mapper>

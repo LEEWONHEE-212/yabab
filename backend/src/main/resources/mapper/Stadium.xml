@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.Stadium.dao.StadiumResDAO">
+
+    <resultMap id="stadiumDTOResultMap" type="fs.human.yabab.Stadium.vo.StadiumResDTO">
+        <id property="id" column="restaurant_id"/>
+        <result property="ownerId" column="owner_id"/>
+        <result property="restaurantName" column="restaurant_name"/>
+        <result property="restaurantImagePath" column="restaurant_image_path"/>
+        <result property="restaurantImageName" column="restaurant_image_name"/>
+        <result property="stadiumId" column="stadium_id"/>
+        <result property="stadiumName" column="stadium_name"/>
+        <result property="restaurantResvStatus" column="restaurant_resv_status"/>
+
+        <result property="zoneName" column="zone_name"/>
+        <result property="restaurantLocation" column="restaurant_location"/>
+        <result property="restaurantInsideFlag" column="restaurant_inside_flag"/>
+
+        <result property="rating" column="rating"/>
+        <result property="reviewCount" column="review_count"/>
+    </resultMap>
+
+    <select id="selectRestaurantsByStadiumAndFlag" resultMap="stadiumDTOResultMap">
+        SELECT
+        r.RESTAURANT_ID AS restaurant_id,
+        r.OWNER_ID AS owner_id,
+        r.RESTAURANT_NAME AS restaurant_name,
+        r.RESTAURANT_IMAGE_PATH AS restaurant_image_path,
+        r.RESTAURANT_IMAGE_NAME AS restaurant_image_name,
+        r.STADIUM_ID AS stadium_id,
+        s.STADIUM_NAME AS stadium_name,
+        r.RESTAURANT_RESV_STATUS AS restaurant_resv_status,
+        z.ZONE_NAME AS zone_name,
+        r.RESTAURANT_LOCATION AS restaurant_location,
+        r.RESTAURANT_INSIDE_FLAG AS restaurant_inside_flag,
+        NVL(TRUNC(AVG(rev.REVIEW_RATING) OVER (PARTITION BY r.RESTAURANT_ID), 1), 0.0) AS rating,
+        NVL(COUNT(rev.REVIEW_ID) OVER (PARTITION BY r.RESTAURANT_ID), 0) AS review_count
+        FROM
+        TB_RESTAURANT r
+        LEFT JOIN
+        TB_ZONE z ON r.ZONE_ID = z.ZONE_ID
+        LEFT JOIN
+        TB_REVIEW rev ON r.RESTAURANT_ID = rev.RESTAURANT_ID
+        LEFT JOIN
+        TB_STADIUM s ON r.STADIUM_ID = s.STADIUM_ID
+        WHERE
+        r.STADIUM_ID = #{stadiumId}
+        AND r.RESTAURANT_INSIDE_FLAG = #{restaurantInsideFlag}
+
+        <if test="infieldOutfield != null and !infieldOutfield.isEmpty()">
+            AND (
+            <foreach item="item" collection="infieldOutfield" open="" separator="OR" close="">
+                <choose>
+                    <when test="item == 'INFIELD'">z.ZONE_NAME LIKE '%내야%'</when>
+                    <when test="item == 'OUTFIELD'">z.ZONE_NAME LIKE '%외야%'</when>
+                    <otherwise>1=0</otherwise> </choose>
+            </foreach>
+            )
+        </if>
+
+        <if test="base != null and !base.isEmpty()">
+            AND (
+            <foreach item="item" collection="base" open="" separator="OR" close="">
+                <choose>
+                    <when test="item == 'FIRST_BASE'">z.ZONE_NAME LIKE '%1루%'</when>
+                    <when test="item == 'THIRD_BASE'">z.ZONE_NAME LIKE '%3루%'</when>
+                    <otherwise>1=0</otherwise>
+                </choose>
+            </foreach>
+            )
+        </if>
+
+        <if test="floor != null and !floor.isEmpty()">
+            AND (
+            <foreach item="item" collection="floor" open="" separator="OR" close="">
+                <choose>
+                    <when test="item == 'F1'">z.ZONE_NAME LIKE '%1층%'</when>
+                    <when test="item == 'F2'">z.ZONE_NAME LIKE '%2층%'</when>
+                    <when test="item == 'F3'">z.ZONE_NAME LIKE '%3층%'</when>
+                    <when test="item == 'F4'">z.ZONE_NAME LIKE '%4층%'</when>
+                    <when test="item == 'F5'">z.ZONE_NAME LIKE '%5층%'</when>
+                    <otherwise>1=0</otherwise>
+                </choose>
+            </foreach>
+            )
+        </if>
+
+        ORDER BY
+        <choose>
+            <when test="sortBy == 'review_count'">review_count DESC</when>
+            <when test="sortBy == 'id'">restaurant_id DESC</when>
+            <when test="sortBy == 'name'">restaurant_name ASC</when>
+            <otherwise>rating DESC</otherwise>
+        </choose>
+        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="countRestaurantsByStadiumAndFlag" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        TB_RESTAURANT r
+        LEFT JOIN
+        TB_ZONE z ON r.ZONE_ID = z.ZONE_ID
+        WHERE
+        r.STADIUM_ID = #{stadiumId}
+        AND r.RESTAURANT_INSIDE_FLAG = #{restaurantInsideFlag}
+
+        <if test="infieldOutfield != null and !infieldOutfield.isEmpty()">
+            AND (
+            <foreach item="item" collection="infieldOutfield" open="" separator="OR" close="">
+                <choose>
+                    <when test="item == 'INFIELD'">z.ZONE_NAME LIKE '%내야%'</when>
+                    <when test="item == 'OUTFIELD'">z.ZONE_NAME LIKE '%외야%'</when>
+                    <otherwise>1=0</otherwise>
+                </choose>
+            </foreach>
+            )
+        </if>
+
+        <if test="base != null and !base.isEmpty()">
+            AND (
+            <foreach item="item" collection="base" open="" separator="OR" close="">
+                <choose>
+                    <when test="item == 'FIRST_BASE'">z.ZONE_NAME LIKE '%1루%'</when>
+                    <when test="item == 'THIRD_BASE'">z.ZONE_NAME LIKE '%3루%'</when>
+                    <otherwise>1=0</otherwise>
+                </choose>
+            </foreach>
+            )
+        </if>
+
+        <if test="floor != null and !floor.isEmpty()">
+            AND (
+            <foreach item="item" collection="floor" open="" separator="OR" close="">
+                <choose>
+                    <when test="item == 'F1'">z.ZONE_NAME LIKE '%1층%'</when>
+                    <when test="item == 'F2'">z.ZONE_NAME LIKE '%2층%'</when>
+                    <when test="item == 'F3'">z.ZONE_NAME LIKE '%3층%'</when>
+                    <when test="item == 'F4'">z.ZONE_NAME LIKE '%4층%'</when>
+                    <when test="item == 'F5'">z.ZONE_NAME LIKE '%5층%'</when>
+                    <otherwise>1=0</otherwise>
+                </choose>
+            </foreach>
+            )
+        </if>
+    </select>
+
+    <select id="selectRestaurantDetailById" resultMap="stadiumDTOResultMap">
+        SELECT
+        r.RESTAURANT_ID AS restaurant_id,
+        r.OWNER_ID AS owner_id,
+        r.RESTAURANT_NAME AS restaurant_name,
+        r.RESTAURANT_IMAGE_PATH AS restaurant_image_path,
+        r.RESTAURANT_IMAGE_NAME AS restaurant_image_name,
+        r.STADIUM_ID AS stadium_id,
+        s.STADIUM_NAME AS stadium_name,
+        r.RESTAURANT_RESV_STATUS AS restaurant_resv_status,
+        z.ZONE_NAME AS zone_name,
+        r.RESTAURANT_LOCATION AS restaurant_location,
+        r.RESTAURANT_ADDR1 AS restaurant_addr1,
+        r.RESTAURANT_ADDR2 AS restaurant_addr2,
+        r.RESTAURANT_INSIDE_FLAG AS restaurant_inside_flag,
+        r.RESTAURANT_REST_DAY AS restaurant_rest_day,
+        NVL(TRUNC(AVG(rev.REVIEW_RATING) OVER (PARTITION BY r.RESTAURANT_ID), 1), 0.0) AS rating,
+        NVL(COUNT(rev.REVIEW_ID) OVER (PARTITION BY r.RESTAURANT_ID), 0) AS review_count
+        FROM
+        TB_RESTAURANT r
+        LEFT JOIN
+        TB_ZONE z ON r.ZONE_ID = z.ZONE_ID
+        LEFT JOIN
+        TB_REVIEW rev ON r.RESTAURANT_ID = rev.RESTAURANT_ID
+        LEFT JOIN
+        TB_STADIUM s ON r.STADIUM_ID = s.STADIUM_ID
+        WHERE
+        r.RESTAURANT_ID = #{id}
+    </select>
+
+</mapper>

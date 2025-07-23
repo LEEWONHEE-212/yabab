@@ -1,0 +1,378 @@
+/* Reserve.css */
+
+/* 기존 스타일 유지 */
+
+.reservation-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.reservation-modal-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 90vh; /* 모달 높이 제한 */
+    overflow-y: auto; /* 내용이 넘칠 경우 스크롤 */
+}
+
+.reservation-close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #555;
+}
+
+.reservation-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.reservation-title {
+    font-size: 2em;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.reservation-address {
+    font-size: 0.9em;
+    color: #777;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-input-wrapper {
+    position: relative;
+}
+
+.form-input,
+.form-select,
+.request-textarea {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-select:focus,
+.request-textarea:focus {
+    outline: none;
+    border-color: #5a5a5a;
+    box-shadow: 0 0 0 0.2rem rgba(90, 90, 90, 0.25);
+}
+
+.form-select-wrapper {
+    position: relative;
+}
+
+.time-select-wrapper-narrow {
+    max-width: 180px;
+    width: 100%;
+}
+
+.form-select-wrapper::after {
+    content: '▼';
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #555;
+}
+
+.form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 30px;
+}
+
+.react-datepicker-wrapper {
+    display: block;
+}
+
+.react-datepicker__input-container {
+    display: block;
+}
+
+.request-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* DatePicker 커스텀 스타일 */
+.react-datepicker {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* 🔧 불필요한 헤더 정리 및 padding 최소화 */
+.react-datepicker__header {
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #e0e0e0;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ✨ 월/연도 드롭다운 스타일 */
+.react-datepicker__month-dropdown-container,
+.react-datepicker__year-dropdown-container {
+    margin: 0 5px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* ✨ 현재 달 텍스트 숨기기 (중복 제거 목적) */
+.react-datepicker__current-month {
+    display: none;
+}
+
+/* ✨ 네비게이션 버튼 완전히 제거 */
+.react-datepicker__navigation,
+.react-datepicker__navigation--previous,
+.react-datepicker__navigation--next,
+.react-datepicker__navigation--previous-year,
+.react-datepicker__navigation--next-year {
+    display: none !important;
+}
+
+.react-datepicker__month {
+    padding: 10px;
+}
+
+.react-datepicker__day {
+    width: 2.2em;
+    line-height: 2.2em;
+    margin: 2px;
+}
+
+/* 선택된 날짜 */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__day--selected-custom {
+    background-color: #5a5a5a !important; /* !important 추가로 우선순위 확보 */
+    color: white !important;
+    border-radius: 50% !important; /* !important 추가 */
+}
+
+/* 오늘 날짜 강조 */
+.react-datepicker__day--today:not(.react-datepicker__day--selected):not(.react-datepicker__day--selected-custom) {
+    font-weight: bold;
+    color: #5a5a5a;
+    background-color: #e0e0e0;
+    border-radius: 50%;
+}
+
+.react-datepicker__day--today-custom {
+    /* 커스텀 selected 우선 적용용 */
+}
+
+.react-datepicker__day--outside-month {
+    color: #ccc;
+}
+
+.react-datepicker__day:hover {
+    background-color: #e0e0e0;
+    border-radius: 50%;
+}
+
+/* 주말 날짜 스타일 (오늘 날짜 이전은 제외) */
+.weekend-day:not(.react-datepicker__day--outside-month):not(.react-datepicker__day--selected):not(.react-datepicker__day--today) {
+    color: #dc3545;
+}
+
+/* 버튼 영역 */
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.confirm-reserve-button,
+.cancel-reserve-button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    flex: 1;
+}
+
+.confirm-reserve-button {
+    background-color: #333;
+    color: white;
+    margin-right: 10px;
+}
+
+.confirm-reserve-button:hover {
+    background-color: #000;
+}
+
+.cancel-reserve-button {
+    background-color: white;
+    color: #333;
+    border: 1px solid #ccc;
+    margin-left: 10px;
+}
+
+.cancel-reserve-button:hover {
+    background-color: #f0f0f0;
+    border-color: #999;
+}
+
+
+/* --- 메뉴 선택 섹션 CSS 추가 (이전 응답에서 제공된 내용) --- */
+.menu-selection-container {
+    display: flex;
+    gap: 20px;
+    width:400px;
+    margin-top: 10px;
+    flex-wrap: wrap; /* 작은 화면에서 줄바꿈 */
+}
+
+.available-menus, .selected-menus {
+    flex: 1; /* 공간을 균등하게 차지 */
+    min-width: 280px; /* 최소 너비 설정 */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f9f9f9;
+}
+
+.available-menus h4, .selected-menus h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 18px;
+}
+
+.menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.menu-list li:last-child {
+    border-bottom: none;
+}
+
+.add-menu-button {
+    background-color: #4CAF50; /* 녹색 */
+    color: white;
+    border: none;
+    border-radius: 50%; /* 원형 */
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.add-menu-button:hover {
+    background-color: #45a049;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.quantity-controls button {
+    background-color: #2D2A32;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 25px;
+    height: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.quantity-controls button:hover {
+    background-color: #555;
+}
+
+.quantity-controls span {
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+}
+
+.remove-menu-button {
+    background-color: #f44336; /* 빨간색 */
+    color: white;
+    border: none;
+    border-radius: 50%; /* 원형 */
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.remove-menu-button:hover {
+    background-color: #da190b;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .menu-selection-container {
+        flex-direction: column; /* 모바일에서 세로로 정렬 */
+    }
+    .available-menus, .selected-menus {
+        min-width: unset; /* 최소 너비 제한 해제 */
+        width: 100%; /* 너비 꽉 채움 */
+    }
+}

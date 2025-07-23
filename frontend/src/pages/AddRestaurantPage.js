@@ -1,9 +1,9 @@
 import React from "react";
-import Stadium from "../components/stadium/Stadium";
+import AddRestaurant from "../components/owner/AddRestaurant";
 
 function OwnerPage() {
     return(
-        <Stadium/>
+        <AddRestaurant/>
     );
 };
 

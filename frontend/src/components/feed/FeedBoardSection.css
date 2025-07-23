@@ -1,0 +1,262 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  background-color: #fff;
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 2px solid #ddd;
+  max-width: 1000px;
+  margin: 0 auto 24px auto;
+  background-color: #fafafa;
+}
+
+/* 왼쪽 로고 영역: 고정 크기 */
+.team-logo-box {
+  flex: 0 0 240px;  /* 너비 240px 고정 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 로고 크기 */
+.team-image {
+  max-height: 72px;
+  width: auto;
+}
+
+/* 오른쪽 링크 영역: 나머지 공간 */
+.team-info-box {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 28px;  /* 링크 사이 여백 넉넉히 */
+}
+
+/* 각 링크 아이템 (아이콘 + 텍스트) */
+.team-info-box a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #333;
+  font-size: 15px;
+  transition: opacity 0.2s ease;
+}
+
+.team-info-box a:hover {
+  opacity: 0.8;
+}
+
+/* 아이콘 크기 */
+.team-icon {
+  height: 24px;
+  width: auto;
+}
+
+
+
+/* 전체 레이아웃 */
+.team-board-section {
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+/* 제목 + 정렬 버튼 */
+.team-board-section h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.feed-sort-tabs {
+  margin-bottom: 10px;
+}
+
+.feed-sort-tabs button {
+  padding: 6px 12px;
+  margin-right: 8px;
+  font-size: 14px;
+  background-color: #f6f6f6;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.feed-sort-tabs button.active {
+  background-color: #444;
+  color: #fff;
+  border-color: #444;
+}
+
+/* 게시글 테이블 */
+.feed-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  table-layout: fixed;
+}
+
+.feed-table thead {
+  background-color: #f9f9f9;
+  border-top: 2px solid #444;
+}
+
+.feed-table th,
+.feed-table td {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 10px 6px;
+  text-align: center;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 제목 열은 왼쪽 정렬 + 댓글수 강조 */
+.feed-table td:nth-child(2) {
+  text-align: left;
+}
+
+.title-link {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.title-link:hover {
+  text-decoration: underline;
+}
+
+.comment-count {
+  color: #0066cc;
+  font-weight: bold;
+  margin-left: 4px;
+  font-size: 13px;
+}
+
+/* 글쓰기 버튼 우측 정렬 */
+.feed-write-btn {
+  margin-top: 16px;
+  text-align: right;
+}
+
+.feed-write-btn button {
+  padding: 6px 16px;
+  font-size: 14px;
+  background-color: #ffea00;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.feed-write-btn button:hover {
+  background-color: #ffe100;
+}
+
+/*음식 랭킹*/
+.food-ranking-box {
+  width: 280px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+  font-size: 14px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.food-box-header {
+  background-color: #1e4d91;
+  color: #fff;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.food-box-header h4 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.food-box-date {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.food-ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.food-ranking-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.rank-num {
+  width: 30px;
+  text-align: center;
+  font-weight: bold;
+  color: #1e4d91;
+}
+
+.food-name {
+  text-align: left;
+}
+
+.food-score {
+  text-align: right;
+  color: #444;
+}
+
+/*팬응원 랭킹*/
+.fan-best-box {
+  width: 280px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+  font-size: 14px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.box-header {
+  background-color: #1e4d91;
+  color: #fff;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.best-list {
+  list-style: none;
+  padding: 12px 14px;
+}
+
+.best-list li {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.best-list a {
+  color: #333;
+  text-decoration: none;
+}
+
+.best-list a:hover {
+  text-decoration: underline;
+}

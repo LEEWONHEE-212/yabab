@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.feed.dao.FeedDAO">
+
+    <select id="selectFeedList" resultType="fs.human.yabab.feed.vo.FeedVO">
+        SELECT
+            FEED_ID,
+            TEAM_ID,
+            USER_ID,
+            FEED_TITLE,
+            FEED_CONTENT,
+            FEED_CATEGORY,
+            FEED_VIEWS,
+            FEED_LIKES,
+            FEED_COMMENT_COUNT,
+            FEED_IMAGE_PATH,
+            FEED_IMAGE_NAME,
+            FEED_DELETED_FLAG,
+            CREATED_DATE,
+            CREATED_BY,
+            UPDATED_DATE,
+            UPDATED_BY,
+            DELETED_DATE,
+            DELETED_BY
+        FROM TB_FEED
+        WHERE TEAM_ID = #{teamId}
+        AND FEED_CATEGORY = #{category}
+        AND FEED_DELETED_FLAG = 0
+        <choose>
+            <when test="sort == 'likes'">
+                ORDER BY FEED_LIKES DESC
+            </when>
+            <otherwise>
+                ORDER BY CREATED_DATE DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <insert id="insertFeed" parameterType="fs.human.yabab.feed.vo.FeedVO">
+        INSERT INTO TB_FEED (
+            FEED_ID,
+            TEAM_ID,
+            USER_ID,
+            FEED_TITLE,
+            FEED_CONTENT,
+            FEED_CATEGORY,
+            FEED_IMAGE_PATH,
+            FEED_IMAGE_NAME,
+            CREATED_DATE,
+            CREATED_BY,
+            FEED_VIEWS,
+            FEED_LIKES,
+            FEED_COMMENT_COUNT,
+            FEED_DELETED_FLAG
+        ) VALUES (
+                     SEQ_FEED_ID.NEXTVAL,
+                     #{teamId},
+                     #{userId},
+                     #{feedTitle},
+                     #{feedContent},
+                     #{feedCategory},
+                     #{feedImagePath},
+                     #{feedImageName},
+                     SYSDATE,
+                     #{userId},
+                     0, 0, 0, 0
+                 )
+    </insert>
+</mapper>

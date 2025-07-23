@@ -5,6 +5,7 @@ import AuthPage from './pages/AuthPage';
 import OwnerPage from './pages/OwnerPage';
 import AddRestaurantPage from './pages/AddRestaurantPage';
 import StadiumPage from './pages/StadiumPage';
+import FeedPage from './pages/FeedPage';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path='/owner' element={<OwnerPage />} />
         <Route path='/add-AddRestaurant' element={<AddRestaurantPage/>} />
         <Route path='/stadium' element={<StadiumPage />} />
+        <Route path='/feed/*' element={<FeedPage />} />
       </Routes>
   );
 }

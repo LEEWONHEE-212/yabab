@@ -6,10 +6,12 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.io.File;
+
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${upload.restaurant.image.dir}")
+    @Value("${upload.uploads.image.dir}")
     private String uploadDir;
 
     @Override
@@ -22,13 +24,15 @@ public class WebConfig implements WebMvcConfigurer {
     }
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // "/restaurant-images/**" 패턴으로 들어오는 웹 요청을
-        // 'uploadDir' 변수에 설정된 실제 파일 시스템 경로로 매핑합니다.
-        registry.addResourceHandler("/restaurant-images/**")
-                .addResourceLocations("file:" + uploadDir);
+        //  상대경로 -> 절대경로로 안전하게 변환
+        String absolutePath = new File(uploadDir).getAbsolutePath();
 
-        // Spring Boot의 기본 정적 자원 핸들러도 유지합니다.
+        //  해당 경로에서 정적 리소스로 응답
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:" + absolutePath + "/");
+
+        // 기본 정적 리소스 유지
         registry.addResourceHandler("/**")
-                .addResourceLocations("classpath:/static/");
+                .addResourceLocations("classpath:/");
     }
 }

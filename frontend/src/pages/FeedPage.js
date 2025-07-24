@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { useParams, Routes, Route } from "react-router-dom";
 // import TeamHeader from "./TeamHeader";
 import FeedBoardSection from "../components/feed/FeedBoardSection";
 import FeedWriteForm from "../components/feed/FeedWriteForm";

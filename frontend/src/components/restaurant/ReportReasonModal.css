@@ -1,0 +1,160 @@
+/* src/components/common/ReportReasonModal.css */
+
+.report-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* 신고 모달이 다른 모달 위에 오도록 높게 설정 */
+}
+
+.report-modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+    position: relative;
+    width: 90%;
+    max-width: 500px; /* 적당한 너비 제한 */
+    max-height: 90vh; /* 화면 높이에 맞춤 */
+    overflow-y: auto; /* 내용이 길어지면 스크롤 */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* 요소들 사이 간격 */
+}
+
+.report-modal-close-button {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.2s ease-in-out;
+}
+
+.report-modal-close-button:hover {
+    color: #333;
+}
+
+.report-modal-title {
+    font-size: 26px;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.reported-review-preview {
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.reported-review-preview strong {
+    color: #555;
+    font-size: 15px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.reported-review-text {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+    max-height: 60px; /* 너무 길면 잘리도록 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* 한 줄로 표시 */
+}
+
+.report-reason-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.report-reason-label {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #444;
+    cursor: pointer;
+    padding: 5px 0;
+}
+
+.report-reason-radio {
+    margin-right: 10px;
+    transform: scale(1.2); /* 라디오 버튼 크기 조정 */
+}
+
+.report-details-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    resize: vertical; /* 수직으로만 크기 조절 가능 */
+    min-height: 80px;
+    box-sizing: border-box; /* 패딩, 보더가 너비/높이에 포함되도록 */
+}
+
+.report-details-textarea::placeholder {
+    color: #999;
+}
+
+.report-submit-button {
+    background-color: #f44336; /* 신고 버튼은 빨간색으로 */
+    color: white;
+    border: none;
+    padding: 14px 25px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.report-submit-button:hover {
+    background-color: #d32f2f;
+}
+
+.report-error-message {
+    color: #f44336;
+    font-size: 14px;
+    text-align: center;
+    margin-top: -10px; /* gap과 겹치지 않게 약간 위로 */
+}
+
+/* 미디어 쿼리 (모바일 반응형) */
+@media (max-width: 768px) {
+    .report-modal-content {
+        padding: 20px;
+        width: 95%;
+    }
+
+    .report-modal-title {
+        font-size: 22px;
+    }
+
+    .report-reason-label,
+    .report-details-textarea,
+    .reported-review-text,
+    .reported-review-preview strong,
+    .report-error-message {
+        font-size: 14px;
+    }
+
+    .report-submit-button {
+        font-size: 16px;
+        padding: 12px 20px;
+    }
+}

@@ -528,3 +528,61 @@
 .image-modal-close-button:hover {
     color: #f0f0f0;
 }
+
+.restaurant-review-item {
+    /* 기존 스타일 */
+    position: relative; /* 버튼 위치 조정을 위해 */
+}
+
+.restaurant-report-button {
+    background-color: #f44336; /* 빨간색 계열 */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+    margin-left: 10px; /* 다른 요소와의 간격 */
+    transition: background-color 0.2s ease;
+
+    /* 원하는 경우, 리뷰 헤더 내에서 오른쪽으로 정렬 */
+    /*
+    position: absolute;
+    right: 0;
+    top: 5px;
+    */
+}
+
+.restaurant-report-button:hover {
+    background-color: #d32f2f;
+}
+
+/* 만약 리뷰 헤더가 flexbox라면 */
+.restaurant-review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* 신고 버튼을 오른쪽에 배치 */
+    margin-bottom: 5px;
+    gap: 10px; /* 요소들 사이 간격 */
+}
+
+/* 리뷰 작성자, 별점, 날짜 등은 left에, 신고 버튼은 right에 */
+.restaurant-review-header > span {
+    white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+.restaurant-review-header .restaurant-review-author {
+    font-weight: bold;
+    flex-shrink: 0; /* 공간이 부족해도 줄어들지 않도록 */
+}
+
+.restaurant-review-header .restaurant-review-rating {
+    flex-shrink: 0;
+}
+
+.restaurant-review-header .restaurant-review-date {
+    font-size: 0.85em;
+    color: #888;
+    margin-left: auto; /* 신고 버튼 전까지 남은 공간을 채움 */
+    flex-shrink: 0;
+}

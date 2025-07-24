@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fs.human.yabab.Reserve.dao.ReservationMenuDAO">
+
+    <insert id="insertReservationMenu" parameterType="fs.human.yabab.Reserve.vo.ReservationMenuDTO">
+        INSERT INTO TB_RESERVATION_MENU (
+        RESV_MENU_ID,
+        RESV_ID,
+        MENU_ID,
+        QUANTITY,
+        MENU_PRICE_AT_RESV,
+        CREATED_DATE,
+        CREATED_BY
+        ) VALUES (
+        C##FINAL."ISEQ$$_83615".NEXTVAL,  #{resvId, jdbcType=NUMERIC},
+        #{menuId, jdbcType=NUMERIC},
+        #{quantity, jdbcType=NUMERIC},
+        #{menuPriceAtResv, jdbcType=NUMERIC},
+        SYSDATE,
+        #{createdBy, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <select id="selectReservationMenusByResvId" parameterType="long" resultType="fs.human.yabab.Reserve.vo.ReservationMenuDTO">
+        SELECT
+        RESV_MENU_ID,
+        RESV_ID,
+        MENU_ID,
+        QUANTITY,
+        MENU_PRICE_AT_RESV,
+        CREATED_DATE,
+        CREATED_BY,
+        UPDATED_DATE,
+        UPDATED_BY
+        FROM TB_RESERVATION_MENU
+        WHERE RESV_ID = #{resvId}
+    </select>
+
+    <delete id="deleteReservationMenusByResvId" parameterType="long">
+        DELETE FROM TB_RESERVATION_MENU
+        WHERE RESV_ID = #{resvId}
+    </delete>
+
+</mapper>

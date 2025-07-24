@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react'; // useContext 추가
+import React, { useState, useEffect, useContext } from 'react';
 import './Restaurant.css';
 import InfoAlertModal from './InfoAlertModal';
 import Reserve from './Reserve';
 import { useNavigate, Link } from 'react-router-dom';
 import Header from '../common/Header';
-import { UserContext } from '../../context/UserContext'; // UserContext 임포트
+import { UserContext } from '../../context/UserContext';
+import ReportReasonModal from './ReportReasonModal';
 
 const StarRating = ({ rating, setRating }) => {
     return (
@@ -39,12 +40,15 @@ const Restaurant = ({ restaurant, onClose }) => {
     const reviewsPerPage = 5;
 
     // 실제 불러온 식당 데이터 (리뷰 및 메뉴 포함)를 저장할 상태
-    // 초기값은 prop으로 받은 restaurant로 설정
     const [currentRestaurantData, setCurrentRestaurantData] = useState(restaurant);
 
     // 이미지 모달 관련 상태 추가
     const [showImageModal, setShowImageModal] = useState(false);
     const [selectedImage, setSelectedImage] = useState(''); // 크게 볼 이미지 URL
+
+    // ⭐⭐ 신고 모달 관련 상태 추가 ⭐⭐
+    const [isReportReasonModalOpen, setIsReportReasonModalOpen] = useState(false); // 신고 사유 모달
+    const [reviewToReport, setReviewToReport] = useState(null); // 신고할 리뷰 정보 (ID와 내용)
 
     // useAuth 훅 대신 UserContext에서 사용자 정보 가져오기
     const { user, isLoading } = useContext(UserContext); // UserContext 사용
@@ -52,9 +56,9 @@ const Restaurant = ({ restaurant, onClose }) => {
 
     const navigate = useNavigate();
 
-    // 모달이 열릴 때 body 스크롤 방지
+    // 모달이 열릴 때 body 스크롤 방지 (신고 사유 모달 상태 추가)
     useEffect(() => {
-        if (isAlertModalOpen || isReserveModalOpen || showImageModal) {
+        if (isAlertModalOpen || isReserveModalOpen || showImageModal || isReportReasonModalOpen) { // ⭐ isReportReasonModalOpen 추가
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = 'unset';
@@ -62,7 +66,7 @@ const Restaurant = ({ restaurant, onClose }) => {
         return () => {
             document.body.style.overflow = 'unset';
         };
-    }, [isAlertModalOpen, isReserveModalOpen, showImageModal]);
+    }, [isAlertModalOpen, isReserveModalOpen, showImageModal, isReportReasonModalOpen]); // ⭐ isReportReasonModalOpen 추가
 
     // 식당 상세 정보를 다시 불러오는 함수 (API 경로 수정)
     const fetchRestaurantDetails = async (restaurantId) => {
@@ -71,14 +75,11 @@ const Restaurant = ({ restaurant, onClose }) => {
             return;
         }
         try {
-            // API 호출 시 메뉴 데이터도 함께 받아와야 합니다.
-            // 현재 엔드포인트가 'api/Reviews/{restaurantId}'이므로,
-            // 이 API 응답에 식당 정보, 리뷰, 그리고 메뉴 정보가 모두 포함되어 있다고 가정합니다.
             const response = await fetch(`http://localhost:18090/api/Reviews/${restaurantId}`);
             if (response.ok) {
                 const data = await response.json();
                 console.log("Fetched restaurant details:", data);
-                setCurrentRestaurantData(data); // ✨ 여기에서 메뉴 데이터를 포함한 전체 식당 데이터를 업데이트합니다.
+                setCurrentRestaurantData(data);
             } else {
                 const errorText = await response.text();
                 console.error('Failed to fetch restaurant details.', response.status, response.statusText, errorText);
@@ -95,14 +96,7 @@ const Restaurant = ({ restaurant, onClose }) => {
         }
     }, [restaurant]);
 
-    // 로딩 중이거나 데이터가 아직 완전히 로드되지 않았다면 null 반환
-    // currentRestaurantData.menus가 비어있을 수도 있으므로 로딩 조건에서 제외
     if (isLoading || !currentRestaurantData || !currentRestaurantData.restaurantName) {
-        // isLoading은 UserContext에서 오는 상태입니다.
-        // 현재는 UserContext에 isLoading이 없는 것으로 보입니다.
-        // UserContext가 user 정보를 동기적으로 제공한다면 isLoading은 필요 없거나,
-        // UserContext 내부에서 비동기 로딩을 관리한다면 해당 로딩 상태를 여기에 반영해야 합니다.
-        // 일단 현재 코드에서 isLoading이 정의되지 않았으므로 제거하거나 UserContext에서 제공하는지 확인하세요.
         return null; // 또는 로딩 스피너 등을 표시
     }
 
@@ -150,8 +144,7 @@ const Restaurant = ({ restaurant, onClose }) => {
             return;
         }
 
-        // user 객체와 user.userId가 UserContext에서 올바르게 제공되는지 확인
-        if (!user || !user.userId) { // user.id 대신 user.userId 사용 (UserContext의 명명 규칙에 따름)
+        if (!user || !user.userId) {
             alert('사용자 정보를 가져올 수 없습니다. 다시 로그인해 주세요.');
             console.error('User ID is missing from UserContext. User object:', user);
             return;
@@ -160,7 +153,7 @@ const Restaurant = ({ restaurant, onClose }) => {
         const formData = new FormData();
 
         const reviewPayload = {
-            userId: user.userId, // UserContext에서 가져온 userId 사용
+            userId: user.userId,
             reviewRating: reviewRating,
             reviewContent: reviewText.trim(),
         };
@@ -235,6 +228,62 @@ const Restaurant = ({ restaurant, onClose }) => {
         ? `http://localhost:18090${currentRestaurantData.restaurantImagePath}`
         : '/default-restaurant-image.jpg'; // 폴백 이미지
 
+    // ⭐⭐ 기존 handleReportReview 수정: 신고 사유 모달을 띄우도록 ⭐⭐
+    const handleReportReview = (review) => { // review 객체 전체를 받도록 변경
+        if (!isLoggedIn) {
+            alert('리뷰를 신고하려면 로그인해야 합니다.');
+            return;
+        }
+
+        // 로그인한 사용자가 본인 리뷰를 신고하는 것을 방지
+        if (user && user.userId === review.userId) {
+            alert('본인이 작성한 리뷰는 신고할 수 없습니다.');
+            return;
+        }
+        
+        // 신고 사유 모달을 열기 전에 신고할 리뷰 정보를 상태에 저장
+        setReviewToReport(review);
+        setIsReportReasonModalOpen(true);
+    };
+
+    // ⭐⭐ ReportReasonModal에서 제출 시 호출될 함수 ⭐⭐
+    const onReportSubmit = async (reviewId, reportReason, reportDetails) => {
+        console.log(`신고 제출: reviewId=${reviewId}, reason=${reportReason}, details=${reportDetails}, reporterUserId=${user.userId}, reportedUserId=${reviewToReport?.userId}`);
+        
+        try {
+            const response = await fetch(`http://localhost:18090/api/Reviews/${reviewId}/report`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // 'Authorization': `Bearer ${user.token}` // 인증 토큰이 필요하다면 추가
+                },
+                body: JSON.stringify({
+                    reporterUserId: user.userId, // 신고자 ID
+                    reportedUserId: reviewToReport?.userId, // ⭐⭐ 이 줄이 추가되었습니다! ⭐⭐
+                    reportReason: reportReason,  // 선택된 사유
+                    reportDetails: reportDetails // 상세 사유
+                })
+            });
+
+            if (response.ok) {
+                alert('리뷰가 성공적으로 신고되었습니다. 관리자 확인 후 조치될 예정입니다.');
+                // 신고 성공 후 리뷰 목록을 다시 불러오는 것이 좋습니다.
+                await fetchRestaurantDetails(currentRestaurantData.id); // 리뷰 목록 새로고침
+            } else {
+                const errorText = await response.text();
+                console.error('리뷰 신고 실패:', response.status, response.statusText, errorText);
+                alert(`리뷰 신고 실패: ${errorText || '알 수 없는 오류'}`);
+            }
+        } catch (error) {
+            console.error('리뷰 신고 중 오류 발생:', error);
+            alert('리뷰 신고 중 문제가 발생했습니다. 네트워크 연결을 확인하거나 다시 시도해주세요.');
+        } finally {
+            setIsReportReasonModalOpen(false); // 신고 처리 후 모달 닫기
+            setReviewToReport(null); // 신고할 리뷰 정보 초기화
+        }
+    };
+
+
     return (
         <div className="restaurant-modal-backdrop" onClick={onClose}>
             <div className="restaurant-modal-content-wrapper" onClick={(e) => e.stopPropagation()}>
@@ -271,8 +320,8 @@ const Restaurant = ({ restaurant, onClose }) => {
                             <>
                                 <h1 className="restaurant-info-name">{currentRestaurantData.restaurantName || '식당 이름'}</h1>
                                 <p className="restaurant-info-detail-text"><strong>구장 이름:</strong> {currentRestaurantData.stadiumName || '정보 없음'}</p>
-                                <p className="restaurant-info-detail-text"><strong>구역:</strong> {currentRestaurantData.restaurantLocation || '정보 없음'}</p> {/* Changed zoneName to restaurantLocation based on the JSON structure */}
-                                <p className="restaurant-info-detail-text"><strong>상세 구역:</strong> {currentRestaurantData.zoneName || '정보 없음'}</p> {/* Changed restaurantLocation to zoneName based on the JSON structure */}
+                                <p className="restaurant-info-detail-text"><strong>구역:</strong> {currentRestaurantData.restaurantLocation || '정보 없음'}</p>
+                                <p className="restaurant-info-detail-text"><strong>상세 구역:</strong> {currentRestaurantData.zoneName || '정보 없음'}</p>
                                 <p className="restaurant-info-detail-text">
                                     <strong>예약 가능 여부: </strong>
                                     {currentRestaurantData.restaurantResvStatus === 0 ? '가능' : '불가능'}
@@ -327,6 +376,15 @@ const Restaurant = ({ restaurant, onClose }) => {
                                                         <span className="restaurant-review-date">
                                                             {review.createdDate ? new Date(review.createdDate).toLocaleDateString() : '날짜 없음'}
                                                         </span>
+                                                        {/* ⭐⭐ 신고 버튼 클릭 시 handleReportReview에 review 객체 전달 ⭐⭐ */}
+                                                        {user && user.userId !== review.userId && ( // 본인 리뷰가 아닐 경우에만 표시
+                                                            <button
+                                                                className="restaurant-report-button"
+                                                                onClick={() => handleReportReview(review)} // review 객체 전달
+                                                            >
+                                                                신고
+                                                            </button>
+                                                        )}
                                                     </div>
                                                     <p className="restaurant-review-text">{review.reviewContent}</p>
                                                     {review.reviewImagePath && (
@@ -414,7 +472,6 @@ const Restaurant = ({ restaurant, onClose }) => {
                     onClose={closeReservationModal}
                     title={currentRestaurantData.restaurantName || '예약'}
                     restaurantId={currentRestaurantData.id}
-                    // ✨ 여기에서 currentRestaurantData.menus를 Reserve 컴포넌트에 prop으로 전달합니다.
                     availableMenus={currentRestaurantData.menus || []}
                     restaurantLocation={currentRestaurantData.restaurantLocation}
                     zoneName={currentRestaurantData.zoneName}
@@ -429,6 +486,15 @@ const Restaurant = ({ restaurant, onClose }) => {
                         </div>
                     </div>
                 )}
+
+                {/* ⭐⭐ 신고 사유 모달 추가 ⭐⭐ */}
+                <ReportReasonModal
+                    isOpen={isReportReasonModalOpen}
+                    onClose={() => setIsReportReasonModalOpen(false)}
+                    onSubmit={onReportSubmit}
+                    reviewId={reviewToReport?.reviewId} // 신고할 리뷰의 ID 전달
+                    reviewContent={reviewToReport?.reviewContent} // 신고할 리뷰의 내용 전달 (미리보기용)
+                />
             </div>
         </div>
     );

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.Reserve.dao.ReservationDAO">
+
+    <resultMap id="reservationMap" type="fs.human.yabab.Reserve.vo.ReservationDTO">
+        <id property="resvId" column="RESV_ID"/>
+        <result property="restaurantId" column="RESTAURANT_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="resvDate" column="RESV_DATE"/>
+        <result property="resvTime" column="RESV_TIME"/>
+        <result property="resvPersonCount" column="RESV_PERSON_COUNT"/>
+        <result property="resvRequest" column="RESV_REQUEST"/>
+        <result property="resvStatus" column="RESV_STATUS"/>
+        <result property="createdDate" column="CREATED_DATE"/>
+        <result property="createdBy" column="CREATED_BY"/>
+        <result property="updatedDate" column="UPDATED_DATE"/>
+        <result property="updatedBy" column="UPDATED_BY"/>
+        <collection property="reservationMenus"
+                    ofType="fs.human.yabab.Reserve.vo.ReservationMenuDTO"
+                    column="{resvId=RESV_ID}" select="fs.human.yabab.Reserve.dao.ReservationMenuDAO.selectReservationMenusByResvId"/>
+    </resultMap>
+
+    <insert id="insertReservation" parameterType="fs.human.yabab.Reserve.vo.ReservationDTO">
+        <selectKey keyProperty="resvId" resultType="Long" order="BEFORE">
+            SELECT RESV_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO TB_RESERVATION (
+        RESV_ID,            RESTAURANT_ID,
+        USER_ID,
+        RESV_DATE,
+        RESV_TIME,
+        RESV_PERSON_COUNT,
+        RESV_REQUEST,
+        RESV_STATUS,
+        CREATED_DATE
+        ) VALUES (
+        #{resvId},          #{restaurantId},
+        #{userId},
+        #{resvDate, jdbcType=DATE},       #{resvTime, jdbcType=VARCHAR},    #{resvPersonCount, jdbcType=INTEGER}, #{resvRequest},
+        #{resvStatus},
+        #{createdDate}
+        )
+    </insert>
+
+    <select id="selectReservationById" parameterType="long" resultMap="reservationMap">
+        SELECT
+        RESV_ID, RESTAURANT_ID, USER_ID, RESV_DATE, RESV_TIME,
+        RESV_PERSON_COUNT, RESV_REQUEST, RESV_STATUS, CREATED_DATE, CREATED_BY,
+        UPDATED_DATE, UPDATED_BY
+        FROM TB_RESERVATION
+        WHERE RESV_ID = #{resvId}
+    </select>
+
+    <select id="selectReservationsByUserId" parameterType="string" resultMap="reservationMap">
+        SELECT
+        RESV_ID, RESTAURANT_ID, USER_ID, RESV_DATE, RESV_TIME,
+        RESV_PERSON_COUNT, RESV_REQUEST, RESV_STATUS, CREATED_DATE, CREATED_BY,
+        UPDATED_DATE, UPDATED_BY
+        FROM TB_RESERVATION
+        WHERE USER_ID = #{userId}
+        ORDER BY CREATED_DATE DESC
+    </select>
+
+    <update id="updateReservation" parameterType="fs.human.yabab.Reserve.vo.ReservationDTO">
+        UPDATE TB_RESERVATION
+        <set>
+            <if test="resvDate != null">RESV_DATE = #{resvDate},</if>
+            <if test="resvTime != null">RESV_TIME = #{resvTime},</if>
+            <if test="resvPersonCount != null">RESV_PERSON_COUNT = #{resvPersonCount},</if>
+            <if test="resvRequest != null">RESV_REQUEST = #{resvRequest},</if>
+            <if test="resvStatus != null">RESV_STATUS = #{resvStatus},</if>
+            UPDATED_DATE = SYSDATE,
+            <if test="updatedBy != null">UPDATED_BY = #{updatedBy}</if>
+        </set>
+        WHERE RESV_ID = #{resvId}
+    </update>
+
+    <update id="updateReservationStatus">
+        UPDATE TB_RESERVATION
+        SET
+        RESV_STATUS = #{resvStatus},
+        UPDATED_DATE = SYSDATE,
+        UPDATED_BY = #{updatedBy}
+        WHERE RESV_ID = #{resvId}
+    </update>
+
+    <delete id="deleteReservation" parameterType="long">
+        DELETE FROM TB_RESERVATION
+        WHERE RESV_ID = #{resvId}
+    </delete>
+
+</mapper>

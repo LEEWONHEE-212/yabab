@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fs.human.yabab.ReviewReport.dao.ReviewReportDAO">
+
+    <!-- 결과를 ReviewReportDTO에 매핑하기 위한 resultMap -->
+    <resultMap id="reviewReportDTOResultMap" type="fs.human.yabab.ReviewReport.vo.ReviewReportDTO">
+        <id property="reportId" column="REPORT_ID"/>
+        <result property="reviewId" column="REVIEW_ID"/>
+        <result property="reporterUserId" column="REPORTER_USER_ID"/>
+        <result property="reportedUserId" column="REPORTED_USER_ID"/>
+        <result property="reportReason" column="REPORT_REASON"/>
+        <result property="reportDetails" column="REPORT_DETAILS"/>
+        <result property="status" column="STATUS"/>
+        <result property="processedBy" column="PROCESSED_BY"/>
+        <result property="processedDate" column="PROCESSED_DATE"/>
+        <result property="actionTaken" column="ACTION_TAKEN"/>
+        <result property="memo" column="MEMO"/>
+        <!-- BaseVO에 정의된 감사(Audit) 필드 매핑 -->
+        <result property="createdDate" column="CREATED_DATE"/>
+        <result property="createdBy" column="CREATED_BY"/>
+        <result property="updatedDate" column="UPDATED_DATE"/>
+        <result property="updatedBy" column="UPDATED_BY"/>
+    </resultMap>
+
+    <!-- 새로운 리뷰 신고 정보를 TB_REPORT 테이블에 삽입 -->
+    <!-- REPORT_ID는 Oracle 시퀀스에 의해 자동 생성됩니다. -->
+    <!-- CREATED_DATE, STATUS는 테이블의 DEFAULT 값 (SYSDATE, 'PENDING')에 의해 자동 설정됩니다. -->
+    <insert id="insertReport" parameterType="fs.human.yabab.ReviewReport.vo.ReviewReportDTO">
+        <selectKey keyProperty="reportId" resultType="long" order="BEFORE">
+            SELECT TB_REPORT_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO TB_REPORT (
+        REPORT_ID,
+        REVIEW_ID,
+        REPORTER_USER_ID,
+        REPORTED_USER_ID,
+        REPORT_REASON,
+        REPORT_DETAILS,
+        CREATED_DATE,    <!-- ⭐⭐ CREATED_DATE 컬럼 다시 추가 ⭐⭐ -->
+        CREATED_BY,
+        STATUS
+        ) VALUES (
+        #{reportId},
+        #{reviewId},
+        #{reporterUserId},
+        #{reportedUserId},
+        #{reportReason},
+        #{reportDetails},
+        SYSDATE,         <!-- ⭐⭐ SYSDATE로 직접 값 설정 ⭐⭐ -->
+        #{createdBy, jdbcType=VARCHAR},
+        #{status, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <!-- 특정 신고 ID로 신고 정보를 조회 -->
+    <select id="selectReportById" parameterType="long" resultMap="reviewReportDTOResultMap">
+        SELECT
+        REPORT_ID, REVIEW_ID, REPORTER_USER_ID, REPORTED_USER_ID,
+        REPORT_REASON, REPORT_DETAILS, CREATED_DATE, CREATED_BY,
+        UPDATED_DATE, UPDATED_BY, STATUS, PROCESSED_BY, PROCESSED_DATE,
+        ACTION_TAKEN, MEMO
+        FROM TB_REPORT
+        WHERE REPORT_ID = #{reportId}
+    </select>
+
+    <!-- 특정 리뷰 ID에 해당하는 모든 신고 목록을 조회 -->
+    <select id="selectReportsByReviewId" parameterType="long" resultMap="reviewReportDTOResultMap">
+        SELECT
+        REPORT_ID, REVIEW_ID, REPORTER_USER_ID, REPORTED_USER_ID,
+        REPORT_REASON, REPORT_DETAILS, CREATED_DATE, CREATED_BY,
+        UPDATED_DATE, UPDATED_BY, STATUS, PROCESSED_BY, PROCESSED_DATE,
+        ACTION_TAKEN, MEMO
+        FROM TB_REPORT
+        WHERE REVIEW_ID = #{reviewId}
+        ORDER BY CREATED_DATE DESC
+    </select>
+
+    <!-- 신고 상태 업데이트 -->
+    <update id="updateReportStatus">
+        UPDATE TB_REPORT
+        SET
+        STATUS = #{status},
+        UPDATED_DATE = SYSDATE,
+        UPDATED_BY = #{updatedBy}
+        WHERE REPORT_ID = #{reportId}
+    </update>
+
+    <!-- 신고 처리 세부 정보 업데이트 (관리자용) -->
+    <update id="updateReportProcessedDetails">
+        UPDATE TB_REPORT
+        SET
+        STATUS = #{status},
+        PROCESSED_BY = #{processedBy},
+        PROCESSED_DATE = SYSDATE,
+        ACTION_TAKEN = #{actionTaken},
+        MEMO = #{memo},
+        UPDATED_DATE = SYSDATE,
+        UPDATED_BY = #{updatedBy}
+        WHERE REPORT_ID = #{reportId}
+    </update>
+
+</mapper>

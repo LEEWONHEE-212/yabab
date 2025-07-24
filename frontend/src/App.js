@@ -14,8 +14,12 @@ function App() {
         <Route path='/' element={<MainPage />} />
         <Route path='/owner' element={<OwnerPage />} />
         <Route path='/add-AddRestaurant' element={<AddRestaurantPage/>} />
+<<<<<<< HEAD
         <Route path='/stadium' element={<StadiumPage />} />
         <Route path='/feed/*' element={<FeedPage />} />
+=======
+        <Route path='/stadium/:stadiumId' element={<StadiumPage />} />
+>>>>>>> 66f5af3 (예약하기 기능추가)
       </Routes>
   );
 }

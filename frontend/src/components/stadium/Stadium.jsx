@@ -3,8 +3,11 @@ import axios from 'axios';
 import './Stadium.css';
 import Restaurant from '../restaurant/Restaurant';
 import Header from '../common/Header';
+import { useParams } from 'react-router-dom'; // useParams를 임포트합니다.
 
-const StadiumPage = () => {
+const Stadium = () => {
+    const { stadiumId } = useParams(); // URL에서 stadiumId를 추출합니다.
+
     const [currentPage, setCurrentPage] = useState(1);
     const [currentPageGroup, setCurrentPageGroup] = useState(1);
 
@@ -29,7 +32,7 @@ const StadiumPage = () => {
     // 필터 미선택 시 메시지 표시를 위한 상태 (가장 중요하게 추가되는 부분)
     const [showNoFilterSelectedMessage, setShowNoFilterSelectedMessage] = useState(true);
 
-    const STADIUM_ID = 1;
+    const parsedStadiumId = parseInt(stadiumId); // stadiumId는 문자열로 오므로 숫자로 변환합니다.
     const RESTAURANTS_PER_PAGE = 5;
     const PAGE_GROUP_SIZE = 10;
 
@@ -82,7 +85,8 @@ const StadiumPage = () => {
     useEffect(() => {
         const fetchStadiumInfo = async () => {
             try {
-                const response = await axios.get(`http://localhost:18090/api/kakaomap/stadium/${STADIUM_ID}/location`);
+                // useParams로 받은 stadiumId를 사용합니다.
+                const response = await axios.get(`http://localhost:18090/api/kakaomap/stadium/${parsedStadiumId}/location`);
                 setStadiumData(response.data);
                 console.log('백엔드에서 받은 경기장 정보:', response.data);
             } catch (error) {
@@ -96,8 +100,11 @@ const StadiumPage = () => {
                 });
             }
         };
-        fetchStadiumInfo();
-    }, [STADIUM_ID]);
+        // stadiumId가 유효할 때만 호출합니다.
+        if (parsedStadiumId) {
+            fetchStadiumInfo();
+        }
+    }, [parsedStadiumId]); // stadiumId가 변경될 때마다 호출되도록 의존성 배열에 추가합니다.
 
     useEffect(() => {
         if (mapLoaded && stadiumData && kakaoAppKey) {
@@ -143,7 +150,7 @@ const StadiumPage = () => {
         });
     };
 
-     // ======================== 카카오맵 관련 로직 끝 ========================
+    // ======================== 카카오맵 관련 로직 끝 ========================
 
     // 필터 변경 핸들러 - 수정
     const handleFilterChange = (filterType, value) => {
@@ -194,7 +201,7 @@ const StadiumPage = () => {
             setIsLoading(true); // 로딩 시작
             try {
                 const params = {
-                    stadiumId: STADIUM_ID,
+                    stadiumId: parsedStadiumId, // useParams로 받은 stadiumId를 사용합니다.
                     restaurantInsideFlag: 0, // '구장 내부' 식당으로 고정
                     sortBy: 'rating', // 정렬 기준은 별점순으로 고정
                     page: currentPage - 1,
@@ -230,9 +237,12 @@ const StadiumPage = () => {
             }
         };
 
+        // stadiumId가 유효할 때만 식당 정보를 가져옵니다.
+        if (parsedStadiumId) {
+            fetchRestaurants();
+        }
+    }, [currentPage, parsedStadiumId, currentPageGroup, selectedInfieldOutfield, selectedBase, selectedFloor]);
 
-        fetchRestaurants();
-    }, [currentPage, STADIUM_ID, currentPageGroup, selectedInfieldOutfield, selectedBase, selectedFloor]);
 
     const renderStars = (rating) => {
         const fullStars = Math.floor(rating);
@@ -325,7 +335,7 @@ const StadiumPage = () => {
 
     return (
         <div className="stadium-page">
-        
+
         <Header/>
 
         {/* Kakao Map Section */}
@@ -491,4 +501,4 @@ const StadiumPage = () => {
     );
 };
 
-export default StadiumPage;
+export default Stadium;

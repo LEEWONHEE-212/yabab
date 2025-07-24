@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.MyPage.dao.MyPageReservationDAO">
+
+    <resultMap id="reservationResultMap" type="fs.human.yabab.MyPage.vo.MyPageReservationDTO">
+        <id property="reservationId" column="RESV_ID"/>
+        <result property="restaurantName" column="RESTAURANT_NAME"/> <result property="reservationDate" column="RESV_DATE"/>
+        <result property="reservationTime" column="RESV_TIME"/>
+        <result property="personCount" column="RESV_PERSON_COUNT"/>
+        <result property="reservationRequest" column="RESV_REQUEST"/>
+        <result property="status" column="RESV_STATUS_STR"/> <collection property="menuItems" ofType="fs.human.yabab.MyPage.vo.MyPageReservationMenuDTO"
+                                                                         javaType="java.util.ArrayList"
+                                                                         column="RESV_ID" select="getReservationMenusForReservation">
+    </collection>
+    </resultMap>
+
+    <select id="getReservationsByUserId" resultMap="reservationResultMap">
+        SELECT
+        TR.RESV_ID,
+        TR.RESTAURANT_ID,
+        TRE.RESTAURANT_NAME, TR.USER_ID,
+        TR.RESV_DATE,
+        TR.RESV_TIME,
+        TR.RESV_PERSON_COUNT,
+        TR.RESV_REQUEST,
+        TR.RESV_STATUS,
+        CASE TR.RESV_STATUS
+        WHEN 0 THEN '대기 중'
+        WHEN 1 THEN '확정'
+        WHEN 2 THEN '취소'
+        ELSE '알 수 없음'
+        END AS RESV_STATUS_STR,
+        TR.CREATED_DATE
+        FROM
+        TB_RESERVATION TR
+        INNER JOIN
+        TB_RESTAURANT TRE ON TR.RESTAURANT_ID = TRE.RESTAURANT_ID WHERE
+        TR.USER_ID = #{userId}
+        ORDER BY
+        TR.CREATED_DATE DESC, TR.RESV_DATE DESC
+    </select>
+
+    <select id="getReservationMenusForReservation" resultType="fs.human.yabab.MyPage.vo.MyPageReservationMenuDTO">
+        SELECT
+        TRM.MENU_ID,
+        TM.MENU_NAME, TRM.QUANTITY,
+        TRM.MENU_PRICE_AT_RESV AS menuPriceAtReservation FROM
+        TB_RESERVATION_MENU TRM
+        INNER JOIN
+        TB_MENU TM ON TRM.MENU_ID = TM.MENU_ID WHERE
+        TRM.RESV_ID = #{resvId}
+        ORDER BY
+        TRM.RESV_MENU_ID ASC
+    </select>
+
+
+    <resultMap id="reviewResultMap" type="fs.human.yabab.MyPage.vo.MyPageReviewDTO">
+        <id property="reviewId" column="REVIEW_ID"/>
+        <result property="authorNickname" column="USER_NICKNAME"/> <result property="restaurantName" column="RESTAURANT_NAME"/> <result property="content" column="REVIEW_CONTENT"/>
+        <result property="rating" column="REVIEW_RATING"/>
+        <result property="reviewImageUrl" column="FULL_IMAGE_URL"/>
+        <result property="createdAt" column="CREATED_DATE"/>
+        <result property="likesCount" column="LIKES_COUNT"/>     <result property="commentsCount" column="COMMENTS_COUNT"/> </resultMap>
+
+    <select id="getReviewsByUserId" resultMap="reviewResultMap">
+        SELECT
+        TR.REVIEW_ID,
+        TR.USER_ID,
+        TU.USER_NICKNAME, TR.RESTAURANT_ID,
+        TRE.RESTAURANT_NAME, TR.REVIEW_CONTENT,
+        TR.REVIEW_RATING,
+        TR.REVIEW_IMAGE_PATH,
+        TR.REVIEW_IMAGE_NAME,
+        (CASE WHEN TR.REVIEW_IMAGE_PATH IS NOT NULL AND TR.REVIEW_IMAGE_NAME IS NOT NULL THEN
+        '/api/images' || TR.REVIEW_IMAGE_PATH || '/' || TR.REVIEW_IMAGE_NAME
+        ELSE NULL END) AS FULL_IMAGE_URL,
+        TR.CREATED_DATE,
+        0 AS LIKES_COUNT,
+        0 AS COMMENTS_COUNT
+        FROM
+        TB_REVIEW TR
+        INNER JOIN
+        TB_USER TU ON TR.USER_ID = TU.USER_ID INNER JOIN
+        TB_RESTAURANT TRE ON TR.RESTAURANT_ID = TRE.RESTAURANT_ID WHERE
+        TR.USER_ID = #{userId}
+        AND TR.REVIEW_DELETED_FLAG = 0 ORDER BY
+        TR.CREATED_DATE DESC
+    </select>
+
+</mapper>

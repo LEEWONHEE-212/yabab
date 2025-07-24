@@ -1,51 +1,109 @@
-// src/pages/EditProfilePage.js
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './EditProfilePage.css'; // EditProfilePage 전용 CSS 또는 모듈 CSS
+import React, { useState, useEffect, useContext } from 'react';
+import axios from 'axios';
+import { UserContext } from '../../context/UserContext';
+import './EditProfilePage.css';
 
-function EditProfilePage() {
-    const navigate = useNavigate();
-    // 실제로는 API에서 사용자 정보를 불러와 초기값으로 설정합니다.
+function EditProfilePage({ isOpen, onClose }) {
+    const { user, setUser } = useContext(UserContext);
+
     const [formData, setFormData] = useState({
-        nickname: '',
-        name: '',
-        team: '',
-        profileImage: '' // 현재 이미지 URL 또는 파일 객체
+        userNickname: '',
+        userName: '',
+        userFavoriteTeam: '',
+        userEmail: '',
+        userPhone: '',
+        currentProfileImageUrl: '',
     });
-    const [loading, setLoading] = useState(true);
+
+    const [imageFile, setImageFile] = useState(null);
+    const [teams, setTeams] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // 실제 API 호출로 현재 사용자 정보를 가져오는 시뮬레이션
-        const fetchUserData = async () => {
-            try {
-                setLoading(true);
-                // 더미 데이터 (실제로는 fetch('/api/user/profile'))
-                const response = {
-                    nickname: '사용자닉네임',
-                    name: '성 이 름',
-                    team: 'NC다이노스',
-                    profileImage: 'https://via.placeholder.com/100'
-                };
-                setFormData(response);
-            } catch (err) {
-                setError('사용자 정보를 불러오는데 실패했습니다.');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUserData();
-    }, []);
+        if (isOpen && user) {
+            const initialImageUrl =
+                user.userImagePath && user.userImageName
+                    ? `http://localhost:18090${user.userImagePath}${user.userImageName}`
+                    : '';
+
+            setFormData({
+                userNickname: user.userNickname || '',
+                userName: user.userName || '',
+                userFavoriteTeam: user.userFavoriteTeam || '',
+                userEmail: user.userEmail || '',
+                userPhone: user.userPhone || '',
+                currentProfileImageUrl: initialImageUrl,
+            });
+            setImageFile(null);
+            setError(null);
+            setLoading(false);
+            fetchTeams();
+        }
+    }, [user, isOpen]);
+
+    const fetchTeams = async () => {
+        try {
+            const response = await axios.get('http://localhost:18090/api/mypage/teams');
+            setTeams(response.data);
+        } catch (err) {
+            console.error('팀 목록 로드 실패:', err);
+            setError('팀 목록을 불러오는데 실패했습니다.');
+        }
+    };
+
+    if (!isOpen) return null;
 
     const handleChange = (e) => {
-        const { name, value, files } = e.target;
-        if (name === 'profileImage' && files && files[0]) {
-            // 파일 입력 처리 (여기서는 단순히 파일 객체를 저장)
-            // 실제로는 파일을 서버에 업로드하고 URL을 받아와야 합니다.
-            setFormData(prev => ({ ...prev, [name]: URL.createObjectURL(files[0]) })); // 미리보기용 URL
-        } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setFormData(prev => ({ ...prev, currentProfileImageUrl: URL.createObjectURL(file) }));
+        }
+    };
+
+    const handleDeleteImage = async () => {
+        if (!user || !user.userId) {
+            setError("사용자 ID를 찾을 수 없습니다.");
+            return;
+        }
+
+        if (!window.confirm('정말로 프로필 이미지를 삭제하시겠습니까?')) return;
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const token = sessionStorage.getItem('token');
+            await axios.delete(`http://localhost:18090/api/mypage/${user.userId}/profile/image`, {
+                headers: {
+                    ...(token && { Authorization: `Bearer ${token}` })
+                }
+            });
+
+            const newUserContext = {
+                ...user,
+                userImagePath: null,
+                userImageName: null,
+            };
+            setUser(newUserContext);
+            sessionStorage.setItem("user", JSON.stringify(newUserContext));
+
+            setFormData(prev => ({ ...prev, currentProfileImageUrl: '' }));
+            setImageFile(null);
+
+            alert('프로필 이미지가 성공적으로 삭제되었습니다.');
+        } catch (err) {
+            console.error('프로필 이미지 삭제 실패:', err);
+            const errorMessage = err.response?.data?.message || '이미지 삭제에 실패했습니다. 다시 시도해주세요.';
+            setError(errorMessage);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -53,89 +111,176 @@ function EditProfilePage() {
         e.preventDefault();
         setLoading(true);
         setError(null);
+
         try {
-            // 실제 API 호출 (예: fetch('/api/user/profile', { method: 'PUT', body: JSON.stringify(formData) }))
-            console.log('수정된 정보:', formData);
-            // API 호출 성공 시
+            const userId = user.userId;
+            if (!userId) throw new Error("사용자 ID를 찾을 수 없습니다.");
+
+            const formDataToSend = new FormData();
+
+            const userData = {
+                userId: userId, // 반드시 포함!
+                userNickname: formData.userNickname,
+                userName: formData.userName,
+                userEmail: formData.userEmail,
+                userPhone: formData.userPhone,
+                userFavoriteTeam: formData.userFavoriteTeam,
+            };
+
+            // ✅ 수정된 부분: Blob으로 JSON 전송
+            formDataToSend.append(
+                'data',
+                new Blob([JSON.stringify(userData)], { type: 'application/json' })
+            );
+
+            if (imageFile) {
+                formDataToSend.append('profileImage', imageFile);
+            }
+
+            const token = sessionStorage.getItem('token');
+
+            const response = await axios.put(
+                `http://localhost:18090/api/mypage/${userId}/profile`,
+                formDataToSend,
+                {
+                    headers: {
+                        ...(token && { Authorization: `Bearer ${token}` }),
+                        // ❌ Content-Type 지정하지 마세요. Axios가 자동 설정
+                    },
+                }
+            );
+
+            const updatedUser = response.data;
+            const newUserContext = {
+                ...user,
+                userNickname: updatedUser.userNickname,
+                userName: updatedUser.userName,
+                userFavoriteTeam: updatedUser.userFavoriteTeam,
+                userEmail: updatedUser.userEmail,
+                userPhone: updatedUser.userPhone,
+                userImagePath: updatedUser.userImagePath,
+                userImageName: updatedUser.userImageName,
+            };
+
+            setUser(newUserContext);
+            sessionStorage.setItem("user", JSON.stringify(newUserContext));
+
             alert('정보가 성공적으로 수정되었습니다!');
-            navigate('/mypage'); // 마이페이지로 돌아가기
+            onClose();
         } catch (err) {
-            setError('정보 수정에 실패했습니다.');
-            console.error(err);
+            console.error('프로필 업데이트 실패:', err);
+            const errorMessage = err.response?.data?.message || '정보 수정에 실패했습니다. 다시 시도해주세요.';
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleCancel = () => {
-        navigate('/mypage'); // 마이페이지로 돌아가기
-    };
-
-    if (loading) {
-        return <div className="loading">사용자 정보 로딩 중...</div>;
-    }
-    if (error) {
-        return <div className="error">{error}</div>;
-    }
-
     return (
-        <div className="edit-profile-container">
-            <h1>내 정보 수정</h1>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="profileImage">프로필 이미지</label>
-                    <div className="profile-image-preview">
-                        {formData.profileImage ? <img src={formData.profileImage} alt="프로필 미리보기" /> : <div className="placeholder-image">이미지 없음</div>}
+        <div className="modal-overlay">
+            <div className="edit-profile-modal">
+                <h2>내 정보 수정</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group profile-image-group">
+                        <label htmlFor="userProfileImage">프로필 이미지</label>
+                        <div className="profile-image-preview">
+                            {formData.currentProfileImageUrl ? (
+                                <img src={formData.currentProfileImageUrl} alt="Profile Preview"/>
+                            ) : (
+                                <div className="placeholder-image">이미지 없음</div>
+                            )}
+                        </div>
                         <input
                             type="file"
-                            id="profileImage"
-                            name="profileImage"
+                            id="userProfileImage"
+                            name="userProfileImage"
                             accept="image/*"
+                            onChange={handleImageChange}
+                        />
+                        {formData.currentProfileImageUrl && (
+                            <button
+                                type="button"
+                                onClick={handleDeleteImage}
+                                disabled={loading}
+                                className="delete-image-btn"
+                            >
+                                이미지 삭제
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="userNickname">닉네임</label>
+                        <input
+                            type="text"
+                            id="userNickname"
+                            name="userNickname"
+                            value={formData.userNickname}
                             onChange={handleChange}
+                            required
                         />
                     </div>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="nickname">닉네임</label>
-                    <input
-                        type="text"
-                        id="nickname"
-                        name="nickname"
-                        value={formData.nickname}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="name">성명</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="team">응원하는 팀</label>
-                    <input
-                        type="text"
-                        id="team"
-                        name="team"
-                        value={formData.team}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="form-actions">
-                    <button type="submit" disabled={loading}>
-                        {loading ? '저장 중...' : '저장'}
-                    </button>
-                    <button type="button" onClick={handleCancel} disabled={loading}>
-                        취소
-                    </button>
-                </div>
-            </form>
+                    <div className="form-group">
+                        <label htmlFor="userName">성명</label>
+                        <input
+                            type="text"
+                            id="userName"
+                            name="userName"
+                            value={formData.userName}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="userFavoriteTeam">응원하는 팀</label>
+                        <select
+                            id="userFavoriteTeam"
+                            name="userFavoriteTeam"
+                            value={formData.userFavoriteTeam}
+                            onChange={handleChange}
+                        >
+                            <option value="">-- 팀 선택 --</option>
+                            {teams.map((team) => (
+                                <option key={team.teamId} value={team.teamName}>
+                                    {team.teamName}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="userEmail">이메일</label>
+                        <input
+                            type="email"
+                            id="userEmail"
+                            name="userEmail"
+                            value={formData.userEmail}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="userPhone">전화번호</label>
+                        <input
+                            type="tel"
+                            id="userPhone"
+                            name="userPhone"
+                            value={formData.userPhone}
+                            onChange={handleChange}
+                            placeholder="010-1234-5678"
+                        />
+                    </div>
+
+                    {error && <div className="error-message">{error}</div>}
+                    <div className="form-actions">
+                        <button type="submit" disabled={loading}>
+                            {loading ? '저장 중...' : '저장'}
+                        </button>
+                        <button type="button" onClick={onClose} disabled={loading}>
+                            취소
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }

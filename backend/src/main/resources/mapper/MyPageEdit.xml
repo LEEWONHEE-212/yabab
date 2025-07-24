@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.MyPage.dao.MyPageEditDAO">
+
+    <select id="selectAllTeams" resultType="fs.human.yabab.MyPage.vo.MyPageTeamDTO">
+        SELECT
+        TEAM_ID AS teamId,
+        TEAM_NAME AS teamName
+        FROM
+        TB_TEAM
+        ORDER BY
+        TEAM_NAME ASC
+    </select>
+
+    <update id="updateUserInfo" parameterType="fs.human.yabab.MyPage.vo.MyPageEditDTO">
+        UPDATE TB_USER
+        SET
+        USER_NICKNAME = #{userNickname},
+        USER_NAME = #{userName},
+        USER_EMAIL = #{userEmail},
+        USER_PHONE = #{userPhone},
+        USER_FAVORITE_TEAM = #{userFavoriteTeam}
+        WHERE
+        USER_ID = #{userId}
+    </update>
+
+    <update id="updateUserProfileImage">
+        UPDATE TB_USER
+        SET
+        USER_IMAGE_PATH = #{userImagePath},
+        USER_IMAGE_NAME = #{userImageName}
+        WHERE
+        USER_ID = #{userId}
+    </update>
+
+    <update id="deleteUserProfileImage">
+        UPDATE TB_USER
+        SET
+        USER_IMAGE_PATH = NULL,
+        USER_IMAGE_NAME = NULL
+        WHERE
+        USER_ID = #{userId}
+    </update>
+
+</mapper>

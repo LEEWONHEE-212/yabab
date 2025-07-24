@@ -1,11 +1,70 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import axios from 'axios';
-import './Owner.css';
+import './Owner.css'; // CSS 파일
 import EditRestaurant from './EditRestaurant';
 import { useNavigate, Link } from 'react-router-dom';
 import Header from '../common/Header';
 import { UserContext } from '../../context/UserContext';
 
+// ReservationDetailModal 컴포넌트 정의
+const ReservationDetailModal = ({ reservation, onClose }) => {
+    if (!reservation) return null;
+
+    // 예약 일시 포맷팅 함수는 더 이상 사용되지 않지만, 혹시 다른 곳에서 사용될까봐 유지합니다.
+    const formatDateTime = (date, time) => {
+        if (!date || !time) return '정보 없음';
+        const datePart = date.split('T')[0]; // YYYY-MM-DD
+        const timePart = time.substring(0, 5); // HH:MM
+        return `${datePart} ${timePart}`;
+    };
+
+    return (
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <h2 className="modal-title">주문 번호: {reservation.orderNumber} 상세 내역</h2>
+                <div className="modal-section">
+                    <h3>총 주문 정보</h3>
+                    <p><strong>주문 번호:</strong> {reservation.orderNumber}</p>
+                    <p><strong>총 주문 개수:</strong> {reservation.quantity}개</p>
+                    <p><strong>총 결제 금액:</strong> {reservation.totalPrice?.toLocaleString() || '0'}원</p>
+                    <p><strong>현재 상태:</strong> {reservation.status}</p>
+                </div>
+
+                <div className="modal-section">
+                    <h3>주문 메뉴 상세</h3>
+                    {reservation.reservationMenus && reservation.reservationMenus.length > 0 ? (
+                        <table className="modal-menu-table">
+                            <thead>
+                                <tr>
+                                    <th>메뉴 이름</th>
+                                    <th>개별 가격</th>
+                                    <th>수량</th>
+                                    <th>합계 금액</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {reservation.reservationMenus.map((item, index) => (
+                                    <tr key={index}>
+                                        <td>{item.menuName}</td>
+                                        <td>{item.menuPrice?.toLocaleString() || '0'}원</td>
+                                        <td>{item.quantity}개</td>
+                                        <td>{(item.menuPrice * item.quantity)?.toLocaleString() || '0'}원</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <p>주문된 메뉴가 없습니다.</p>
+                    )}
+                </div>
+                <button className="modal-close-button" onClick={onClose}>닫기</button>
+            </div>
+        </div>
+    );
+};
+
+// Owner 컴포넌트는 변경 사항이 없습니다.
+// (ReservationDetailModal 컴포넌트 호출 부분은 그대로 유지됩니다.)
 const Owner = () => {
     const navigate = useNavigate();
     const { user, setUser } = useContext(UserContext);
@@ -22,6 +81,11 @@ const Owner = () => {
     const [newMenuItem, setNewMenuItem] = useState({ name: '', price: '' });
     const [editingMenuId, setEditingMenuId] = useState(null);
 
+    // 모달 관련 상태 추가
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [selectedReservation, setSelectedReservation] = useState(null);
+
+
     // 식당 정보를 가져오는 함수
     const fetchRestaurantInfo = useCallback(async () => {
         // user가 없거나 role이 2가 아니면 접근 제한
@@ -32,7 +96,6 @@ const Owner = () => {
             return;
         }
 
-        // user.userId로 수정
         const ownerId = user.userId;
 
         try {
@@ -70,7 +133,7 @@ const Owner = () => {
         }
     }, []);
 
-    // 예약 정보를 가져오는 함수 (이전과 동일)
+    // 예약 정보를 가져오는 함수 (수정됨: 주문 번호, 메뉴, 갯수, 총 가격 포함)
     const fetchReservations = useCallback(async (restaurantId) => {
         if (!restaurantId) {
             console.warn("fetchReservations: restaurantId가 없어 예약 정보를 가져올 수 없습니다.");
@@ -79,16 +142,31 @@ const Owner = () => {
         try {
             console.log(`fetchReservations: http://localhost:18090/api/restaurants/${restaurantId}/reservations 호출 시도`);
             const response = await axios.get(`http://localhost:18090/api/restaurants/${restaurantId}/reservations`);
-            setReservations(response.data);
-            console.log("fetchReservations: 예약 정보 성공적으로 가져옴:", response.data);
+            // 각 예약에 대해 메뉴 정보와 총 가격을 계산하여 추가
+            const reservationsWithDetails = response.data.map(reservation => {
+                const totalQuantity = reservation.reservationMenus.reduce((sum, item) => sum + item.quantity, 0);
+                const totalPrice = reservation.reservationMenus.reduce((sum, item) => sum + (item.menuPrice * item.quantity), 0);
+                const menuNames = reservation.reservationMenus.map(item => item.menuName).join(', '); // 메뉴 이름을 콤마로 연결
+
+                return {
+                    ...reservation,
+                    orderNumber: reservation.id, // 예약 ID를 주문 번호로 사용
+                    menu: menuNames,
+                    quantity: totalQuantity,
+                    totalPrice: totalPrice,
+                    // 고객명과 연락처는 fetchReservations에서는 계속 가져오지만, 모달에서 표시하지 않음
+                    customerName: reservation.customer ? reservation.customer.userName : '알 수 없음',
+                    customerPhone: reservation.customer ? reservation.customer.userPhone : '알 수 없음',
+                };
+            });
+            setReservations(reservationsWithDetails);
+            console.log("fetchReservations: 예약 정보 성공적으로 가져옴:", reservationsWithDetails);
         } catch (err) {
             console.error("fetchReservations 실패:", err);
         }
     }, []);
 
     useEffect(() => {
-        // user 객체가 유효할 때만 fetchRestaurantInfo 호출
-        // UserContext의 user 상태가 변경되면 이 useEffect가 다시 실행됩니다.
         if (user) {
             console.log("useEffect: UserContext의 user가 설정됨. fetchRestaurantInfo 호출");
             fetchRestaurantInfo();
@@ -153,7 +231,6 @@ const Owner = () => {
             console.warn('식당 정보가 없어 메뉴를 추가할 수 없습니다.');
             return;
         }
-        // user.userId로 수정
         if (!user || !user.userId) {
             alert('사용자 정보가 없어 메뉴를 추가할 수 없습니다.');
             console.warn('사용자 정보가 없어 메뉴를 추가할 수 없습니다.');
@@ -166,7 +243,6 @@ const Owner = () => {
                     restaurantId: currentRestaurant.id,
                     menuName: newMenuItem.name,
                     menuPrice: parseInt(newMenuItem.price, 10),
-                    // user.userId로 수정
                     createdBy: user.userId
                 });
                 const response = await axios.post(
@@ -175,7 +251,6 @@ const Owner = () => {
                         restaurantId: currentRestaurant.id,
                         menuName: newMenuItem.name,
                         menuPrice: parseInt(newMenuItem.price, 10),
-                        // user.userId로 수정
                         createdBy: user.userId
                     }
                 );
@@ -209,7 +284,6 @@ const Owner = () => {
             console.warn('메뉴 이름과 가격을 입력해주세요.');
             return;
         }
-        // user.userId로 수정
         if (!user || !user.userId) {
             alert('사용자 정보가 없어 메뉴를 수정할 수 없습니다.');
             console.warn('사용자 정보가 없어 메뉴를 수정할 수 없습니다.');
@@ -230,7 +304,6 @@ const Owner = () => {
                 console.log("handleEditMenuSave: 메뉴 수정 시도. ID:", editingMenuId, "데이터:", updatedMenu);
                 await axios.put(`http://localhost:18090/api/owner/restaurants/menus/${editingMenuId}`, updatedMenu, {
                     params: {
-                        // user.userId로 수정 (쿼리 파라미터로 보낼 경우)
                         ownerId: user.userId
                     }
                 });
@@ -284,6 +357,19 @@ const Owner = () => {
         }
     };
 
+    // 모달 열기 핸들러
+    const handleShowDetail = (reservation) => {
+        setSelectedReservation(reservation);
+        setShowDetailModal(true);
+    };
+
+    // 모달 닫기 핸들러
+    const handleCloseDetailModal = () => {
+        setShowDetailModal(false);
+        setSelectedReservation(null);
+    };
+
+
     // 초기 로딩 중이거나 사용자 정보가 없는 경우 (권한 없음)
     if (!user || user.userRole !== 2) {
         return (
@@ -307,7 +393,6 @@ const Owner = () => {
     if (error) {
         return (
             <div className="owner-page-container" style={{ textAlign: 'center', marginTop: '50px', color: 'red' }}>
-                {/* user.userId로 수정 */}
                 <p>{error}</p>
                 <p>백엔드 서버가 실행 중인지, 사장님 ID({user ? user.userId : 'N/A'})에 해당하는 식당이 등록되어 있는지 확인해주세요.</p>
             </div>
@@ -391,25 +476,32 @@ const Owner = () => {
                                     <table>
                                         <thead>
                                             <tr>
-                                                <th>고객명</th>
-                                                <th>예약 시간</th>
-                                                <th>인원</th>
+                                                <th>주문 번호</th>
+                                                <th>메뉴</th>
+                                                <th>갯수</th>
+                                                <th>총 가격</th>
                                                 <th>상태</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {reservations.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>
+                                                    <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
                                                         등록된 예약 내역이 없습니다.
                                                     </td>
                                                 </tr>
                                             ) : (
                                                 reservations.map((reservation) => (
                                                     <tr key={reservation.id}>
-                                                        <td>{reservation.customer}</td>
-                                                        <td>{reservation.time}</td>
-                                                        <td>{reservation.people}</td>
+                                                        <td
+                                                            className="order-number-cell" // 클릭 가능 스타일 적용
+                                                            onClick={() => handleShowDetail(reservation)}
+                                                        >
+                                                            {reservation.orderNumber}
+                                                        </td>
+                                                        <td>{reservation.menu}</td>
+                                                        <td>{reservation.quantity}</td>
+                                                        <td>{reservation.totalPrice?.toLocaleString() || '0'}원</td>
                                                         <td>
                                                             {reservation.status === '대기' && (
                                                                 <div className="status-buttons">
@@ -512,6 +604,13 @@ const Owner = () => {
                     </>
                 )}
             </div>
+            {/* 모달 렌더링 */}
+            {showDetailModal && (
+                <ReservationDetailModal
+                    reservation={selectedReservation}
+                    onClose={handleCloseDetailModal}
+                />
+            )}
         </>
     );
 };

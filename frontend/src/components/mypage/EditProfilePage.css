@@ -1,20 +1,53 @@
-/* src/pages/EditProfilePage.css */
-.edit-profile-container {
-    max-width: 600px;
-    margin: 20px auto;
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    font-family: Arial, sans-serif;
+/* EditProfilePage.css */
+
+/* 모달 오버레이 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
-.edit-profile-container h1 {
+/* 프로필 수정 모달 본체 */
+.edit-profile-modal {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 550px;
+    box-sizing: border-box;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: fadeInScale 0.3s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.edit-profile-modal h2 {
     text-align: center;
     margin-bottom: 30px;
     color: #333;
+    font-size: 2em;
+    font-weight: 700;
 }
 
+/* 각 폼 그룹 (라벨 + 입력 필드) */
 .form-group {
     margin-bottom: 20px;
 }
@@ -22,61 +55,150 @@
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    font-weight: bold;
+    font-weight: 600;
     color: #555;
+    font-size: 1.1em;
 }
 
+/* 텍스트 입력 필드 및 select 박스 */
 .form-group input[type="text"],
-.form-group input[type="file"] {
-    width: calc(100% - 20px); /* 패딩 고려 */
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 1.05em;
+    color: #333;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.form-group input[type="file"] {
-    padding: 0; /* 파일 입력은 패딩 조정 */
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
 }
 
+/* 프로필 이미지 그룹 */
+.profile-image-group {
+    display: flex;
+    flex-direction: column; /* 세로 정렬 */
+    align-items: center; /* 가로 중앙 정렬 */ /* 이 속성으로 하위 요소들이 가운데 정렬됩니다 */
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.profile-image-group > label { /* "프로필 이미지" 텍스트 라벨 */
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
 
 .profile-image-preview {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.profile-image-preview img,
-.profile-image-preview .placeholder-image {
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
-    object-fit: cover;
-    margin-right: 15px;
-    border: 1px solid #ddd;
+    overflow: hidden;
     background-color: #f0f0f0;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #888;
-    font-size: 12px;
+    margin-bottom: 15px; /* input과의 간격 */
+    border: 3px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
+.profile-image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-image-preview .placeholder-image {
+    color: #999;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+/* 파일 선택 input 자체의 스타일 (브라우저별 접두사 사용) */
+.profile-image-group input[type="file"] {
+    /* width: auto; 대신 max-width를 줘서 너무 넓어지지 않게 합니다. */
+    max-width: 100%; /* 부모 너비를 넘지 않게 */
+    padding: 8px 0; /* 세로 패딩 */
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.95em;
+    color: #555;
+    /* 브라우저별 기본 스타일을 유지하거나 커스텀 */
+    /* text-align: center; 는 input[type="file"]에는 잘 작동하지 않습니다. */
+    /* 브라우저 기본 UI이기 때문입니다. */
+    /* 대신, 부모 flexbox의 align-items: center; 로 중앙 정렬됩니다. */
+    margin-top: 10px; /* 미리보기 이미지와의 추가 간격 */
+}
+
+/* 파일 선택 버튼 스타일링 (Webkit - Chrome, Safari) */
+.profile-image-group input[type="file"]::-webkit-file-upload-button {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-right: 10px; /* 파일 이름과의 간격 */
+    /* display: block; margin: 0 auto; 는 이 가상 요소에 직접 적용되지 않습니다. */
+}
+
+.profile-image-group input[type="file"]::-webkit-file-upload-button:hover {
+    background-color: #0056b3;
+}
+
+/* 파일 선택 버튼 스타일링 (Firefox) */
+.profile-image-group input[type="file"]::file-selector-button {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-right: 10px;
+}
+
+.profile-image-group input[type="file"]::file-selector-button:hover {
+    background-color: #0056b3;
+}
+
+/* 선택된 파일 이름 표시 스타일 */
+.profile-image-group .file-name-display {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px; /* input과의 간격 */
+    text-align: center; /* 텍스트 중앙 정렬 */
+}
+
+
+/* 폼 액션 버튼 그룹 */
 .form-actions {
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
+    justify-content: center;
+    gap: 15px;
     margin-top: 30px;
 }
 
 .form-actions button {
-    padding: 10px 20px;
+    padding: 12px 30px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    transition: background-color 0.2s ease-in-out;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
+    min-width: 100px;
 }
 
 .form-actions button[type="submit"] {
@@ -86,28 +208,36 @@
 
 .form-actions button[type="submit"]:hover:not(:disabled) {
     background-color: #0056b3;
+    transform: translateY(-2px);
 }
 
-.form-actions button[type="button"] { /* 취소 버튼 */
+.form-actions button[type="submit"]:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.form-actions button[type="button"] {
     background-color: #6c757d;
     color: white;
 }
 
 .form-actions button[type="button"]:hover:not(:disabled) {
     background-color: #5a6268;
+    transform: translateY(-2px);
 }
 
 .form-actions button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
+    opacity: 0.7;
 }
 
-.loading, .error {
+/* 에러 메시지 */
+.error-message {
+    color: #dc3545;
+    font-size: 0.95em;
+    margin-top: 15px;
     text-align: center;
-    padding: 20px;
-    font-size: 18px;
-    color: #555;
-}
-.error {
-    color: red;
+    font-weight: 500;
 }

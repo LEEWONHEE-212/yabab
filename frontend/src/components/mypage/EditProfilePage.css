@@ -1,0 +1,113 @@
+/* src/pages/EditProfilePage.css */
+.edit-profile-container {
+    max-width: 600px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    font-family: Arial, sans-serif;
+}
+
+.edit-profile-container h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"] {
+    width: calc(100% - 20px); /* 패딩 고려 */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-group input[type="file"] {
+    padding: 0; /* 파일 입력은 패딩 조정 */
+}
+
+
+.profile-image-preview {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.profile-image-preview img,
+.profile-image-preview .placeholder-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 1px solid #ddd;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #888;
+    font-size: 12px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.form-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.form-actions button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+}
+
+.form-actions button[type="submit"]:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.form-actions button[type="button"] { /* 취소 버튼 */
+    background-color: #6c757d;
+    color: white;
+}
+
+.form-actions button[type="button"]:hover:not(:disabled) {
+    background-color: #5a6268;
+}
+
+.form-actions button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.loading, .error {
+    text-align: center;
+    padding: 20px;
+    font-size: 18px;
+    color: #555;
+}
+.error {
+    color: red;
+}

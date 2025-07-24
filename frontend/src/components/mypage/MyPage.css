@@ -1,0 +1,235 @@
+/* src/pages/MyPage.css */
+
+.mypage-container {
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    font-family: Arial, sans-serif;
+}
+
+.mypage-container h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+/* UserInfoDisplay styles */
+.mypage-user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+}
+
+.mypage-user-image {
+    width: 100px;
+    height: 100px;
+    background-color: #e0e0e0;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #888;
+    font-size: 14px;
+    margin-right: 20px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.mypage-user-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mypage-user-details {
+    flex-grow: 1;
+}
+
+.mypage-user-details div {
+    margin-bottom: 5px;
+}
+
+.mypage-user-details .mypage-name-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.mypage-user-details .mypage-name-row strong {
+    font-size: 20px;
+    margin-right: 10px;
+    color: #333;
+}
+
+.mypage-user-details .mypage-edit-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.mypage-user-details .mypage-edit-button:hover {
+    background-color: #0056b3;
+}
+
+/* TabSection styles */
+.mypage-tabs {
+    display: flex;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 20px;
+}
+
+.mypage-tab-button {
+    padding: 10px 15px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: #555;
+    transition: color 0.3s, border-bottom 0.3s, font-weight 0.3s;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.mypage-tab-button.active {
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
+    font-weight: bold;
+}
+
+.mypage-tab-button:hover:not(.active) {
+    color: #0056b3;
+}
+
+/* Tab Content Styles */
+.mypage-tab-content {
+    padding: 20px 0;
+}
+
+.mypage-tab-pane h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #444;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 10px;
+}
+
+.mypage-item {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.mypage-item h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #007bff;
+}
+
+.mypage-item p {
+    margin: 5px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Review specific styles */
+.review-item { /* .mypage-item과 함께 사용 */ }
+.mypage-review-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.mypage-profile-icon {
+    width: 40px;
+    height: 40px;
+    background-color: #6c757d;
+    border-radius: 50%;
+    margin-right: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    color: #fff;
+    font-weight: bold;
+}
+
+.mypage-review-header .mypage-user-name {
+    font-weight: bold;
+    margin-right: 8px;
+    color: #333;
+}
+
+.mypage-review-header .mypage-time {
+    font-size: 12px;
+    color: #888;
+}
+
+.mypage-review-content {
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.mypage-interaction-area {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #777;
+}
+
+.mypage-interaction-area span {
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.mypage-interaction-area span::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+}
+
+.mypage-interaction-area span:nth-child(1)::before {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>');
+}
+
+.mypage-interaction-area span:nth-child(2)::before {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gray"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>');
+}
+
+/* 데이터 없을 때 메시지 */
+.mypage-tab-pane p {
+    text-align: center;
+    color: #777;
+    margin-top: 30px;
+}
+
+.loading, .error {
+    text-align: center;
+    padding: 20px;
+    font-size: 18px;
+    color: #555;
+}
+.error {
+    color: red;
+}

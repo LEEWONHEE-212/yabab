@@ -6,6 +6,7 @@ import OwnerPage from './pages/OwnerPage';
 import AddRestaurantPage from './pages/AddRestaurantPage';
 import StadiumPage from './pages/StadiumPage';
 import FeedPage from './pages/FeedPage';
+import MyPage from './pages/MyPage';
 
 function App() {
   return (
@@ -14,12 +15,11 @@ function App() {
         <Route path='/' element={<MainPage />} />
         <Route path='/owner' element={<OwnerPage />} />
         <Route path='/add-AddRestaurant' element={<AddRestaurantPage/>} />
-<<<<<<< HEAD
+
         <Route path='/stadium' element={<StadiumPage />} />
         <Route path='/feed/*' element={<FeedPage />} />
-=======
         <Route path='/stadium/:stadiumId' element={<StadiumPage />} />
->>>>>>> 66f5af3 (예약하기 기능추가)
+        <Route path='/myPage' element={<MyPage />} />
       </Routes>
   );
 }

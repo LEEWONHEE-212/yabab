@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fs.human.yabab.Owner.dao.OwnerReservationDAO">
+
+    <resultMap id="OwnerReservationDTOMap" type="fs.human.yabab.Owner.vo.OwnerReservationDTO">
+        <id property="resvId" column="RESV_ID"/>
+        <result property="restaurantId" column="RESTAURANT_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="resvDate" column="RESV_DATE"/>
+        <result property="resvTime" column="RESV_TIME"/>
+        <result property="resvPersonCount" column="RESV_PERSON_COUNT"/>
+        <result property="resvRequest" column="RESV_REQUEST"/>
+        <result property="resvStatus" column="RESV_STATUS"/>
+        <result property="createdDate" column="CREATED_DATE"/>
+        <result property="createdBy" column="CREATED_BY"/>
+        <result property="updatedDate" column="UPDATED_DATE"/>
+        <result property="updatedBy" column="UPDATED_BY"/>
+    </resultMap>
+
+    <resultMap id="OwnerReservationMenuDTOMap" type="fs.human.yabab.Owner.vo.OwnerReservationMenuDTO">
+        <id property="resvMenuId" column="RESV_MENU_ID"/>
+        <result property="resvId" column="RESV_ID"/>
+        <result property="menuId" column="MENU_ID"/>
+        <result property="quantity" column="QUANTITY"/>
+        <result property="menuName" column="MENU_NAME"/>
+        <result property="menuPrice" column="MENU_PRICE"/>
+        <result property="createdDate" column="CREATED_DATE"/>
+        <result property="createdBy" column="CREATED_BY"/>
+        <result property="updatedDate" column="UPDATED_DATE"/>
+        <result property="updatedBy" column="UPDATED_BY"/>
+    </resultMap>
+
+    <select id="selectAllReservationsByRestaurantId" resultMap="OwnerReservationDTOMap">
+        SELECT
+        RESV_ID,
+        RESTAURANT_ID,
+        USER_ID,
+        RESV_DATE,
+        RESV_TIME,
+        RESV_PERSON_COUNT,
+        RESV_REQUEST,
+        RESV_STATUS,
+        CREATED_DATE,
+        CREATED_BY,
+        UPDATED_DATE,
+        UPDATED_BY
+        FROM TB_RESERVATION
+        WHERE RESTAURANT_ID = #{restaurantId}
+        ORDER BY RESV_DATE DESC, RESV_TIME DESC
+    </select>
+
+    <update id="updateReservationStatus">
+        UPDATE TB_RESERVATION
+        SET
+        RESV_STATUS = #{newStatus},
+        UPDATED_DATE = SYSDATE,  -- 사용하는 DB에 따라 SYSDATE, NOW(), GETDATE() 등 사용
+        UPDATED_BY = (SELECT USER_ID FROM TB_RESTAURANT WHERE RESTAURANT_ID = #{restaurantId}) -- 적절한 사장님 ID로 변경
+        WHERE RESV_ID = #{resvId}
+    </update>
+
+    <select id="selectReservationMenusByResvId" resultMap="OwnerReservationMenuDTOMap">
+        SELECT
+        rm.RESV_MENU_ID,
+        rm.RESV_ID,
+        rm.MENU_ID,
+        rm.QUANTITY,
+        rm.CREATED_DATE,
+        rm.CREATED_BY,
+        rm.UPDATED_DATE,
+        rm.UPDATED_BY,
+        m.MENU_NAME,  -- TB_MENU에서 메뉴 이름 조인
+        m.MENU_PRICE  -- TB_MENU에서 메뉴 가격 조인
+        FROM TB_RESERVATION_MENU rm
+        JOIN TB_MENU m ON rm.MENU_ID = m.MENU_ID  -- TB_MENU 테이블과 조인
+        WHERE rm.RESV_ID = #{resvId}
+    </select>
+</mapper>

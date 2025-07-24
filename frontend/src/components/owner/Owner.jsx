@@ -6,28 +6,37 @@ import { useNavigate, Link } from 'react-router-dom';
 import Header from '../common/Header';
 import { UserContext } from '../../context/UserContext';
 
+// 헬퍼 함수: 숫자 상태 코드를 한글 텍스트로 변환
+const getStatusText = (statusCode) => {
+    switch (statusCode) {
+        case 0: return '예약 대기'; // '대기'로 더 명확하게 표현 가능
+        case 1: return '예약 완료';
+        case 2: return '예약 취소';
+        default: return '알 수 없음';
+    }
+};
+
 // ReservationDetailModal 컴포넌트 정의
 const ReservationDetailModal = ({ reservation, onClose }) => {
     if (!reservation) return null;
 
-    // 예약 일시 포맷팅 함수는 더 이상 사용되지 않지만, 혹시 다른 곳에서 사용될까봐 유지합니다.
-    const formatDateTime = (date, time) => {
-        if (!date || !time) return '정보 없음';
-        const datePart = date.split('T')[0]; // YYYY-MM-DD
-        const timePart = time.substring(0, 5); // HH:MM
-        return `${datePart} ${timePart}`;
-    };
+    // 모달 내부에서 사용할 상태 텍스트 매핑
+    const currentStatusText = getStatusText(reservation.resvStatus); // resvStatus 사용
 
     return (
         <div className="modal-overlay">
             <div className="modal-content">
-                <h2 className="modal-title">주문 번호: {reservation.orderNumber} 상세 내역</h2>
+                {/* 주문 번호를 resvId로 표시 */}
+                <h2 className="modal-title">주문 번호: {reservation.resvId}</h2>
                 <div className="modal-section">
                     <h3>총 주문 정보</h3>
-                    <p><strong>주문 번호:</strong> {reservation.orderNumber}</p>
+                    {/* 주문 번호를 resvId로 표시 */}
+                    <p><strong>주문 번호:</strong> {reservation.resvId}</p>
                     <p><strong>총 주문 개수:</strong> {reservation.quantity}개</p>
                     <p><strong>총 결제 금액:</strong> {reservation.totalPrice?.toLocaleString() || '0'}원</p>
-                    <p><strong>현재 상태:</strong> {reservation.status}</p>
+                    {/* 상태를 한글 텍스트로 표시 */}
+                    <p><strong>현재 상태:</strong> {currentStatusText}</p>
+                    <p><strong>요청 사항:</strong> {reservation.resvRequest || '없음'}</p>
                 </div>
 
                 <div className="modal-section">
@@ -37,7 +46,7 @@ const ReservationDetailModal = ({ reservation, onClose }) => {
                             <thead>
                                 <tr>
                                     <th>메뉴 이름</th>
-                                    <th>개별 가격</th>
+                                    <th>가격</th>
                                     <th>수량</th>
                                     <th>합계 금액</th>
                                 </tr>
@@ -63,8 +72,6 @@ const ReservationDetailModal = ({ reservation, onClose }) => {
     );
 };
 
-// Owner 컴포넌트는 변경 사항이 없습니다.
-// (ReservationDetailModal 컴포넌트 호출 부분은 그대로 유지됩니다.)
 const Owner = () => {
     const navigate = useNavigate();
     const { user, setUser } = useContext(UserContext);
@@ -85,223 +92,225 @@ const Owner = () => {
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [selectedReservation, setSelectedReservation] = useState(null);
 
-
     // 식당 정보를 가져오는 함수
     const fetchRestaurantInfo = useCallback(async () => {
-        // user가 없거나 role이 2가 아니면 접근 제한
         if (!user || user.userRole !== 2) {
             alert("식당 관리 페이지에 접근하려면 사장 계정으로 로그인해야 합니다.");
-            console.warn("식당 관리 페이지에 접근하려면 사장 계정으로 로그인해야 합니다.");
+            console.warn("Unauthorized access attempt: Not an owner or no user context.");
             navigate('/auth/login');
             return;
         }
 
         const ownerId = user.userId;
-
+        setLoading(true);
         try {
             const response = await axios.get(`http://localhost:18090/api/owner/restaurants/${ownerId}`);
             setCurrentRestaurant(response.data);
-            setLoading(false);
             setError(null);
         } catch (err) {
-            console.error("fetchRestaurantInfo 실패:", err);
+            console.error("fetchRestaurantInfo failed:", err);
             if (err.response && err.response.status === 404) {
-                setCurrentRestaurant(null); // 식당이 없을 때 null로 설정
-                setError(null); // 404는 오류 메시지로 표시하지 않음 (식당 등록 유도)
+                setCurrentRestaurant(null);
+                setError(null);
             } else {
-                setError("식당 정보를 불러오는데 실패했습니다. (API 서버 확인)");
+                setError("식당 정보를 불러오는데 실패했습니다. 서버 상태를 확인해주세요.");
             }
+        } finally {
             setLoading(false);
         }
     }, [user, navigate]);
 
-    // 메뉴 정보를 가져오는 함수 (이전과 동일)
+    // 메뉴 정보를 가져오는 함수
     const fetchMenuItems = useCallback(async (restaurantId) => {
         if (!restaurantId) {
-            console.warn("fetchMenuItems: restaurantId가 없어 메뉴 아이템을 가져올 수 없습니다.");
+            console.warn("fetchMenuItems: restaurantId is missing, cannot fetch menu items.");
+            setMenuItems([]);
             return;
         }
         try {
-            console.log(`fetchMenuItems: http://localhost:18090/api/owner/restaurants/${restaurantId}/menus 호출 시도`);
+            console.log(`Fetching menu items for restaurant ID: ${restaurantId}`);
             const response = await axios.get(`http://localhost:18090/api/owner/restaurants/${restaurantId}/menus`);
             setMenuItems(response.data);
-            console.log("fetchMenuItems: 메뉴 아이템 성공적으로 가져옴:", response.data);
+            console.log("Successfully fetched menu items:", response.data);
             setError(null);
         } catch (err) {
-            console.error("fetchMenuItems 실패:", err);
-            setError("메뉴 정보를 불러오는데 실패했습니다. (API 서버 확인)");
+            console.error("fetchMenuItems failed:", err);
+            setError("메뉴 정보를 불러오는데 실패했습니다.");
+            setMenuItems([]);
         }
     }, []);
 
-    // 예약 정보를 가져오는 함수 (수정됨: 주문 번호, 메뉴, 갯수, 총 가격 포함)
+    // 예약 정보를 가져오는 함수
     const fetchReservations = useCallback(async (restaurantId) => {
         if (!restaurantId) {
-            console.warn("fetchReservations: restaurantId가 없어 예약 정보를 가져올 수 없습니다.");
+            console.warn("fetchReservations: restaurantId is missing, cannot fetch reservations.");
+            setReservations([]);
             return;
         }
         try {
-            console.log(`fetchReservations: http://localhost:18090/api/restaurants/${restaurantId}/reservations 호출 시도`);
-            const response = await axios.get(`http://localhost:18090/api/restaurants/${restaurantId}/reservations`);
-            // 각 예약에 대해 메뉴 정보와 총 가격을 계산하여 추가
+            console.log(`Fetching reservations for restaurant ID: ${restaurantId}`);
+            // 백엔드 컨트롤러 경로에 맞게 URL 수정 (예: /owner/reservations/list/{restaurantId})
+            const response = await axios.get(`http://localhost:18090/owner/reservations/list/${restaurantId}`);
             const reservationsWithDetails = response.data.map(reservation => {
                 const totalQuantity = reservation.reservationMenus.reduce((sum, item) => sum + item.quantity, 0);
                 const totalPrice = reservation.reservationMenus.reduce((sum, item) => sum + (item.menuPrice * item.quantity), 0);
-                const menuNames = reservation.reservationMenus.map(item => item.menuName).join(', '); // 메뉴 이름을 콤마로 연결
+                const menuNames = reservation.reservationMenus.map(item => item.menuName).join(', ');
 
                 return {
                     ...reservation,
-                    orderNumber: reservation.id, // 예약 ID를 주문 번호로 사용
+                    // 백엔드 DTO에 'resvId'와 'resvStatus' 필드가 있다고 가정합니다.
+                    // 만약 백엔드에서 'id', 'status' 등의 이름으로 데이터를 보낸다면 이 부분을 수정해야 합니다.
+                    resvId: reservation.resvId || reservation.id, // 둘 중 하나를 사용 (백엔드 명세에 따름)
                     menu: menuNames,
                     quantity: totalQuantity,
                     totalPrice: totalPrice,
-                    // 고객명과 연락처는 fetchReservations에서는 계속 가져오지만, 모달에서 표시하지 않음
-                    customerName: reservation.customer ? reservation.customer.userName : '알 수 없음',
-                    customerPhone: reservation.customer ? reservation.customer.userPhone : '알 수 없음',
+                    customerName: reservation.customer?.userName || '알 수 없음',
+                    customerPhone: reservation.customer?.userPhone || '알 수 없음',
+                    resvStatus: reservation.resvStatus // 백엔드 DTO에 resvStatus가 있다고 가정합니다.
                 };
             });
             setReservations(reservationsWithDetails);
-            console.log("fetchReservations: 예약 정보 성공적으로 가져옴:", reservationsWithDetails);
+            console.log("Successfully fetched reservations:", reservationsWithDetails);
         } catch (err) {
-            console.error("fetchReservations 실패:", err);
+            console.error("fetchReservations failed:", err);
+            setReservations([]);
         }
     }, []);
 
+    // Effect for initial restaurant info fetch
     useEffect(() => {
         if (user) {
-            console.log("useEffect: UserContext의 user가 설정됨. fetchRestaurantInfo 호출");
+            console.log("User context set. Attempting to fetch restaurant info.");
             fetchRestaurantInfo();
         } else {
             setLoading(true);
         }
     }, [user, fetchRestaurantInfo]);
 
+    // Effect for fetching menus and reservations when currentRestaurant is available
     useEffect(() => {
         if (currentRestaurant && currentRestaurant.id) {
-            console.log("useEffect: currentRestaurant 설정됨. 메뉴/예약 정보 가져오기 시작. Restaurant ID:", currentRestaurant.id);
+            console.log(`Current restaurant ID available: ${currentRestaurant.id}. Fetching menus and reservations.`);
             fetchMenuItems(currentRestaurant.id);
             fetchReservations(currentRestaurant.id);
         }
     }, [currentRestaurant, fetchMenuItems, fetchReservations]);
 
-    useEffect(() => {
-        console.log("menuItems 상태 업데이트 감지:", menuItems);
-    }, [menuItems]);
-
-    const handleStatusChange = async (id, newStatus) => {
+    // 예약 상태 변경 함수
+    // newStatus는 1 (예약 완료) 또는 2 (예약 취소)가 될 것입니다.
+    const handleStatusChange = async (resvId, newStatus) => {
+        const statusText = getStatusText(newStatus); // 텍스트로 확인 메시지 생성
+        if (!window.confirm(`예약 번호 ${resvId}의 상태를 '${statusText}'으로 변경하시겠습니까?`)) {
+            return;
+        }
         try {
-            await axios.patch(`http://localhost:18090/api/reservations/${id}/status`, { status: newStatus });
-
+            // 백엔드 /owner/reservations/status PUT 요청
+            // 백엔드 API가 { resvId, newStatus, updaterId }를 JSON Body로 받도록 가정합니다.
+            await axios.put(`http://localhost:18090/owner/reservations/status`, {
+                resvId: resvId,
+                newStatus: newStatus,
+                updaterId: user?.userId // 현재 로그인한 사장님 ID 전달
+            });
+            // 상태 업데이트 성공 후 프론트엔드 상태도 업데이트
             setReservations(prevReservations =>
                 prevReservations.map(reservation =>
-                    reservation.id === id ? { ...reservation, status: newStatus } : reservation
+                    reservation.resvId === resvId ? { ...reservation, resvStatus: newStatus } : reservation
                 )
             );
-            alert(`예약 ID ${id}의 상태가 ${newStatus}로 변경되었습니다.`);
-            console.log(`예약 ID ${id}의 상태가 ${newStatus}로 변경되었습니다.`);
+            alert(`예약 번호 ${resvId}의 상태가 '${statusText}'로 변경되었습니다.`);
         } catch (error) {
-            console.error("handleStatusChange 실패:", error);
+            console.error("Failed to update reservation status:", error);
             alert("예약 상태 업데이트에 실패했습니다. 서버 로그를 확인해주세요.");
-            console.error("예약 상태 업데이트에 실패했습니다. 서버 로그를 확인해주세요.");
         }
     };
+
 
     const handleEditClick = () => {
         if (currentRestaurant) {
             setShowEditPage(true);
         } else {
             alert("식당 정보를 불러오는 중이거나 오류가 발생하여 수정할 수 없습니다.");
-            console.warn("식당 정보를 불러오는 중이거나 오류가 발생하여 수정할 수 없습니다.");
+            console.warn("Cannot edit: Restaurant info not available.");
         }
     };
 
     const handleReturnToOwnerPage = () => {
         setShowEditPage(false);
-        fetchRestaurantInfo(); // 정보 업데이트 후 다시 불러오기
+        fetchRestaurantInfo(); // Re-fetch restaurant info after editing
     };
 
-    // 메뉴 추가 핸들러
     const handleAddMenu = async () => {
-        if (!newMenuItem.name || !newMenuItem.price) {
+        if (!newMenuItem.name.trim() || !newMenuItem.price) {
             alert('메뉴 이름과 가격을 입력해주세요.');
-            console.warn('메뉴 이름과 가격을 입력해주세요.');
             return;
         }
-        if (!currentRestaurant || !currentRestaurant.id) {
+        if (isNaN(parseInt(newMenuItem.price, 10)) || parseInt(newMenuItem.price, 10) <= 0) {
+            alert('가격은 유효한 숫자로 입력해주세요.');
+            return;
+        }
+        if (!currentRestaurant?.id) {
             alert('식당 정보가 없어 메뉴를 추가할 수 없습니다.');
-            console.warn('식당 정보가 없어 메뉴를 추가할 수 없습니다.');
             return;
         }
-        if (!user || !user.userId) {
+        if (!user?.userId) {
             alert('사용자 정보가 없어 메뉴를 추가할 수 없습니다.');
-            console.warn('사용자 정보가 없어 메뉴를 추가할 수 없습니다.');
             return;
         }
 
         if (window.confirm('메뉴를 추가하시겠습니까?')) {
             try {
-                console.log("handleAddMenu: 새 메뉴 추가 시도. Data:", {
+                const menuData = {
                     restaurantId: currentRestaurant.id,
-                    menuName: newMenuItem.name,
+                    menuName: newMenuItem.name.trim(),
                     menuPrice: parseInt(newMenuItem.price, 10),
                     createdBy: user.userId
-                });
+                };
                 const response = await axios.post(
                     `http://localhost:18090/api/owner/restaurants/${currentRestaurant.id}/menus`,
-                    {
-                        restaurantId: currentRestaurant.id,
-                        menuName: newMenuItem.name,
-                        menuPrice: parseInt(newMenuItem.price, 10),
-                        createdBy: user.userId
-                    }
+                    menuData
                 );
-                console.log("handleAddMenu: 메뉴 추가 성공 응답:", response.data);
                 setMenuItems(prev => [...prev, response.data]);
                 setNewMenuItem({ name: '', price: '' });
                 alert('메뉴가 성공적으로 추가되었습니다.');
-                console.log('메뉴가 성공적으로 추가되었습니다.');
             } catch (error) {
-                console.error('handleAddMenu 실패:', error);
-                alert('메뉴 추가에 실패했습니다. 서버 로그를 확인해주세요: ' + (error.response ? error.response.data.message : error.message));
-                console.error('메뉴 추가에 실패했습니다. 서버 로그를 확인해주세요: ' + (error.response ? error.response.data.message : error.message));
+                console.error('Failed to add menu:', error);
+                alert('메뉴 추가에 실패했습니다: ' + (error.response?.data?.message || error.message));
             }
         }
     };
 
-    // 메뉴 수정 시작 핸들러
     const handleEditMenuStart = (menuItem) => {
         setEditingMenuId(menuItem.menuId);
         setNewMenuItem({
             name: menuItem.menuName,
             price: menuItem.menuPrice?.toString() || '',
         });
-        console.log("handleEditMenuStart: 수정할 메뉴 정보:", menuItem);
     };
 
-    // 메뉴 수정 완료 핸들러
     const handleEditMenuSave = async () => {
-        if (!newMenuItem.name || !newMenuItem.price) {
+        if (!newMenuItem.name.trim() || !newMenuItem.price) {
             alert('메뉴 이름과 가격을 입력해주세요.');
-            console.warn('메뉴 이름과 가격을 입력해주세요.');
             return;
         }
-        if (!user || !user.userId) {
+        if (isNaN(parseInt(newMenuItem.price, 10)) || parseInt(newMenuItem.price, 10) <= 0) {
+            alert('가격은 유효한 숫자로 입력해주세요.');
+            return;
+        }
+        if (!user?.userId) {
             alert('사용자 정보가 없어 메뉴를 수정할 수 없습니다.');
-            console.warn('사용자 정보가 없어 메뉴를 수정할 수 없습니다.');
             return;
         }
         if (!editingMenuId) {
             alert('수정할 메뉴가 선택되지 않았습니다.');
-            console.warn('수정할 메뉴가 선택되지 않았습니다.');
             return;
         }
 
         if (window.confirm('메뉴를 수정하시겠습니까?')) {
             try {
                 const updatedMenu = {
-                    menuName: newMenuItem.name,
+                    menuName: newMenuItem.name.trim(),
                     menuPrice: parseInt(newMenuItem.price, 10),
                 };
-                console.log("handleEditMenuSave: 메뉴 수정 시도. ID:", editingMenuId, "데이터:", updatedMenu);
                 await axios.put(`http://localhost:18090/api/owner/restaurants/menus/${editingMenuId}`, updatedMenu, {
                     params: {
                         ownerId: user.userId
@@ -311,98 +320,83 @@ const Owner = () => {
                 setMenuItems(prevMenuItems =>
                     prevMenuItems.map(item =>
                         item.menuId === editingMenuId
-                            ? { ...item, menuName: newMenuItem.name, menuPrice: parseInt(newMenuItem.price, 10) }
+                            ? { ...item, menuName: newMenuItem.name.trim(), menuPrice: parseInt(newMenuItem.price, 10) }
                             : item
                     )
                 );
                 setEditingMenuId(null);
                 setNewMenuItem({ name: '', price: '' });
                 alert('메뉴가 성공적으로 수정되었습니다.');
-                console.log('메뉴가 성공적으로 수정되었습니다.');
             } catch (error) {
-                console.error('handleEditMenuSave 실패:', error);
-                alert('메뉴 수정에 실패했습니다. 서버 로그를 확인해주세요: ' + (error.response ? error.response.data.message : error.message));
-                console.error('메뉴 수정에 실패했습니다. 서버 로그를 확인해주세요: ' + (error.response ? error.response.data.message : error.message));
+                console.error('Failed to save menu edit:', error);
+                alert('메뉴 수정에 실패했습니다: ' + (error.response?.data?.message || error.message));
             }
         }
     };
 
-    // 메뉴 수정 취소 핸들러
     const handleEditMenuCancel = () => {
         setEditingMenuId(null);
         setNewMenuItem({ name: '', price: '' });
     };
 
-    // 메뉴 삭제 핸들러
     const handleDeleteMenu = async (menuId) => {
         if (!menuId) {
-            console.error("handleDeleteMenu: 삭제할 메뉴 ID가 유효하지 않습니다.");
             alert("삭제할 메뉴를 선택해 주세요.");
-            console.warn("삭제할 메뉴를 선택해 주세요.");
             return;
         }
 
         if (window.confirm('정말로 이 메뉴를 삭제하시겠습니까?')) {
             try {
-                console.log("handleDeleteMenu: 메뉴 삭제 시도. ID:", menuId);
                 await axios.delete(`http://localhost:18090/api/owner/restaurants/menus/${menuId}`);
                 setMenuItems(prevMenuItems => prevMenuItems.filter(item => item.menuId !== menuId));
                 alert('메뉴가 성공적으로 삭제되었습니다.');
-                console.log('메뉴가 성공적으로 삭제되었습니다.');
             } catch (error) {
-                console.error('handleDeleteMenu 실패:', error);
-                alert('메뉴 삭제에 실패했습니다. 서버 로그를 확인해주세요: ' + (error.response ? error.response.data.message : error.message));
-                console.error('메뉴 삭제에 실패했습니다. 서버 로그를 확인해주세요: ' + (error.response ? error.response.data.message : error.message));
+                console.error('Failed to delete menu:', error);
+                alert('메뉴 삭제에 실패했습니다: ' + (error.response?.data?.message || error.message));
             }
         }
     };
 
-    // 모달 열기 핸들러
     const handleShowDetail = (reservation) => {
         setSelectedReservation(reservation);
         setShowDetailModal(true);
     };
 
-    // 모달 닫기 핸들러
     const handleCloseDetailModal = () => {
         setShowDetailModal(false);
         setSelectedReservation(null);
     };
 
-
-    // 초기 로딩 중이거나 사용자 정보가 없는 경우 (권한 없음)
+    // Render logic for different states
     if (!user || user.userRole !== 2) {
         return (
-            <div className="owner-page-container" style={{ textAlign: 'center', marginTop: '50px', color: 'red' }}>
-                <p>사장님 계정으로 로그인해야 접근할 수 있습니다.</p>
+            <div className="owner-page-container unauthorized">
+                <p className="error-message">사장님 계정으로 로그인해야 접근할 수 있습니다.</p>
                 <Link to="/auth/login" className="login-link">로그인 페이지로 이동</Link>
             </div>
         );
     }
 
-    // 식당 정보 로딩 중 (user가 존재하고 role이 2일 때만)
     if (loading) {
         return (
-            <div className="owner-page-container" style={{ textAlign: 'center', marginTop: '50px' }}>
+            <div className="owner-page-container loading">
                 <p>식당 정보를 불러오는 중입니다...</p>
             </div>
         );
     }
 
-    // 식당 정보 로드 실패
     if (error) {
         return (
-            <div className="owner-page-container" style={{ textAlign: 'center', marginTop: '50px', color: 'red' }}>
-                <p>{error}</p>
-                <p>백엔드 서버가 실행 중인지, 사장님 ID({user ? user.userId : 'N/A'})에 해당하는 식당이 등록되어 있는지 확인해주세요.</p>
+            <div className="owner-page-container error-state">
+                <p className="error-message">{error}</p>
+                <p className="error-detail">백엔드 서버가 실행 중인지, 사장님 ID({user?.userId || 'N/A'})에 해당하는 식당이 등록되어 있는지 확인해주세요.</p>
             </div>
         );
     }
 
-    // 등록된 식당 정보가 없을 때 (404 처리 후 currentRestaurant가 null인 경우)
     if (!currentRestaurant) {
         return (
-            <div className="owner-page-container" style={{ textAlign: 'center', marginTop: '50px' }}>
+            <div className="owner-page-container no-restaurant">
                 <p>아직 등록된 식당 정보가 없습니다. 식당을 등록해주세요.</p>
                 <button className="add-restaurant-button" onClick={() => navigate('/add-AddRestaurant')}>식당 등록하기</button>
             </div>
@@ -431,7 +425,7 @@ const Owner = () => {
                                     {currentRestaurant.restaurantImagePath ? (
                                         <img
                                             src={`http://localhost:18090${currentRestaurant.restaurantImagePath}`}
-                                            alt={currentRestaurant.restaurantName}
+                                            alt={`${currentRestaurant.restaurantName} 이미지`}
                                             className="restaurant-current-image"
                                         />
                                     ) : (
@@ -478,9 +472,9 @@ const Owner = () => {
                                             <tr>
                                                 <th>주문 번호</th>
                                                 <th>메뉴</th>
-                                                <th>갯수</th>
+                                                <th>개수</th>
                                                 <th>총 가격</th>
-                                                <th>상태</th>
+                                                <th>상태</th> {/* 상태 컬럼 */}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -492,38 +486,41 @@ const Owner = () => {
                                                 </tr>
                                             ) : (
                                                 reservations.map((reservation) => (
-                                                    <tr key={reservation.id}>
+                                                    // key를 reservation.resvId로 변경 (orderNumber 대신)
+                                                    <tr key={reservation.resvId}>
                                                         <td
-                                                            className="order-number-cell" // 클릭 가능 스타일 적용
+                                                            className="order-number-cell"
                                                             onClick={() => handleShowDetail(reservation)}
+                                                            title="클릭하여 상세 보기"
                                                         >
-                                                            {reservation.orderNumber}
+                                                            {reservation.resvId} {/* 주문 번호를 resvId로 표시 */}
                                                         </td>
                                                         <td>{reservation.menu}</td>
                                                         <td>{reservation.quantity}</td>
                                                         <td>{reservation.totalPrice?.toLocaleString() || '0'}원</td>
                                                         <td>
-                                                            {reservation.status === '대기' && (
+                                                            {/* resvStatus 값에 따라 버튼 또는 텍스트 렌더링 */}
+                                                            {reservation.resvStatus === 0 ? (
                                                                 <div className="status-buttons">
                                                                     <button
                                                                         className="status-confirm-btn"
-                                                                        onClick={() => handleStatusChange(reservation.id, '예약 완료')}
+                                                                        onClick={() => handleStatusChange(reservation.resvId, 1)} // 1: 예약 완료
                                                                     >
                                                                         확인
                                                                     </button>
                                                                     <button
                                                                         className="status-cancel-btn"
-                                                                        onClick={() => handleStatusChange(reservation.id, '예약 취소')}
+                                                                        onClick={() => handleStatusChange(reservation.resvId, 2)} // 2: 예약 취소
                                                                     >
                                                                         취소
                                                                     </button>
                                                                 </div>
-                                                            )}
-                                                            {reservation.status === '예약 완료' && (
-                                                                <span className="status-text status-completed">{reservation.status}</span>
-                                                            )}
-                                                            {reservation.status === '예약 취소' && (
-                                                                <span className="status-text status-canceled">{reservation.status}</span>
+                                                            ) : (
+                                                                // 상태 텍스트는 헬퍼 함수를 사용하여 표시
+                                                                // CSS 클래스도 상태에 따라 동적으로 부여
+                                                                <span className={`status-text status-${getStatusText(reservation.resvStatus).replace(/\s/g, '').toLowerCase()}`}>
+                                                                    {getStatusText(reservation.resvStatus)}
+                                                                </span>
                                                             )}
                                                         </td>
                                                     </tr>
@@ -553,6 +550,7 @@ const Owner = () => {
                                         placeholder="가격"
                                         value={newMenuItem.price}
                                         onChange={(e) => setNewMenuItem({ ...newMenuItem, price: e.target.value })}
+                                        min="0"
                                     />
                                     {editingMenuId ? (
                                         <>
@@ -582,19 +580,16 @@ const Owner = () => {
                                                     </td>
                                                 </tr>
                                             ) : (
-                                                menuItems.map((item) => {
-                                                    console.log("메뉴 테이블 렌더링 중인 아이템:", item);
-                                                    return (
-                                                        <tr key={item.menuId}>
-                                                            <td>{item.menuName}</td>
-                                                            <td>{item.menuPrice?.toLocaleString() || '0'}원</td>
-                                                            <td>
-                                                                <button className="edit-button" onClick={() => handleEditMenuStart(item)}>수정</button>
-                                                                <button className="delete-button" onClick={() => handleDeleteMenu(item.menuId)}>삭제</button>
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })
+                                                menuItems.map((item) => (
+                                                    <tr key={item.menuId}>
+                                                        <td>{item.menuName}</td>
+                                                        <td>{item.menuPrice?.toLocaleString() || '0'}원</td>
+                                                        <td>
+                                                            <button className="edit-button" onClick={() => handleEditMenuStart(item)}>수정</button>
+                                                            <button className="delete-button" onClick={() => handleDeleteMenu(item.menuId)}>삭제</button>
+                                                        </td>
+                                                    </tr>
+                                                ))
                                             )}
                                         </tbody>
                                     </table>

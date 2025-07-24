@@ -1,0 +1,85 @@
+/* body {
+  font-family: "Noto Sans KR", sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+} */
+
+.post-detail-wrapper {
+  max-width: 800px;
+  margin: 40px auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+}
+
+.post-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.post-meta {
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 20px;
+}
+
+.post-body {
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.post-image {
+  display: block;
+  margin: 16px auto;
+  max-width: 100%;
+  border-radius: 6px;
+}
+
+.post-util-bar {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+}
+
+.post-util-bar button {
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.post-ad-area {
+  display: flex;
+  gap: 10px;
+  margin: 30px 0;
+}
+
+.post-ad-area img {
+  width: 49%;
+  border-radius: 4px;
+}
+
+.post-nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin: 30px 0;
+}
+
+.post-comments {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.comment-login-required {
+  padding: 12px;
+  background: #f6f6f6;
+  border: 1px solid #ddd;
+  text-align: center;
+  color: #666;
+}

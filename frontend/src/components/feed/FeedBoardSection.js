@@ -1,14 +1,14 @@
 import React, { useContext, useState } from "react";
 import FeedTable from "./FeedTable";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Header from "../common/Header";
 import "./FeedBoardSection.css"
 import { UserContext } from "../../context/UserContext";
 
 const FeedBoardSection = () => {
+    const { teamId } = useParams();
     const [sortOption, setSortOption] = useState("latest"); // latest or likes
     const [category, setCategory] = useState(0);             // 0: cheer, 1: food
-    const [teamId] = useState(1);                            // 예시: 한화 TEAM_ID = 1
 
     const navigate = useNavigate();
     const { user } = useContext(UserContext);
@@ -16,8 +16,6 @@ const FeedBoardSection = () => {
     const handleWriteClick = () => {
         navigate(`/feed/${teamId}/write`);
     };
-
-
 
     return (
         <div>
@@ -32,7 +30,7 @@ const FeedBoardSection = () => {
                     <button className={category === 1 ? "active" : ""} onClick={() => setCategory(1)}>먹거리</button>
                 </div>
 
-                <FeedTable teamId={teamId} sortOption={sortOption} category={category} />
+                <FeedTable teamId={parseInt(teamId, 10)} sortOption={sortOption} category={category} />
 
                 {/* 로그인한 사용자만 글쓰기 버튼 노출 */}
                 {user && (

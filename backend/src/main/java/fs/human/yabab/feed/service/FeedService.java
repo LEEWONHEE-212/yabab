@@ -22,4 +22,9 @@ public class FeedService {
     public void registerFeed(FeedVO feedVO) {
         feedDAO.insertFeed(feedVO);
     }
+
+    //  피드 상세
+    public FeedVO getFeedDetail(int feedId) {
+        return feedDAO.selectFeedDetail(feedId);
+    }
 }

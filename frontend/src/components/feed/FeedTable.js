@@ -7,15 +7,18 @@ const FeedTable = ({ teamId, sortOption, category }) => {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
+                            console.log("📡 요청 URL:", `http://localhost:18090/feed/team/${teamId}`);
+            console.log("📎 파라미터:", { sort: sortOption, category });
                 const response = await axios.get(
-                    `http://localhost:18090/api/feed/${teamId}`, 
+                    `http://localhost:18090/feed/team/${teamId}`, 
                     {
                         params: {
                             sort: sortOption,
-                            category: category  // 'cheer' or 'food'
+                            category: category
                         }
                     }
                 );
+                console.log("📥 응답 데이터:", response.data);
                 setPosts(response.data);
             } catch (error) {
                 console.error("게시글 불러오기 실패:", error);

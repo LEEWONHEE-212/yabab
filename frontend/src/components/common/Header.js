@@ -26,6 +26,7 @@ const Header = () => {
                     <Link to="/">선수 추천 맛집</Link>
                     <Link to="/myPage">마이페이지</Link>
                     <Link to="/owner">사장님페이지</Link>
+                    <Link to="/admin">관리자페이지</Link>
                 </nav>
 
                 <div className="header-right">

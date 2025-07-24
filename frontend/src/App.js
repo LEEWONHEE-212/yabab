@@ -7,21 +7,23 @@ import AddRestaurantPage from './pages/AddRestaurantPage';
 import StadiumPage from './pages/StadiumPage';
 import FeedPage from './pages/FeedPage';
 import MyPage from './pages/MyPage';
+import AdminPage from './pages/AdminPage';
 
 function App() {
-  return (
-      <Routes>
-        <Route path='/auth/*' element={<AuthPage />} />
-        <Route path='/' element={<MainPage />} />
-        <Route path='/owner' element={<OwnerPage />} />
-        <Route path='/add-AddRestaurant' element={<AddRestaurantPage/>} />
+        return (
+                <Routes>
+                        <Route path='/auth/*' element={<AuthPage />} />
+                        <Route path='/' element={<MainPage />} />
+                        <Route path='/owner' element={<OwnerPage />} />
+                        <Route path='/add-AddRestaurant' element={<AddRestaurantPage/>} />
 
-        <Route path='/stadium' element={<StadiumPage />} />
-        <Route path='/feed/*' element={<FeedPage />} />
-        <Route path='/stadium/:stadiumId' element={<StadiumPage />} />
-        <Route path='/myPage' element={<MyPage />} />
-      </Routes>
-  );
+                        <Route path='/stadium' element={<StadiumPage />} />
+                        <Route path='/feed/*' element={<FeedPage />} />
+                        <Route path='/stadium/:stadiumId' element={<StadiumPage />} />
+                        <Route path='/myPage' element={<MyPage />} />
+                        <Route path='/admin' element={<AdminPage />} />
+                </Routes>
+        );
 }
 
 export default App;

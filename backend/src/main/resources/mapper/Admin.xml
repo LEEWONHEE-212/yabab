@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.Admin.dao.AdminUserDAO">
+
+    <resultMap id="adminUserResultMap" type="fs.human.yabab.Admin.vo.AdminUserDTO">
+        <id property="userId" column="USER_ID"/>
+        <result property="userNickname" column="USER_NICKNAME"/>
+        <result property="userEmail" column="USER_EMAIL"/>
+        <result property="userRole" column="USER_ROLE"/>
+        <result property="userJoindate" column="USER_JOINDATE"/>
+        <result property="userDeletedFlag" column="USER_DELETED_FLAG"/>
+    </resultMap>
+
+    <select id="selectUsersBySearchAndPaging"
+            parameterType="fs.human.yabab.Admin.vo.AdminUserSearchRequestDTO"
+            resultMap="adminUserResultMap">
+        SELECT *
+        FROM (
+        SELECT
+        ROWNUM AS rn,
+        USER_ID,
+        USER_NICKNAME,
+        USER_EMAIL,
+        USER_ROLE,
+        USER_JOINDATE,
+        USER_DELETED_FLAG
+        FROM (
+        SELECT
+        USER_ID,
+        USER_NICKNAME,
+        USER_EMAIL,
+        USER_ROLE,
+        USER_JOINDATE,
+        USER_DELETED_FLAG
+        FROM
+        TB_USER
+        WHERE
+        USER_DELETED_FLAG = 0  <if test="searchTerm != null and searchTerm != '' and searchType != null and searchType != ''">
+        <choose>
+            <when test="searchType == 'userId'">
+                AND USER_ID LIKE '%' || #{searchTerm} || '%'
+            </when>
+            <when test="searchType == 'userName'">
+                AND USER_NAME LIKE '%' || #{searchTerm} || '%'
+            </when>
+            <when test="searchType == 'userNickname'">
+                AND USER_NICKNAME LIKE '%' || #{searchTerm} || '%'
+            </when>
+            <when test="searchType == 'userEmail'">
+                AND USER_EMAIL LIKE '%' || #{searchTerm} || '%'
+            </when>
+        </choose>
+    </if>
+        <if test="userRole != null">
+            AND USER_ROLE = #{userRole}
+        </if>
+        ORDER BY
+        <choose>
+            <when test="sortBy == 'userId'">USER_ID</when>
+            <when test="sortBy == 'userNickname'">USER_NICKNAME</when>
+            <when test="sortBy == 'userEmail'">USER_EMAIL</when>
+            <when test="sortBy == 'userRole'">USER_ROLE</when>
+            <when test="sortBy == 'userJoindate'">USER_JOINDATE</when>
+            <otherwise>USER_JOINDATE</otherwise> </choose>
+        <if test="sortDirection == 'desc'">DESC</if>
+        <if test="sortDirection == 'asc'">ASC</if>
+        ) inner_query
+        WHERE ROWNUM &lt;= (#{page} * #{size}) + #{size}
+        )
+        WHERE rn &gt; (#{page} * #{size})
+    </select>
+
+    <select id="countUsersBySearch"
+            parameterType="fs.human.yabab.Admin.vo.AdminUserSearchRequestDTO"
+            resultType="int">
+        SELECT
+        COUNT(USER_ID)
+        FROM
+        TB_USER
+        WHERE
+        USER_DELETED_FLAG = 0 <if test="searchTerm != null and searchTerm != '' and searchType != null and searchType != ''">
+        <choose>
+            <when test="searchType == 'userId'">
+                AND USER_ID LIKE '%' || #{searchTerm} || '%'
+            </when>
+            <when test="searchType == 'userName'">
+                AND USER_NAME LIKE '%' || #{searchTerm} || '%'
+            </when>
+            <when test="searchType == 'userNickname'">
+                AND USER_NICKNAME LIKE '%' || #{searchTerm} || '%'
+            </when>
+            <when test="searchType == 'userEmail'">
+                AND USER_EMAIL LIKE '%' || #{searchTerm} || '%'
+            </when>
+        </choose>
+    </if>
+        <if test="userRole != null">
+            AND USER_ROLE = #{userRole}
+        </if>
+    </select>
+
+    <delete id="deleteUser" parameterType="string">
+        DELETE FROM TB_USER
+        WHERE USER_ID = #{userId}
+    </delete>
+
+    <select id="selectUserById"
+            parameterType="string"
+            resultMap="adminUserResultMap">
+        SELECT
+        USER_ID,
+        USER_NICKNAME,
+        USER_EMAIL,
+        USER_ROLE,
+        USER_JOINDATE,
+        USER_DELETED_FLAG
+        FROM
+        TB_USER
+        WHERE
+        USER_ID = #{userId}
+    </select>
+
+</mapper>

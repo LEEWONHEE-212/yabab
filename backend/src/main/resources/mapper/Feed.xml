@@ -5,13 +5,30 @@
 
 <mapper namespace="fs.human.yabab.feed.dao.FeedDAO">
 
-    <!-- 피드 목록 조회 -->
-    <select id="selectFeedList" parameterType="map" resultType="fs.human.yabab.feed.vo.FeedVO">
-        SELECT *
+    <select id="selectFeedList" resultType="fs.human.yabab.feed.vo.FeedVO">
+        SELECT
+            FEED_ID,
+            TEAM_ID,
+            USER_ID,
+            FEED_TITLE,
+            FEED_CONTENT,
+            FEED_CATEGORY,
+            FEED_VIEWS,
+            FEED_LIKES,
+            FEED_COMMENT_COUNT,
+            FEED_IMAGE_PATH,
+            FEED_IMAGE_NAME,
+            FEED_DELETED_FLAG,
+            CREATED_DATE,
+            CREATED_BY,
+            UPDATED_DATE,
+            UPDATED_BY,
+            DELETED_DATE,
+            DELETED_BY
         FROM TB_FEED
         WHERE TEAM_ID = #{teamId}
-            AND FEED_CATEGORY = #{category}
-            AND FEED_DELETED_FLAG = 0
+        AND FEED_CATEGORY = #{category}
+        AND FEED_DELETED_FLAG = 0
         <choose>
             <when test="sort == 'likes'">
                 ORDER BY FEED_LIKES DESC
@@ -22,7 +39,6 @@
         </choose>
     </select>
 
-    <!-- 피드 등록 -->
     <insert id="insertFeed" parameterType="fs.human.yabab.feed.vo.FeedVO">
         INSERT INTO TB_FEED (
             FEED_ID,
@@ -40,25 +56,17 @@
             FEED_COMMENT_COUNT,
             FEED_DELETED_FLAG
         ) VALUES (
-             SEQ_FEED_ID.NEXTVAL,
-             #{teamId},
-             #{userId},
-             #{feedTitle},
-             #{feedContent},
-             #{feedCategory},
-             #{feedImagePath, jdbcType=VARCHAR},
-             #{feedImageName, jdbcType=VARCHAR},
-             SYSDATE,
-             #{userId},
-             0, 0, 0, 0
-        )
+                     SEQ_FEED_ID.NEXTVAL,
+                     #{teamId},
+                     #{userId},
+                     #{feedTitle},
+                     #{feedContent},
+                     #{feedCategory},
+                     #{feedImagePath},
+                     #{feedImageName},
+                     SYSDATE,
+                     #{userId},
+                     0, 0, 0, 0
+                 )
     </insert>
-
-    <!-- 피드 상세 -->
-    <select id="selectFeedDetail" resultType="fs.human.yabab.feed.vo.FeedVO">
-        SELECT *
-        FROM TB_FEED
-        WHERE FEED_ID = #{feedId}
-        AND FEED_DELETED_FLAG = 0
-    </select>
 </mapper>

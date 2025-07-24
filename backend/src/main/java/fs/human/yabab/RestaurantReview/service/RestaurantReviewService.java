@@ -25,7 +25,7 @@ public class RestaurantReviewService {
 
     // application.properties에서 실제 이미지 저장 경로를 주입받습니다.
     // 이 서비스 내에서 직접 파일 저장 로직을 처리하기 때문에 필요합니다.
-    @Value("${upload.uploads.image.dir}")
+    @Value("${upload.restaurant.image.dir}")
     private String uploadDir;
 
     @Autowired

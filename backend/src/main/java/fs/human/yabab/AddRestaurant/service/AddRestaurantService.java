@@ -24,7 +24,7 @@ public class AddRestaurantService {
     private final AddRestaurantDAO addRestaurantDAO;
 
     // application.properties에서 업로드 경로를 주입받도록 설정
-    @Value("${upload.uploads.image.dir}") // application.properties에서 실제 파일 시스템 경로를 주입받음
+    @Value("${upload.restaurant.image.dir}") // application.properties에서 실제 파일 시스템 경로를 주입받음
     private String uploadDir;
 
     @Autowired

@@ -16,13 +16,13 @@ public class FeedVO extends BaseVO {
     private String feedTitle;
     private String feedContent;
     private int teamId;
-    private int feedCategory;           // 0: 응원글, 1: 먹거리
+    private int feedCategory;           // "cheer", "food"
     private int feedViews;
     private int feedLikes;
     private int feedCommentCount;
     private String feedImagePath;
     private String feedImageName;
-    private int feedDeletedFlag;    //  0: 정상, 1: 삭제
+    private int feedDeletedFlag;
     private Date deletedDate;
     private String deletedBy;
 }

@@ -24,7 +24,7 @@ import java.util.UUID;
 public class OwnerController {
     private final OwnerService ownerService;
 
-    @Value("${upload.uploads.image.dir}")
+    @Value("${upload.restaurant.image.dir}")
     private String fileSystemUploadDir;
 
     @Autowired

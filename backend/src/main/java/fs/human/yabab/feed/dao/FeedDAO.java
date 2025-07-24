@@ -16,7 +16,4 @@ public interface FeedDAO {
 
     //  피드 글쓰기
     int insertFeed(FeedVO feedVO);
-
-    //  피드 상세
-    FeedVO selectFeedDetail(int feedId);
 }

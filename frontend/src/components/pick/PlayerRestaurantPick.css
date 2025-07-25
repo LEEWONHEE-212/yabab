@@ -279,7 +279,10 @@
     color: #666;
     cursor: pointer;
     line-height: 1;
-    transition: color 0.2s ease;
+    padding: 0;
+    text-align: right;
+    display: inline-block;
+    width: auto;
 }
 
 .player-restaurant-page-container .modal-close-button:hover {

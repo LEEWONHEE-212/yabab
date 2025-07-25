@@ -1,6 +1,6 @@
 /* Restaurant.css */
 
-/* 모달 백드롭 (배경 어둡게) */
+/* 모달 백드롭 (배고 어둡게) */
 .restaurant-modal-backdrop {
     position: fixed;
     top: 0;
@@ -428,6 +428,12 @@
         padding: 10px 15px;
         min-width: 80px;
     }
+
+    .restaurant-menu-item-price,
+    .restaurant-menu-like-section {
+        margin-left: 0; /* 작은 화면에서 왼쪽 마진 제거 */
+        margin-top: 5px; /* 세로 간격 추가 */
+    }
 }
 
 .restaurant-review-image-upload {
@@ -585,4 +591,59 @@
     color: #888;
     margin-left: auto; /* 신고 버튼 전까지 남은 공간을 채움 */
     flex-shrink: 0;
+}
+
+/* 메뉴 좋아요 섹션 전체를 감싸는 컨테이너 */
+.restaurant-menu-like-section {
+    display: flex; /* 하트 버튼과 횟수를 한 줄에 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    margin-left: 15px; /* 메뉴 가격과의 간격 */
+}
+
+/* 좋아요 버튼 (이모지 하트를 감싸는 버튼) 스타일 */
+.restaurant-like-button {
+    background: none; /* 배경 없음 */
+    border: none; /* 테두리 없음 */
+    font-size: 1em; /* 이모지 하트 크기 조정 */
+    cursor: pointer;
+    transition: filter 0.2s ease, transform 0.1s ease; /* 필터 및 변형 애니메이션 */
+    padding: 0;
+    line-height: 1;
+    /* 기본 상태 (🤍) - 회색조 및 투명도 적용 */
+    filter: grayscale(100%) brightness(0.8) opacity(0.7); /* 흰색 하트를 회색으로 보이게 */
+}
+
+/* 좋아요가 눌렸을 때의 버튼 스타일 (❤️) - 필터 제거하여 원래 색상 표시 */
+.restaurant-like-button.liked {
+    filter: none; /* 모든 필터 제거 */
+}
+
+/* 마우스 오버 시 하트 아이콘 크기 확대 및 필터 제거 (비활성화되지 않은 경우) */
+.restaurant-like-button:hover:not(:disabled) {
+    transform: scale(1.1);
+    filter: none; /* 호버 시 원래 색상과 밝기로 돌아옴 */
+}
+
+/* 비활성화된 버튼 스타일 */
+.restaurant-like-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5; /* 투명도 조절 */
+    filter: grayscale(100%); /* 비활성화 시 항상 회색조 */
+}
+
+/* 좋아요 횟수 텍스트 스타일 */
+.restaurant-like-count {
+    font-size: 1em; /* 폰트 크기 */
+    color: #555; /* 텍스트 색상 */
+    margin-left: 5px; /* 하트 아이콘과의 간격 */
+    font-weight: 500; /* 폰트 두께 */
+}
+
+/* 반응형 디자인을 위한 추가 조정 (필요시) */
+@media (max-width: 768px) {
+    .restaurant-menu-item-price,
+    .restaurant-menu-like-section {
+        margin-left: 0; /* 작은 화면에서 왼쪽 마진 제거 */
+        margin-top: 5px; /* 세로 간격 추가 */
+    }
 }

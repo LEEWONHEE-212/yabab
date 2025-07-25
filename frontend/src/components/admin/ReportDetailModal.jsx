@@ -1,7 +1,7 @@
 // src/components/Admin/ReportDetailModal.jsx
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { UserContext } from '../../context/UserContext'; // UserContext 경로를 프로젝트에 맞게 조정해주세요.
+import { UserContext } from '../../context/UserContext';
 import './Modal.css'; // 모달 공통 스타일을 임포트합니다.
 
 // 신고 사유 매핑을 위한 상수 배열 정의
@@ -32,66 +32,73 @@ const ReportDetailModal = ({ report, reportType, onClose, getReportStatusText, f
             setLoading(true);
             setError(null);
             try {
+                const baseUrl = `http://localhost:18090/api/admin/reports`;
                 const endpoint = reportType === 'review' ?
-                    `http://localhost:18090/api/admin/reports/reviews/${report.reportId}` :
-                    `http://localhost:18090/api/admin/reports/posts/${report.reportId}`;
+                    `${baseUrl}/reviews/${report.reportId}` :
+                    `${baseUrl}/posts/${report.reportId}`;
 
-                const response = await axios.get(endpoint, {
-                    // headers: { Authorization: `Bearer ${adminUser?.token}` }
-                });
+                const response = await axios.get(endpoint, {});
                 setDetailedReport(response.data);
                 console.log("Fetched detailed report:", response.data);
             } catch (err) {
                 console.error(`Failed to fetch ${reportType} report detail:`, err);
-                setError(`${reportType === 'review' ? '리뷰' : '게시물'} 신고 상세 정보를 불러오는데 실패했습니다: ` + (err.response?.data?.message || err.message || err.toString()));
+                setError(`${reportType === 'review' ? '리뷰' : '게시물'} 신고 상세 정보를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.`);
             } finally {
                 setLoading(false);
             }
         };
-        fetchReportDetail();
-    }, [report.reportId, reportType, adminUser]);
+        if (report?.reportId) { 
+            fetchReportDetail();
+        }
+    }, [report?.reportId, reportType, adminUser]);
 
-    // 신고 처리 (수락 또는 거절) 함수
-    const handleProcessReport = async (action) => {
+    // ** 신고 처리 (콘텐츠 삭제 및 신고 수락) 함수 **
+    const handleAcceptReportAndDeleteContent = async () => { // 함수명 변경
         if (detailedReport && detailedReport.status !== 'PENDING') {
             alert('이미 처리된 신고입니다.');
             return;
         }
 
-        const actionText = action === 'ACCEPT' ? '수락 (해당 콘텐츠 삭제)' : '거절 (해당 콘텐츠 유지)';
+        if (!adminUser?.userId) {
+            alert('로그인한 관리자 정보를 찾을 수 없습니다. 다시 로그인 해주세요.');
+            return;
+        }
+
         const confirmMessage = reportType === 'review' ?
-            `이 리뷰 신고를 ${actionText} 처리하시겠습니까?` :
-            `이 게시물 신고를 ${actionText} 처리하시겠습니까?`;
+            `이 리뷰를 삭제하고 신고를 수락 처리하시겠습니까? (삭제된 콘텐츠는 복구할 수 없습니다.)` :
+            `이 게시물을 삭제하고 신고를 수락 처리하시겠습니까? (삭제된 콘텐츠는 복구할 수 없습니다.)`;
 
         if (window.confirm(confirmMessage)) {
             try {
+                const baseUrl = `http://localhost:18090/api/admin/reports`;
                 const endpoint = reportType === 'review' ?
-                    `http://localhost:18090/api/admin/reports/reviews/${detailedReport.reportId}/process` :
-                    `http://localhost:18090/api/admin/reports/posts/${detailedReport.reportId}/process`;
+                    `${baseUrl}/reviews/${detailedReport.reportId}/process` :
+                    `${baseUrl}/posts/${detailedReport.reportId}/process`;
 
+                // 항상 'ACCEPT' 액션으로 호출
                 await axios.patch(endpoint, {
-                    action: action, // 'ACCEPT' 또는 'REJECT'
-                    adminId: adminUser?.userId
-                }, {
-                    // headers: { Authorization: `Bearer ${adminUser?.token}` }
-                });
-                alert(`신고가 성공적으로 ${actionText} 처리되었습니다.`);
-                fetchReports();
-                onClose();
+                    action: 'ACCEPT', // 삭제는 곧 신고 수락을 의미
+                    adminId: adminUser.userId
+                }, {});
+                alert(`${reportType === 'review' ? '리뷰' : '게시물'}이 삭제되고 신고가 성공적으로 수락 처리되었습니다.`);
+                fetchReports(); // 부모 컴포넌트의 목록 새로고침
+                onClose(); // 모달 닫기
             } catch (err) {
-                console.error(`Failed to ${action} ${reportType} report:`, err);
-                alert(`신고 ${actionText}에 실패했습니다: ` + (err.response?.data?.message || err.message || err.toString()));
+                console.error(`Failed to process ${reportType} report for deletion:`, err);
+                alert(`${reportType === 'review' ? '리뷰' : '게시물'} 삭제 및 신고 처리에 실패했습니다. 다시 시도해주세요.`);
             }
         }
     };
 
+    // 로딩, 에러, 데이터 없음 상태 처리
     if (loading) return (
         <div className="modal-overlay">
             <div className="modal-content">
-                <p>신고 상세 정보를 불러오는 중...</p>
+                <p className="loading-message">신고 상세 정보를 불러오는 중...</p>
             </div>
         </div>
     );
+
     if (error) return (
         <div className="modal-overlay">
             <div className="modal-content">
@@ -100,11 +107,13 @@ const ReportDetailModal = ({ report, reportType, onClose, getReportStatusText, f
             </div>
         </div>
     );
+
     if (!detailedReport) return null;
 
-    const originalContentBody = detailedReport.originalReviewContent;
-    const originalContentId = detailedReport.reviewId;
-    const originalContentLabel = "원본 리뷰 내용";
+    // 원본 콘텐츠 관련 변수 설정 (리뷰/게시물 타입에 따라 동적 할당)
+    const originalContentBody = reportType === 'review' ? detailedReport.originalReviewContent : detailedReport.originalPostContent;
+    const originalContentId = reportType === 'review' ? detailedReport.reviewId : detailedReport.postId;
+    const originalContentLabel = reportType === 'review' ? "원본 리뷰 내용" : "원본 게시물 내용";
 
     return (
         <div className="modal-overlay">
@@ -148,13 +157,14 @@ const ReportDetailModal = ({ report, reportType, onClose, getReportStatusText, f
                     </div>
 
                     {detailedReport.status === 'PENDING' && (
-                        <div className="detail-section process-actions">
-                            <h3>신고 처리</h3>
-                            <button className="action-button confirm-button" onClick={() => handleProcessReport('ACCEPT')}>
-                                {reportType === 'review' ? '리뷰 삭제 및 신고 수락' : '게시물 삭제 및 신고 수락'}
-                            </button>
-                            <button className="action-button cancel-button" onClick={() => handleProcessReport('REJECT')}>
-                                신고 거절
+                        <div className="detail-section delete-section"> {/* delete-section 클래스 추가 */}
+                            <h3>신고 처리 (콘텐츠 삭제)</h3> {/* 제목 변경 */}
+                            <p>주의: 콘텐츠를 삭제하면 해당 신고가 수락 처리되며 복구할 수 없습니다. 신중하게 진행해주세요.</p> {/* 주의 문구 추가 */}
+                            <button
+                                className="action-button delete-button full-width-button" // 스타일 클래스 적용
+                                onClick={handleAcceptReportAndDeleteContent} // 변경된 함수 연결
+                            >
+                                {reportType === 'review' ? '리뷰 삭제 및 신고 처리' : '게시물 삭제 및 신고 처리'}
                             </button>
                         </div>
                     )}

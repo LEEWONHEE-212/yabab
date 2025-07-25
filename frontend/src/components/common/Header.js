@@ -52,7 +52,7 @@ const Header = () => {
                 <nav className="header-center">
                     <Link to="/">홈</Link>
                     <Link to="/feed/:teamId/list">응원피드</Link>
-                    <Link to="/">선수 추천 맛집</Link>
+                    <Link to="/playerPick">선수 추천 맛집</Link>
                     <Link to="/myPage">마이페이지</Link>
 
                     {/* 사장님 페이지 링크: 'ROLE_OWNER' 또는 'ROLE_ADMIN'만 보이게 */}

@@ -8,6 +8,7 @@ import StadiumPage from './pages/StadiumPage';
 import FeedPage from './pages/FeedPage';
 import MyPage from './pages/MyPage';
 import AdminPage from './pages/AdminPage';
+import PlayerPickPage from './pages/PlayerPickPage';
 
 function App() {
         return (
@@ -22,6 +23,7 @@ function App() {
                         <Route path='/stadium/:stadiumId' element={<StadiumPage />} />
                         <Route path='/myPage' element={<MyPage />} />
                         <Route path='/admin' element={<AdminPage />} />
+                        <Route path='/playerPick' element={<PlayerPickPage />} />
                 </Routes>
         );
 }

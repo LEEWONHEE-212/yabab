@@ -1,10 +1,10 @@
-// src/pages/Admin/UserManagement.jsx (최종 수정)
+// src/pages/Admin/UserManagement.jsx (최종 수정 - 상태 필드 제거)
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import axios from 'axios';
 import { UserContext } from '../../context/UserContext';
-import UserDetailModal from './UserDetailModal'; // 경로 확인해주세요
+// UserDetailModal의 경로를 components/Admin 폴더 내부로 조정했습니다.
+import UserDetailModal from './UserDetailModal'; 
 
-// AdminPage.css를 임포트하여 공통 스타일과 새롭게 변경된 클래스 이름들을 사용합니다.
 import './Admin.css';
 
 const UserManagement = () => {
@@ -12,8 +12,9 @@ const UserManagement = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [searchType, setSearchType] = useState('userNickname');
+    const [searchType, setSearchType] = useState('userNickname'); // 기본 검색 타입: 닉네임
     const [filterRole, setFilterRole] = useState('');
+    // const [filterStatus, setFilterStatus] = useState(''); // 상태 필터 제거
 
     const [selectedUser, setSelectedUser] = useState(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -24,7 +25,7 @@ const UserManagement = () => {
     const [totalElements, setTotalElements] = useState(0);
     const [pageSize, setPageSize] = useState(10); // 기본값 10
 
-    const { user: adminUser } = useContext(UserContext);
+    const { user: adminUser } = useContext(UserContext); // 현재 로그인한 관리자 정보
 
     // 회원 목록을 비동기로 불러오는 함수
     const fetchUsers = useCallback(async () => {
@@ -34,10 +35,11 @@ const UserManagement = () => {
             const params = {
                 page: currentPage,
                 size: pageSize,
-                // searchTerm과 searchType을 함께 사용하도록 복원
                 ...(searchTerm && { searchTerm: searchTerm }),
-                ...(searchTerm && { searchType: searchType }),
+                ...(searchTerm && { searchType: searchType }), // searchType도 함께 백엔드로 전달
+                // filterRole이 ''이 아닐 때만 userRole 파라미터 추가
                 ...(filterRole !== '' && { userRole: parseInt(filterRole) }),
+                // ...(filterStatus !== '' && { userStatus: parseInt(filterStatus) }), // filterStatus 제거
                 sortBy: 'userJoindate', // 기본 정렬 기준
                 sortDirection: 'desc' // 기본 정렬 방향
             };
@@ -48,7 +50,12 @@ const UserManagement = () => {
                 // headers: { Authorization: `Bearer ${adminUser.token}` }
             });
 
-            setUsers(response.data.content);
+            // 관리자 계정(userRole: 0)은 목록에서 제외하고, 페이징 정보는 그대로 사용
+            const allUsers = response.data.content || [];
+            // 현재 로그인한 관리자 자신(adminUser.userId)을 포함한 모든 관리자(userRole === 0)를 제외합니다.
+            const filteredUsers = allUsers.filter(u => u.userRole !== 0); 
+
+            setUsers(filteredUsers);
             setTotalPages(response.data.totalPages);
             setTotalElements(response.data.totalElements);
             setCurrentPage(response.data.pageNumber);
@@ -59,19 +66,21 @@ const UserManagement = () => {
             setUsers([]);
             setTotalPages(0);
             setTotalElements(0);
+            setCurrentPage(0); // 에러 발생 시 현재 페이지도 초기화
         } finally {
             setLoading(false);
         }
-    }, [currentPage, pageSize, searchTerm, searchType, filterRole, adminUser]); // searchType 의존성 추가
+    }, [currentPage, pageSize, searchTerm, searchType, filterRole, adminUser]); // filterStatus 의존성 제거
 
+    // useEffect의 의존성 배열에 fetchUsers 추가 (eslint 경고 방지 및 변경 감지)
     useEffect(() => {
         fetchUsers();
     }, [fetchUsers]);
 
-    // 회원 역할 코드를 텍스트로 변환하는 헬퍼 함수 (DTO에도 정의되어 있음)
+    // 회원 역할 코드를 텍스트로 변환하는 헬퍼 함수
     const getUserRoleText = (roleCode) => {
         switch (roleCode) {
-            case 0: return '관리자';
+            case 0: return '관리자'; // 관리자는 0
             case 1: return '일반 사용자';
             case 2: return '사장님';
             default: return '알 수 없음';
@@ -81,7 +90,7 @@ const UserManagement = () => {
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         setCurrentPage(0); // 검색 시 첫 페이지로 이동
-        fetchUsers();
+        // fetchUsers는 currentPage 변경에 의해 자동으로 호출됨
     };
 
     const openUserDetailModal = (user) => {
@@ -104,9 +113,10 @@ const UserManagement = () => {
 
     const renderPagination = () => {
         const pages = [];
-        // totalPages가 0일 때 (데이터가 없을 때) 페이징 버튼을 렌더링하지 않도록 조건 추가
         if (totalPages === 0) return null; 
 
+        // 현재 페이지를 중심으로 5개 또는 7개 등 일정 범위의 페이징 버튼을 보여주는 로직 추가 가능
+        // 여기서는 모든 페이지 버튼을 보여주는 간단한 버전 유지
         for (let i = 0; i < totalPages; i++) {
             pages.push(
                 <button
@@ -119,7 +129,6 @@ const UserManagement = () => {
             );
         }
         return (
-            // 클래스 이름 변경: pagination -> admin-page-pagination
             <div className="admin-page-pagination"> 
                 <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 0}>
                     이전
@@ -136,13 +145,10 @@ const UserManagement = () => {
     if (error) return <p className="error-message">{error}</p>;
 
     return (
-        // 클래스 이름 변경: management-section -> admin-page-management-section
         <div className="admin-page-management-section">
-            {/* 클래스 이름 변경: section-title -> admin-page-section-title */}
-            <h2 className="admin-page-section-title">회원 관리</h2>
+            <h2 className="admin-page-section-title">회원 관리 목록</h2>
 
-            {/* 검색 및 필터링 폼 - searchType 드롭다운 복원 */}
-            {/* 클래스 이름 변경: search-filter-form -> admin-page-search-filter-form */}
+            {/* 검색 및 필터링 폼 */}
             <form onSubmit={handleSearchSubmit} className="admin-page-search-filter-form">
                 <select value={searchType} onChange={(e) => setSearchType(e.target.value)}>
                     <option value="userNickname">닉네임</option>
@@ -153,11 +159,12 @@ const UserManagement = () => {
                 
                 <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)}>
                     <option value="">모든 역할</option>
-                    <option value="0">관리자</option>
+                    {/* 관리자(0) 역할은 여기서도 목록 필터에서 숨기는 것이 일반적입니다. */}
+                    {/* 필요에 따라 <option value="0">관리자</option>를 추가할 수 있지만, */}
+                    {/* 이미 목록에서 제외하고 있으므로 굳이 필터로 넣을 필요는 없을 수 있습니다. */}
                     <option value="1">일반 사용자</option>
                     <option value="2">사장님</option>
                 </select>
-
                 <input
                     type="text"
                     placeholder="검색어를 입력하세요..."
@@ -165,12 +172,10 @@ const UserManagement = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
 
-                {/* 클래스 이름 변경: search-button -> admin-page-search-button */}
                 <button type="submit" className="admin-page-search-button">검색</button>
             </form>
 
             {/* 회원 목록 테이블 */}
-            {/* 클래스 이름 변경: table-wrapper -> admin-page-table-wrapper */}
             <div className="admin-page-table-wrapper">
                 <table>
                     <thead>
@@ -186,7 +191,7 @@ const UserManagement = () => {
                     <tbody>
                         {users.length === 0 ? (
                             <tr>
-                                {/* 클래스 이름 변경: no-data -> admin-page-no-data */}
+                                {/* colSpan 7에서 6으로 변경 */}
                                 <td colSpan="6" className="admin-page-no-data">조건에 맞는 회원이 없습니다.</td>
                             </tr>
                         ) : (
@@ -196,12 +201,10 @@ const UserManagement = () => {
                                     <td>{u.userNickname}</td>
                                     <td>{u.userEmail}</td>
                                     <td>{getUserRoleText(u.userRole)}</td>
+                                    {/* <td>{getUserStatusText(u.userStatus)}</td> 제거 */}
                                     <td>{u.userJoindate ? new Date(u.userJoindate).toLocaleDateString() : 'N/A'}</td>
-                                    {/* 클래스 이름 변경: actions-cell -> admin-page-actions-cell */}
                                     <td className="admin-page-actions-cell">
-                                        {/* action-button과 그 파생 클래스들은 AdminPage.css에 공통으로 유지 */}
                                         <button className="action-button detail-button" onClick={() => openUserDetailModal(u)}>상세</button>
-                                        {/* 목록에서의 삭제 버튼 제거 유지 */}
                                     </td>
                                 </tr>
                             ))
@@ -212,7 +215,6 @@ const UserManagement = () => {
 
             {/* 페이징 컨트롤 */}
             {totalPages > 0 && renderPagination()}
-            {/* 클래스 이름 변경: total-elements-info -> admin-page-total-elements-info */}
             <p className="admin-page-total-elements-info">총 회원 수: {totalElements}명</p>
 
             {/* 회원 상세 모달 */}
@@ -221,6 +223,7 @@ const UserManagement = () => {
                     user={selectedUser}
                     onClose={closeUserDetailModal}
                     getUserRoleText={getUserRoleText}
+                    // getUserStatusText={getUserStatusText} // 상태 헬퍼 함수 전달 제거
                     fetchUsers={fetchUsers}
                 />
             )}

@@ -1,4 +1,4 @@
-// src/components/Admin/UserDetailModal.jsx (수정됨)
+// src/components/Admin/UserDetailModal.jsx (최종 수정 - 물리적 삭제 API에 맞춤, 이름/최종로그인 제거)
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { UserContext } from '../../context/UserContext';
@@ -31,20 +31,13 @@ const UserDetailModal = ({ user, onClose, getUserRoleText, fetchUsers }) => {
         fetchUserDetail();
     }, [user.userId, adminUser]);
 
-    // 회원 계정 삭제 처리 (실제로는 USER_DELETED_FLAG를 1로 업데이트하는 논리적 삭제)
+    // 회원 계정 물리적 삭제 처리
     const handleDeleteUser = async () => {
         if (!detailedUser) return;
 
-        // 이미 삭제(비활성화)된 계정인지 확인 (옵션)
-        if (detailedUser.userDeletedFlag === 1) {
-            alert("이미 삭제된 계정입니다.");
-            return;
-        }
-
-        if (window.confirm(`정말로 회원 ID: ${detailedUser.userId} (${detailedUser.userNickname}) 님을 삭제하시겠습니까? 삭제된 계정은 복구할 수 없습니다.`)) {
+        if (window.confirm(`정말로 회원 ID: ${detailedUser.userId} (${detailedUser.userNickname}) 님을 영구적으로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다!`)) {
             try {
-                // 백엔드 API는 'deactivate'로 유지되지만, UI에서는 '삭제'로 표현
-                await axios.put(`http://localhost:18090/api/admin/users/deactivate/${detailedUser.userId}`, {}, {
+                await axios.delete(`http://localhost:18090/api/admin/users/${detailedUser.userId}`, {
                     // headers: { Authorization: `Bearer ${adminUser.token}` }
                 });
                 alert("회원이 성공적으로 삭제되었습니다.");
@@ -56,7 +49,6 @@ const UserDetailModal = ({ user, onClose, getUserRoleText, fetchUsers }) => {
             }
         }
     };
-
 
     // 로딩 및 에러 처리
     if (loading) return (
@@ -85,10 +77,13 @@ const UserDetailModal = ({ user, onClose, getUserRoleText, fetchUsers }) => {
                 </div>
                 <div className="modal-body">
                     <p><strong>ID:</strong> {detailedUser.userId}</p>
+                    {/* <p><strong>이름:</strong> {detailedUser.userName || 'N/A'}</p>  <- 이름 필드 제거 */}
                     <p><strong>닉네임:</strong> {detailedUser.userNickname}</p>
                     <p><strong>이메일:</strong> {detailedUser.userEmail}</p>
                     <p><strong>역할:</strong> {getUserRoleText(detailedUser.userRole)}</p>
                     <p><strong>가입일:</strong> {detailedUser.userJoindate ? new Date(detailedUser.userJoindate).toLocaleDateString() : 'N/A'}</p>
+                    {/* <p><strong>최종 로그인:</strong> {detailedUser.userLastlogin ? new Date(detailedUser.userLastlogin).toLocaleString() : 'N/A'}</p>  <- 최종 로그인 필드 제거 */}
+
 
                     {/* 사장님일 경우 사업장 정보 표시 (백엔드에서 businessInfo를 제공한다고 가정) */}
                     {detailedUser.userRole === 2 && detailedUser.businessInfo && (
@@ -102,14 +97,13 @@ const UserDetailModal = ({ user, onClose, getUserRoleText, fetchUsers }) => {
                     )}
 
                     <div className="detail-section delete-section">
-                        <h3>계정 삭제</h3> {/* 문구 변경 */}
-                        <p>주의: 계정을 삭제하면 더 이상 해당 계정으로 서비스를 이용할 수 없습니다. 이 작업은 되돌릴 수 없습니다. 신중하게 진행해주세요.</p> {/* 문구 변경 */}
+                        <h3>계정 영구 삭제</h3>
+                        <p>주의: 계정을 영구적으로 삭제하면 모든 데이터가 사라지며 복구할 수 없습니다. 신중하게 진행해주세요.</p>
                         <button
                             onClick={handleDeleteUser}
                             className="action-button delete-button full-width-button"
-                            disabled={detailedUser.userDeletedFlag === 1} // 이미 삭제(비활성화)된 경우 버튼 비활성화
                         >
-                            {detailedUser.userDeletedFlag === 1 ? '이미 삭제됨' : '계정 삭제'} {/* 버튼 텍스트 변경 */}
+                            계정 영구 삭제
                         </button>
                     </div>
                 </div>

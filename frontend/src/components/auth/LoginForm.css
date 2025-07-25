@@ -100,14 +100,32 @@ body {
 }
 
 .kakao-btn {
-  background-color: #FEE500;
-  color: #000;
-  padding: 12px;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  font-size: 15px;
-  margin-top: 10px;
+    background-color: #FEE500; /* 카카오 노란색 */
+    color: #3C1E1E; /* 카카오 텍스트 색상 */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex; /* 이미지와 텍스트를 한 줄에 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    justify-content: center; /* 가로 중앙 정렬 */
+    gap: 10px; /* 이미지와 텍스트 사이 간격 */
+    width: 100%; /* 너비를 꽉 채우도록 */
+    margin-top: 15px; /* 위쪽 여백 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.kakao-btn:hover {
+    background-color: #FADA00; /* 호버 시 약간 더 진한 노란색 */
+}
+
+.kakao-btn img {
+    width: 24px; /* 카카오 로고 이미지 크기 */
+    height: 24px;
+    vertical-align: middle; /* 텍스트와 이미지 정렬 */
 }
 
 .signup-wrap {

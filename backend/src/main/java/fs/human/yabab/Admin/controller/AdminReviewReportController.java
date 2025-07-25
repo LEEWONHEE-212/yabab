@@ -14,7 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/reports") // 기본 요청 경로
-@CrossOrigin(origins = "http://localhost:3000") // 프론트엔드 URL에 맞게 설정 (CORS 허용)
+@CrossOrigin(origins = "http://192.168.0.47:3000") // 프론트엔드 URL에 맞게 설정 (CORS 허용)
 public class AdminReviewReportController {
 
     private final AdminReviewReportService adminReviewReportService;

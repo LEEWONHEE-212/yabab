@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.KakaoAuth.dao.UserMapper">
+
+    <!-- findByUserId 쿼리 수정 -->
+    <select id="findByUserId" parameterType="string" resultType="fs.human.yabab.KakaoAuth.vo.KakaoAuthUserVO">
+        SELECT
+        USER_ID AS userId,
+        USER_PASSWORD AS userPassword,
+        USER_NAME AS userName,
+        USER_NICKNAME AS userNickname,   
+        USER_EMAIL AS userEmail
+        FROM
+        TB_USER
+        WHERE
+        USER_ID = #{userId}
+    </select>
+
+    <!-- insertUser 쿼리는 이전 수정과 동일하게 유지 -->
+    <insert id="insertUser" parameterType="fs.human.yabab.KakaoAuth.vo.KakaoAuthUserVO">
+        INSERT INTO TB_USER (
+        USER_ID,
+        USER_PASSWORD,
+        USER_NAME,
+        USER_NICKNAME,
+        USER_EMAIL,
+        USER_ROLE,
+        USER_JOINDATE,
+        CREATED_DATE
+        ) VALUES (
+        #{userId},
+        #{userPassword},
+        #{userName},
+        #{userName},     <!-- USER_NICKNAME에 userName 값 매핑 -->
+        #{userEmail},
+        1,
+        SYSDATE,
+        SYSDATE
+        )
+    </insert>
+</mapper>

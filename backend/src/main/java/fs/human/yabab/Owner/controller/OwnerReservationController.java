@@ -12,7 +12,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/owner/reservations")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://192.168.0.47:3000")
 public class OwnerReservationController {
     @Autowired
     private OwnerReservationService ownerReservationService;

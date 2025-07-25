@@ -1,7 +1,9 @@
 package fs.human.yabab.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -15,7 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000")  // 프론트 주소
+                .allowedOrigins("http://192.168.0.47:3000")  // 프론트 주소
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);  // 쿠키 인증 필요 시 true
@@ -30,5 +32,9 @@ public class WebConfig implements WebMvcConfigurer {
         // Spring Boot의 기본 정적 자원 핸들러도 유지합니다.
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/");
+    }
+    @Bean // 이 어노테이션이 중요합니다!
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }

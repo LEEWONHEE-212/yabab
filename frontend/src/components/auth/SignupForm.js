@@ -68,7 +68,7 @@ const SignupForm = () => {
 
             //  서버에 POST 요청을 보내 회원가입 시도
             const response = await axios.post(
-                'http://localhost:18090/auth/addUser', //  백엔드 주소
+                'http://192.168.0.47:18090/auth/addUser', //  백엔드 주소
                 submitData, //  전송 데이터
                 {
                     headers: {
@@ -96,7 +96,7 @@ const SignupForm = () => {
 
         try{
             const response = await axios.get(
-                'http://localhost:18090/auth/checkId', 
+                'http://192.168.0.47:18090/auth/checkId', 
                 {params: {userId: formData.userId}},
                 {headers: {"Content-type": "application/json"},}
             );
@@ -118,7 +118,7 @@ const SignupForm = () => {
 
         try {
             const response = await axios.get(
-                'http://localhost:18090/auth/checkNickname',
+                'http://192.168.0.47:18090/auth/checkNickname',
                 {params: {userNickname: formData.userNickname}}
             );
 
@@ -139,7 +139,7 @@ const SignupForm = () => {
 
         try{
             const response = await axios.post(
-                'http://localhost:18090/auth/sendAuthCode',
+                'http://192.168.0.47:18090/auth/sendAuthCode',
                 null,   //  바디 없음
                 {params: {email: formData.userEmail}}
             );
@@ -156,7 +156,7 @@ const SignupForm = () => {
     const handleVerifyAuthCode = async () => {
         try {
             const response = await axios.post(
-                'http://localhost:18090/auth/verifyAuthCode',
+                'http://192.168.0.47:18090/auth/verifyAuthCode',
                 {
                     email: formData.userEmail,
                     authCode: emailCode,

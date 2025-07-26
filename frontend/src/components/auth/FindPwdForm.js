@@ -37,7 +37,7 @@ const FindPwdForm = () => {
 
         try{
             const response = await axios.post(
-                'http://localhost:18090/auth/sendAuthCode',
+                'http://192.168.0.47:18090/auth/sendAuthCode',
                 null,   //  바디 없음
                 {params: {email: formData.userEmail}}
             );
@@ -54,7 +54,7 @@ const FindPwdForm = () => {
     const handleVerifyAuthCode = async () => {
         try {
             const response = await axios.post(
-                'http://localhost:18090/auth/verifyAuthCode',
+                'http://192.168.0.47:18090/auth/verifyAuthCode',
                 {
                     email: formData.userEmail,
                     authCode: emailCode,
@@ -94,7 +94,7 @@ const FindPwdForm = () => {
 
         try {
             const response = await axios.post(
-                'http://localhost:18090/auth/reset-password',
+                'http://192.168.0.47:18090/auth/reset-password',
                 formData
             );
 

@@ -26,11 +26,11 @@ public class KakaoAuthController {
             UserLoginResponse userLoginResponse = kakaoAuthService.kakaoLogin(requestDto.getCode());
             return new ResponseEntity<>(userLoginResponse, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            System.err.println("Kakao login callback error: " + e.getMessage());
+
             // UserLoginResponse(String errorMessage) 생성자 사용
             return new ResponseEntity<>(new UserLoginResponse(e.getMessage()), HttpStatus.BAD_REQUEST); // <-- 이 부분 수정
         } catch (Exception e) {
-            System.err.println("Kakao login callback internal server error: " + e.getMessage());
+
             // UserLoginResponse(String errorMessage) 생성자 사용
             return new ResponseEntity<>(new UserLoginResponse("Internal server error during Kakao login"), HttpStatus.INTERNAL_SERVER_ERROR); // <-- 이 부분 수정
         }

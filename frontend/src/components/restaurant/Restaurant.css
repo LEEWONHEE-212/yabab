@@ -101,7 +101,7 @@
 
 .restaurant-tab-button.active {
     color: #333;
-    border-bottom: 3px solid #2D2A32; /* 활성 탭 밑줄 색상 변경 */
+    border-bottom: 3px solid #007bff; /* 활성 탭 밑줄 색상 변경 */
 }
 
 .restaurant-tab-button:hover:not(.active) {
@@ -243,9 +243,9 @@
 }
 
 .restaurant-page-button.active {
-    background-color: #2D2A32;
+    background-color: #007bff;
     color: white;
-    border-color: #2D2A32;
+    border-color: #007bff;
 }
 
 .restaurant-page-button:hover:not(.active) {
@@ -337,7 +337,7 @@
 
 /* 예약하기 버튼 (모달 하단에 고정) */
 .restaurant-reserve-button {
-    background-color: #2D2A32;
+    background-color: #007bff;
     color: white;
     border: none;
     padding: 15px 0;
@@ -354,12 +354,12 @@
 }
 
 .restaurant-reserve-button:hover {
-    background-color: #555;
+    background-color: #0056b3;
 }
 
 /* 후기 작성 완료 버튼 (기본 크기 및 스타일) */
 .restaurant-submit-review-button {
-    background-color: #2D2A32;
+    background-color: #007bff;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -375,7 +375,7 @@
 }
 
 .restaurant-submit-review-button:hover {
-    background-color: #555;
+    background-color: #0056b3;
 }
 
 /* 모바일 반응형 (768px 이하) - 통합 및 수정 */
@@ -500,8 +500,8 @@
 
 .image-modal-content {
     position: relative;
-    max-width: 90%;
-    max-height: 90%;
+    max-width: 50%;
+    max-height: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -509,8 +509,8 @@
 }
 
 .image-modal-content img {
-    max-width: 100%;
-    max-height: 100%;
+    max-width:50%;
+    max-height: 50%;
     object-fit: contain; /* 이미지가 잘리지 않고 전체 보이도록 */
     border-radius: 8px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
@@ -519,7 +519,7 @@
 .image-modal-close-button {
     position: absolute;
     top: 15px;
-    right: 25px;
+    right: 23%;
     font-size: 40px;
     color: white;
     cursor: pointer;
@@ -610,7 +610,6 @@
     padding: 0;
     line-height: 1;
     /* 기본 상태 (🤍) - 회색조 및 투명도 적용 */
-    filter: grayscale(100%) brightness(0.8) opacity(0.7); /* 흰색 하트를 회색으로 보이게 */
 }
 
 /* 좋아요가 눌렸을 때의 버튼 스타일 (❤️) - 필터 제거하여 원래 색상 표시 */

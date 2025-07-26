@@ -9,15 +9,18 @@
         USER_ID AS userId,
         USER_PASSWORD AS userPassword,
         USER_NAME AS userName,
-        USER_NICKNAME AS userNickname,   
-        USER_EMAIL AS userEmail
+        USER_NICKNAME AS userNickname,
+        USER_EMAIL AS userEmail,
+        USER_FAVORITE_TEAM AS userFavoriteTeam,
+        USER_IMAGE_PATH AS userImagePath,
+        USER_IMAGE_NAME AS userImageName
         FROM
         TB_USER
         WHERE
         USER_ID = #{userId}
     </select>
 
-    <!-- insertUser 쿼리는 이전 수정과 동일하게 유지 -->
+    <!-- insertUser 쿼리 수정 -->
     <insert id="insertUser" parameterType="fs.human.yabab.KakaoAuth.vo.KakaoAuthUserVO">
         INSERT INTO TB_USER (
         USER_ID,
@@ -27,16 +30,22 @@
         USER_EMAIL,
         USER_ROLE,
         USER_JOINDATE,
-        CREATED_DATE
+        CREATED_DATE,
+        USER_FAVORITE_TEAM,
+        USER_IMAGE_PATH,
+        USER_IMAGE_NAME
         ) VALUES (
         #{userId},
         #{userPassword},
         #{userName},
-        #{userName},     <!-- USER_NICKNAME에 userName 값 매핑 -->
+        #{userNickname},
         #{userEmail},
         1,
         SYSDATE,
-        SYSDATE
+        SYSDATE,
+        #{userFavoriteTeam},
+        #{userImagePath},
+        #{userImageName}
         )
     </insert>
 </mapper>

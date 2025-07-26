@@ -3,10 +3,25 @@ import axios from 'axios';
 import './Stadium.css';
 import Restaurant from '../restaurant/Restaurant';
 import Header from '../common/Header';
-import { useParams } from 'react-router-dom'; // useParams를 임포트합니다.
+import { useParams } from 'react-router-dom';
+
+// ImageModal 컴포넌트 정의
+const ImageModal = ({ imageUrl, onClose }) => {
+    if (!imageUrl) return null;
+
+    return (
+        <div className="image-modal-overlay" onClick={onClose}>
+            <div className="image-modal-content" onClick={e => e.stopPropagation()}>
+                <button className="image-modal-close-btn" onClick={onClose}>X</button>
+                <img src={imageUrl} alt="확대 경기장 이미지" className="image-modal-img" />
+            </div>
+        </div>
+    );
+};
+
 
 const Stadium = () => {
-    const { stadiumId } = useParams(); // URL에서 stadiumId를 추출합니다.
+    const { stadiumId } = useParams();
 
     const [currentPage, setCurrentPage] = useState(1);
     const [currentPageGroup, setCurrentPageGroup] = useState(1);
@@ -18,10 +33,14 @@ const Stadium = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRestaurant, setSelectedRestaurant] = useState(null);
 
+    // 이미지 모달 상태 추가
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [modalImagePath, setModalImagePath] = useState('');
+
     // 필터 상태들
-    const [selectedInfieldOutfield, setSelectedInfieldOutfield] = useState([]); // 내야/외야
-    const [selectedBase, setSelectedBase] = useState([]); // 1루/3루
-    const [selectedFloor, setSelectedFloor] = useState([]); // 층 (1층, 2층, ...)
+    const [selectedInfieldOutfield, setSelectedInfieldOutfield] = useState([]);
+    const [selectedBase, setSelectedBase] = useState([]);
+    const [selectedFloor, setSelectedFloor] = useState([]);
 
     // 백엔드에서 받아올 식당 데이터 상태
     const [restaurants, setRestaurants] = useState([]);
@@ -29,10 +48,11 @@ const Stadium = () => {
 
     // 로딩 상태 추가 (사용자 경험 개선)
     const [isLoading, setIsLoading] = useState(false);
-    // 필터 미선택 시 메시지 표시를 위한 상태 (가장 중요하게 추가되는 부분)
+    // 필터 미선택 시 메시지 표시를 위한 상태
     const [showNoFilterSelectedMessage, setShowNoFilterSelectedMessage] = useState(true);
 
-    const parsedStadiumId = parseInt(stadiumId); // stadiumId는 문자열로 오므로 숫자로 변환합니다.
+
+    const parsedStadiumId = parseInt(stadiumId);
     const RESTAURANTS_PER_PAGE = 5;
     const PAGE_GROUP_SIZE = 10;
 
@@ -85,7 +105,6 @@ const Stadium = () => {
     useEffect(() => {
         const fetchStadiumInfo = async () => {
             try {
-                // useParams로 받은 stadiumId를 사용합니다.
                 const response = await axios.get(`http://localhost:18090/api/kakaomap/stadium/${parsedStadiumId}/location`);
                 setStadiumData(response.data);
                 console.log('백엔드에서 받은 경기장 정보:', response.data);
@@ -96,15 +115,15 @@ const Stadium = () => {
                     stadiumMapX: 127.431303,
                     stadiumMapY: 36.316262,
                     stadiumAddr1: '주소 정보 없음',
-                    stadiumAddr2: ''
+                    stadiumAddr2: '',
+                    stadiumImagePath: null // 이미지가 없는 경우를 대비
                 });
             }
         };
-        // stadiumId가 유효할 때만 호출합니다.
         if (parsedStadiumId) {
             fetchStadiumInfo();
         }
-    }, [parsedStadiumId]); // stadiumId가 변경될 때마다 호출되도록 의존성 배열에 추가합니다.
+    }, [parsedStadiumId]);
 
     useEffect(() => {
         if (mapLoaded && stadiumData && kakaoAppKey) {
@@ -152,7 +171,7 @@ const Stadium = () => {
 
     // ======================== 카카오맵 관련 로직 끝 ========================
 
-    // 필터 변경 핸들러 - 수정
+    // 필터 변경 핸들러
     const handleFilterChange = (filterType, value) => {
         let setStateFunc;
         let selectedValues;
@@ -182,28 +201,27 @@ const Stadium = () => {
         }
         setStateFunc(newSelectedValues);
 
-        setCurrentPage(1); // 필터 변경 시 첫 페이지로 이동
-        setCurrentPageGroup(1); // 필터 변경 시 첫 페이지 그룹으로 이동
-        setShowNoFilterSelectedMessage(false); // 필터가 선택되었으므로 메시지 숨김
+        setCurrentPage(1);
+        setCurrentPageGroup(1);
+        setShowNoFilterSelectedMessage(false);
     };
 
-    // ======================== 식당 데이터 로딩 로직 (필터 미선택 시 동작 변경) ========================
+    // ======================== 식당 데이터 로딩 로직 ========================
     useEffect(() => {
         const fetchRestaurants = async () => {
-            // 필터가 아무것도 선택되지 않았을 경우 API 호출을 막고 메시지를 표시
             if (selectedInfieldOutfield.length === 0 && selectedBase.length === 0 && selectedFloor.length === 0) {
-                setRestaurants([]); // 식당 목록 비움
-                setTotalPages(1);   // 총 페이지 수도 초기화
-                setShowNoFilterSelectedMessage(true); // "필터를 선택해주세요" 메시지 표시
-                return; // API 호출하지 않고 함수 종료
+                setRestaurants([]);
+                setTotalPages(1);
+                setShowNoFilterSelectedMessage(true);
+                return;
             }
 
-            setIsLoading(true); // 로딩 시작
+            setIsLoading(true);
             try {
                 const params = {
-                    stadiumId: parsedStadiumId, // useParams로 받은 stadiumId를 사용합니다.
-                    restaurantInsideFlag: 0, // '구장 내부' 식당으로 고정
-                    sortBy: 'rating', // 정렬 기준은 별점순으로 고정
+                    stadiumId: parsedStadiumId,
+                    restaurantInsideFlag: 0,
+                    sortBy: 'rating',
                     page: currentPage - 1,
                     size: RESTAURANTS_PER_PAGE
                 };
@@ -233,11 +251,10 @@ const Stadium = () => {
                 setRestaurants([]);
                 setTotalPages(1);
             } finally {
-                setIsLoading(false); // 로딩 종료
+                setIsLoading(false);
             }
         };
 
-        // stadiumId가 유효할 때만 식당 정보를 가져옵니다.
         if (parsedStadiumId) {
             fetchRestaurants();
         }
@@ -273,7 +290,9 @@ const Stadium = () => {
             if (currentPageGroup > 1) {
                 const prevGroupStartPage = ((currentPageGroup - 2) * PAGE_GROUP_SIZE) + 1;
                 setCurrentPageGroup(prev => prev - 1);
-                setCurrentPage(prevGroupStartPage);
+                setCurrentPage(Math.max(1, prevGroupStartPage));
+            } else {
+                setCurrentPage(1);
             }
         }
     };
@@ -333,15 +352,45 @@ const Stadium = () => {
         setSelectedRestaurant(null);
     };
 
+    // 이미지 모달 열기 함수
+    const openImageModal = (imagePath) => {
+        setModalImagePath(`http://localhost:18090${imagePath}`);
+        setIsImageModalOpen(true);
+    };
+
+    // 이미지 모달 닫기 함수
+    const closeImageModal = () => {
+        setIsImageModalOpen(false);
+        setModalImagePath('');
+    };
+
+    // 카카오맵 클릭 핸들러
+    const handleMapClick = () => {
+        if (stadiumData && stadiumData.stadiumImagePath) {
+            openImageModal(stadiumData.stadiumImagePath);
+        } else {
+            console.log("경기장 사진이 없어 모달을 열 수 없습니다.");
+            alert("경기장 내부 사진이 준비되지 않았습니다.");
+        }
+    };
+
+
     return (
         <div className="stadium-page">
 
-        <Header/>
+            <Header/>
 
-        {/* Kakao Map Section */}
+            {/* Stadium Map Section */}
             <section className="stadium-map-section">
                 <div className="stadium-container">
-                    <div id="kakao-map" className="stadium-kakao-map">
+                    <h2 className="stadium-map-title">
+                        {stadiumData ? stadiumData.stadiumName : '경기장 정보 로딩 중...'}
+                    </h2>
+                    {stadiumData && stadiumData.stadiumImagePath && (
+                        <p className="stadium-map-subtext">클릭 시 구장 내부도 나옴</p>
+                    )}
+
+                    <div id="kakao-map" className="stadium-kakao-map" onClick={handleMapClick}>
                         {!kakaoAppKey && <p>카카오 앱 키를 불러오는 중...</p>}
                         {kakaoAppKey && !mapLoaded && <p>카카오맵 SDK 로딩 중...</p>}
                         {mapLoaded && !stadiumData && <p>경기장 정보를 불러오는 중...</p>}
@@ -352,25 +401,14 @@ const Stadium = () => {
                 </div>
             </section>
 
-            {/* Stadium Image Section */}
-            <section className="stadium-image-section">
+            {/* Navigation Tabs - 단일 탭 (구장 먹거리 탭만 남김) */}
+            {/* 기존 stadium-nav-tabs-section 대신 admin-tabs-container 사용 */}
+            <section className="admin-tabs-container">
                 <div className="stadium-container">
-                    <div className="stadium-image-container">
-                        <div className="stadium-image">
-                            <span>{stadiumData ? stadiumData.stadiumName : '경기장 이름 로딩 중...'}</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Navigation Tabs - 단일 탭 */}
-            <section className="stadium-nav-tabs-section">
-                <div className="stadium-container">
-                    <div className="stadium-main-tabs">
-                        <button className="stadium-tab-btn active">
-                            구장 먹거리
-                        </button>
-                    </div>
+                    {/* 단일 탭 버튼 */}
+                    <button className="tab-button active">
+                        구장 먹거리
+                    </button>
                 </div>
             </section>
 
@@ -429,15 +467,15 @@ const Stadium = () => {
                     </div>
 
                     {/* 조건부 렌더링: 로딩, 필터 미선택 메시지, 식당 목록, 데이터 없음 메시지 */}
-                    {isLoading ? ( // 로딩 중일 때
+                    {isLoading ? (
                         <div className="stadium-loading-message">
                             <p>식당 목록을 불러오는 중...</p>
                         </div>
-                    ) : showNoFilterSelectedMessage ? ( // 아무 필터도 선택 안 했을 때
+                    ) : showNoFilterSelectedMessage ? (
                         <div className="stadium-no-data-message">
                             <p>원하는 구역의 먹거리를 찾으려면 위 필터를 선택해주세요.</p>
                         </div>
-                    ) : restaurants.length > 0 ? ( // 필터 선택 후 데이터 있을 때
+                    ) : restaurants.length > 0 ? (
                         <div className="stadium-restaurant-grid">
                             {restaurants.map(restaurant => (
                                 <div key={restaurant.id} className="stadium-restaurant-card" onClick={() => openModal(restaurant)}>
@@ -446,7 +484,7 @@ const Stadium = () => {
                                             src={restaurant.restaurantImagePath
                                                 ? `http://localhost:18090${restaurant.restaurantImagePath}`
                                                 : '/default-restaurant-image.jpg'}
-                                                alt={restaurant.restaurantName}className="stadium-restaurant-img"/>
+                                            alt={restaurant.restaurantName}className="stadium-restaurant-img"/>
                                     </div>
                                     <div className="stadium-restaurant-info">
                                         <div className="stadium-rating-section">
@@ -465,14 +503,14 @@ const Stadium = () => {
                                 </div>
                             ))}
                         </div>
-                    ) : ( // 필터 선택 후 데이터 없을 때
+                    ) : (
                         <div className="stadium-no-data-message">
                             <p>선택하신 필터 조건에 맞는 식당이 없습니다.</p>
                         </div>
                     )}
 
                     {/* 페이지네이션 */}
-                    {totalPages > 1 && !showNoFilterSelectedMessage && ( // 필터 선택 시에만 페이지네이션 표시
+                    {totalPages > 1 && !showNoFilterSelectedMessage && (
                         <div className="stadium-pagination">
                             <div className="stadium-page-numbers">
                                 {renderPageNumbers()}
@@ -486,6 +524,14 @@ const Stadium = () => {
                 <Restaurant
                     restaurant={selectedRestaurant}
                     onClose={closeModal}
+                />
+            )}
+
+            {/* 이미지 모달 렌더링 */}
+            {isImageModalOpen && (
+                <ImageModal
+                    imageUrl={modalImagePath}
+                    onClose={closeImageModal}
                 />
             )}
 

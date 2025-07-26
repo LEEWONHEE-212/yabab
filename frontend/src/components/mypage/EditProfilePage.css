@@ -1,78 +1,65 @@
-/* EditProfilePage.css */
-
-/* 모달 오버레이 */
+/* General Modal Styles */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
 }
 
-/* 프로필 수정 모달 본체 */
 .edit-profile-modal {
-    background: #fff;
-    padding: 30px 40px;
+    background-color: #fff;
+    padding: 30px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     width: 90%;
-    max-width: 550px;
+    max-width: 500px;
     box-sizing: border-box;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: fadeInScale 0.3s ease-out;
-}
-
-@keyframes fadeInScale {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Spacing between sections */
 }
 
 .edit-profile-modal h2 {
     text-align: center;
-    margin-bottom: 30px;
     color: #333;
-    font-size: 2em;
-    font-weight: 700;
+    margin-bottom: 25px;
+    font-size: 1.8em;
 }
 
-/* 각 폼 그룹 (라벨 + 입력 필드) */
+/* Form Group Styling for Uniformity (Label and Input on same line) */
 .form-group {
-    margin-bottom: 20px;
+    display: flex; /* Use flexbox for horizontal alignment */
+    align-items: center; /* Vertically align items in the center */
+    margin-bottom: 15px; /* Space between form groups */
+    gap: 15px; /* Space between label and input */
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
+    font-weight: bold;
     color: #555;
-    font-size: 1.1em;
+    font-size: 1em;
+    min-width: 90px; /* Fixed width for labels to align inputs */
+    text-align: right; /* Align label text to the right */
+    flex-shrink: 0; /* Prevent label from shrinking */
 }
 
-/* 텍스트 입력 필드 및 select 박스 */
 .form-group input[type="text"],
 .form-group input[type="email"],
 .form-group input[type="tel"],
 .form-group select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    flex-grow: 1; /* Allow input to take remaining space */
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
     box-sizing: border-box;
-    font-size: 1.05em;
-    color: #333;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-group input:focus,
@@ -82,33 +69,25 @@
     outline: none;
 }
 
-/* 프로필 이미지 그룹 */
+/* Profile Image Specific Styling */
 .profile-image-group {
-    display: flex;
-    flex-direction: column; /* 세로 정렬 */
-    align-items: center; /* 가로 중앙 정렬 */ /* 이 속성으로 하위 요소들이 가운데 정렬됩니다 */
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
-}
-
-.profile-image-group > label { /* "프로필 이미지" 텍스트 라벨 */
-    font-size: 1.2em;
-    margin-bottom: 20px;
+    display: flex; /* Use flexbox for this group */
+    flex-direction: column; /* Stack image and controls vertically */
+    align-items: center; /* Center items horizontally */
+    margin-bottom: 25px;
+    gap: 15px; /* Space between image, file input, and delete button */
 }
 
 .profile-image-preview {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     overflow: hidden;
-    background-color: #f0f0f0;
+    border: 2px solid #ddd;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 15px; /* input과의 간격 */
-    border: 3px solid #ddd;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    background-color: #f0f0f0;
 }
 
 .profile-image-preview img {
@@ -117,88 +96,67 @@
     object-fit: cover;
 }
 
-.profile-image-preview .placeholder-image {
-    color: #999;
+.placeholder-image {
+    color: #888;
     font-size: 0.9em;
     text-align: center;
 }
 
-/* 파일 선택 input 자체의 스타일 (브라우저별 접두사 사용) */
-.profile-image-group input[type="file"] {
-    /* width: auto; 대신 max-width를 줘서 너무 넓어지지 않게 합니다. */
-    max-width: 100%; /* 부모 너비를 넘지 않게 */
-    padding: 8px 0; /* 세로 패딩 */
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 0.95em;
-    color: #555;
-    /* 브라우저별 기본 스타일을 유지하거나 커스텀 */
-    /* text-align: center; 는 input[type="file"]에는 잘 작동하지 않습니다. */
-    /* 브라우저 기본 UI이기 때문입니다. */
-    /* 대신, 부모 flexbox의 align-items: center; 로 중앙 정렬됩니다. */
-    margin-top: 10px; /* 미리보기 이미지와의 추가 간격 */
+.file-input-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
-/* 파일 선택 버튼 스타일링 (Webkit - Chrome, Safari) */
-.profile-image-group input[type="file"]::-webkit-file-upload-button {
-    background-color: #007bff;
+.file-input-controls input[type="file"] {
+    flex-grow: 1;
+    min-width: 150px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f8f8f8;
+    cursor: pointer;
+}
+
+.delete-image-btn {
+    background-color: #dc3545;
     color: white;
-    padding: 8px 15px;
     border: none;
+    padding: 10px 15px;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-right: 10px; /* 파일 이름과의 간격 */
-    /* display: block; margin: 0 auto; 는 이 가상 요소에 직접 적용되지 않습니다. */
-}
-
-.profile-image-group input[type="file"]::-webkit-file-upload-button:hover {
-    background-color: #0056b3;
-}
-
-/* 파일 선택 버튼 스타일링 (Firefox) */
-.profile-image-group input[type="file"]::file-selector-button {
-    background-color: #007bff;
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-right: 10px;
-}
-
-.profile-image-group input[type="file"]::file-selector-button:hover {
-    background-color: #0056b3;
-}
-
-/* 선택된 파일 이름 표시 스타일 */
-.profile-image-group .file-name-display {
     font-size: 0.9em;
-    color: #666;
-    margin-top: 5px; /* input과의 간격 */
-    text-align: center; /* 텍스트 중앙 정렬 */
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
 }
 
+.delete-image-btn:hover {
+    background-color: #c82333;
+}
 
-/* 폼 액션 버튼 그룹 */
+.delete-image-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* Form Actions (Buttons) */
 .form-actions {
     display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 30px;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
 }
 
 .form-actions button {
-    padding: 12px 30px;
+    padding: 12px 20px;
     border: none;
-    border-radius: 6px;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 1.1em;
-    font-weight: 600;
-    transition: background-color 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
-    min-width: 100px;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
 }
 
 .form-actions button[type="submit"] {
@@ -206,15 +164,8 @@
     color: white;
 }
 
-.form-actions button[type="submit"]:hover:not(:disabled) {
+.form-actions button[type="submit"]:hover {
     background-color: #0056b3;
-    transform: translateY(-2px);
-}
-
-.form-actions button[type="submit"]:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    opacity: 0.7;
 }
 
 .form-actions button[type="button"] {
@@ -222,22 +173,52 @@
     color: white;
 }
 
-.form-actions button[type="button"]:hover:not(:disabled) {
+.form-actions button[type="button"]:hover {
     background-color: #5a6268;
-    transform: translateY(-2px);
 }
 
 .form-actions button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
-    opacity: 0.7;
 }
 
-/* 에러 메시지 */
+/* Error Message */
 .error-message {
     color: #dc3545;
-    font-size: 0.95em;
-    margin-top: 15px;
     text-align: center;
-    font-weight: 500;
+    margin-top: -10px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .edit-profile-modal {
+        padding: 20px;
+        margin: 10px;
+    }
+    .form-group {
+        flex-direction: column; /* Stack label and input vertically on small screens */
+        align-items: flex-start; /* Align labels to the left */
+        gap: 8px; /* Reduce gap when stacked */
+    }
+    .form-group label {
+        width: auto; /* Remove fixed width when stacked */
+        text-align: left; /* Align label text to the left */
+    }
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .form-actions button {
+        width: 100%;
+    }
+    .file-input-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .file-input-controls input[type="file"],
+    .delete-image-btn {
+        width: 100%;
+    }
 }

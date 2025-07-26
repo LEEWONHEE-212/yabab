@@ -77,7 +77,7 @@ const Restaurant = ({ restaurant, onClose }) => {
             return;
         }
         try {
-            const response = await fetch(`http://localhost:18090/api/Reviews/${restaurantId}`);
+            const response = await fetch(`http://192.168.0.47:18090/api/Reviews/${restaurantId}`);
             if (response.ok) {
                 const data = await response.json();
                 console.log("[fetchRestaurantDetails] 초기 식당 상세 정보 (리뷰 포함):", data);
@@ -93,7 +93,7 @@ const Restaurant = ({ restaurant, onClose }) => {
                         if (user && user.userId) {
                             console.log(`[fetchRestaurantDetails] 사용자 로그인됨 (${user.userId}), 메뉴 ${menu.menuId}의 좋아요 상태 요청.`);
                             try {
-                                const likeResponse = await fetch(`http://localhost:18090/api/menus/${menu.menuId}/like/status?userId=${user.userId}`);
+                                const likeResponse = await fetch(`http://192.168.0.47:18090/api/menus/${menu.menuId}/like/status?userId=${user.userId}`);
                                 if (likeResponse.ok) {
                                     likeStatus = await likeResponse.json();
                                     console.log(`[fetchRestaurantDetails] 메뉴 ${menu.menuId} 좋아요 상태 API 응답:`, likeStatus);
@@ -212,7 +212,7 @@ const Restaurant = ({ restaurant, onClose }) => {
         }
 
         try {
-            const response = await fetch(`http://localhost:18090/api/Reviews/${currentRestaurantData.id}/reviews`, {
+            const response = await fetch(`http://192.168.0.47:18090/api/Reviews/${currentRestaurantData.id}/reviews`, {
                 method: 'POST',
                 body: formData
             });
@@ -268,7 +268,7 @@ const Restaurant = ({ restaurant, onClose }) => {
 
     // 이미지 경로를 조합합니다. (prop restaurant.restaurantImagePath 사용)
     const fullImageUrl = currentRestaurantData.restaurantImagePath
-        ? `http://localhost:18090${currentRestaurantData.restaurantImagePath}`
+        ? `http://192.168.0.47:18090${currentRestaurantData.restaurantImagePath}`
         : '/default-restaurant-image.jpg'; // 폴백 이미지
 
     // 기존 handleReportReview 수정: 신고 사유 모달을 띄우도록
@@ -294,7 +294,7 @@ const Restaurant = ({ restaurant, onClose }) => {
         console.log(`신고 제출: reviewId=${reviewId}, reason=${reportReason}, details=${reportDetails}, reporterUserId=${user.userId}, reportedUserId=${reviewToReport?.userId}`);
         
         try {
-            const response = await fetch(`http://localhost:18090/api/Reviews/${reviewId}/report`, {
+            const response = await fetch(`http://192.168.0.47:18090/api/Reviews/${reviewId}/report`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -338,7 +338,7 @@ const Restaurant = ({ restaurant, onClose }) => {
         console.log(`[handleLikeMenu] 메뉴 ID: ${menuId}, 현재 좋아요 상태 (클릭 전): ${currentRestaurantData.menus.find(m => m.menuId === menuId)?.likedByUser}`);
 
         // 백엔드 API 호출 로직 활성화
-        const endpoint = `http://localhost:18090/api/menus/${menuId}/like`;
+        const endpoint = `http://192.168.0.47:18090/api/menus/${menuId}/like`;
         const method = 'POST'; // 좋아요 토글은 항상 POST로 요청하고, 백엔드에서 상태에 따라 처리
 
         try {
@@ -512,10 +512,10 @@ const Restaurant = ({ restaurant, onClose }) => {
                                                     <p className="restaurant-review-text">{review.reviewContent}</p>
                                                     {review.reviewImagePath && (
                                                         <img
-                                                            src={`http://localhost:18090${review.reviewImagePath}`}
+                                                            src={`http://192.168.0.47:18090${review.reviewImagePath}`}
                                                             alt="Review"
                                                             className="restaurant-review-image"
-                                                            onClick={() => handleImageClick(`http://localhost:18090${review.reviewImagePath}`)}
+                                                            onClick={() => handleImageClick(`http://192.168.0.47:18090${review.reviewImagePath}`)}
                                                         />
                                                     )}
                                                 </li>

@@ -15,7 +15,7 @@ public class MyPageReservationService {
 
     @Autowired
     public MyPageReservationService(MyPageReservationDAO myPageReservationDAO){
-        this.myPageReservationDAO=myPageReservationDAO;
+        this.myPageReservationDAO = myPageReservationDAO;
     }
 
     @Transactional(readOnly = true) // 읽기 전용 트랜잭션 설정 (데이터 변경 없음)
@@ -72,5 +72,31 @@ public class MyPageReservationService {
         }
 
         return reviews;
+    }
+
+    /**
+     * 특정 예약 내역을 삭제합니다.
+     * @param reservationId 삭제할 예약 ID
+     * @param userId        예약 소유자 ID (보안을 위해 확인)
+     * @return 삭제 성공 여부 (true: 성공, false: 실패)
+     */
+    @Transactional // 데이터 변경이 있으므로 트랜잭션 설정
+    public boolean deleteReservation(Long reservationId, String userId) {
+        // DAO를 통해 예약 삭제
+        int deletedRows = myPageReservationDAO.deleteReservation(reservationId, userId);
+        return deletedRows > 0; // 삭제된 레코드가 1개 이상이면 성공
+    }
+
+    /**
+     * 특정 리뷰를 삭제합니다.
+     * @param reviewId 삭제할 리뷰 ID
+     * @param userId   리뷰 작성자 ID (보안을 위해 확인)
+     * @return 삭제 성공 여부 (true: 성공, false: 실패)
+     */
+    @Transactional // 데이터 변경이 있으므로 트랜잭션 설정
+    public boolean deleteReview(Long reviewId, String userId) {
+        // DAO를 통해 리뷰 삭제 (소프트 삭제)
+        int updatedRows = myPageReservationDAO.deleteReview(reviewId, userId);
+        return updatedRows > 0; // 업데이트된 레코드가 1개 이상이면 성공
     }
 }

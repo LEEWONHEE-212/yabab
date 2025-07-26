@@ -25,7 +25,7 @@ public class RestaurantReviewService {
 
     // application.properties에서 실제 이미지 저장 경로를 주입받습니다.
     // 이 서비스 내에서 직접 파일 저장 로직을 처리하기 때문에 필요합니다.
-    @Value("${upload.restaurant.image.dir}")
+    @Value("${upload.uploads.image.dir}")
     private String uploadDir;
 
     @Autowired
@@ -118,7 +118,7 @@ public class RestaurantReviewService {
                 logger.info("이미지 파일 저장 성공: 원본 파일명 '{}' -> 저장된 파일명 '{}'", originalFilename, uniqueFilename);
 
                 // 2.5. ReviewDetailDTO에 저장된 웹 접근 경로 설정 (WebConfig의 /restaurant-images/** 매핑과 일치해야 함)
-                String webAccessiblePath = "/restaurant-images/" + uniqueFilename;
+                String webAccessiblePath = "/uploads/" + uniqueFilename;
                 reviewDetailDTO.setReviewImagePath(webAccessiblePath);
                 reviewDetailDTO.setReviewImageName(originalFilename); // 원본 파일명 DTO에 설정
             } catch (IOException e) {

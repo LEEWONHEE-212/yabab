@@ -18,13 +18,16 @@ body {
 }
 
 .login-btn {
-  background: #666;
+  background: #007bff;
   color: white;
   padding: 8px 16px;
   border: none;
   border-radius: 5px;
   font-size: 14px;
   cursor: pointer;
+}
+.login-btn:hover{
+  background-color: #0056b3;
 }
 
 .container {

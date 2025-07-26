@@ -1,51 +1,3 @@
-/* src/pages/PlayerRestaurantPage.css */
-
-/* 헤더 스타일 (이전과 동일, 전역적으로 사용될 가능성 높음) */
-.main-header {
-    background-color: #2D2A32;
-    padding: 25px 40px;
-    border-bottom: 1px solid #2e2e2e;
-    position: sticky;
-    top: 0;
-    width: 100%;
-    box-sizing: border-box;
-    z-index: 1000;
-    height: 90px;
-}
-
-.main-header .header-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.header-logo {
-    height: 40px;
-    margin-right: 20px;
-}
-
-.main-header .header-center {
-    display: flex;
-    gap: 30px;
-}
-
-.main-header .header-center a,
-.main-header .header-right a {
-    color: #f0f0f0;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: bold;
-    transition: color 0.3s ease;
-}
-
-.main-header .header-center a:hover,
-.main-header .header-right a:hover {
-    color: #ffffff;
-}
-
 /* PlayerRestaurantPage 전체를 감싸는 새로운 래퍼 */
 .player-restaurant-page-wrapper {
     display: flex;
@@ -365,12 +317,6 @@
     }
 }
 @media (max-width: 768px) {
-    .main-header .header-center {
-        display: none; /* 모바일에서 헤더 중앙 메뉴 숨김 */
-    }
-    .main-header .header-container {
-        justify-content: center; /* 로고와 로그인/로그아웃만 중앙에 */
-    }
     .player-restaurant-page-container .restaurant-list {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* 모바일에서 카드 크기 조정 */
         gap: 15px;

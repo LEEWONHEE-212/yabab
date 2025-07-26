@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace는 DAO 인터페이스의 풀 패키지 경로와 정확히 일치해야 합니다. -->
+<mapper namespace="fs.human.yabab.MyPage.dao.MyPageAnnotaionDAO">
+
+    <!-- resultMap의 type은 DTO의 풀 패키지 경로와 정확히 일치해야 합니다. -->
+    <resultMap id="adminFeedReportResultMap" type="fs.human.yabab.MyPage.vo.MyPageAnnotaion">
+        <id property="feedReportId" column="FEED_REPORT_ID"/>
+        <result property="feedId" column="FEED_ID"/>
+        <result property="reporterUserId" column="REPORTER_USER_ID"/>
+        <result property="reportedUserId" column="REPORTED_USER_ID"/>
+        <result property="reportReason" column="REPORT_REASON"/>
+        <result property="reportDetails" column="REPORT_DETAILS"/>
+        <result property="status" column="STATUS"/>
+        <result property="processedBy" column="PROCESSED_BY"/>
+        <result property="processedDate" column="PROCESSED_DATE"/>
+        <result property="actionTaken" column="ACTION_TAKEN"/>
+        <result property="memo" column="MEMO"/>
+        <result property="createdDate" column="CREATED_DATE"/>
+        <result property="createdBy" column="CREATED_BY"/>
+        <result property="updatedDate" column="UPDATED_DATE"/>
+        <result property="updatedBy" column="UPDATED_BY"/>
+
+        <!-- Joined fields for frontend display and search -->
+        <result property="feedTitle" column="FEED_TITLE"/>
+        <result property="feedContent" column="FEED_CONTENT"/>
+        <result property="reporterEmail" column="REPORTER_EMAIL"/>
+        <result property="reportedUserEmail" column="REPORTED_USER_EMAIL"/>
+    </resultMap>
+
+    <!-- 게시물 신고 목록 조회 (TB_FEED_REPORT, TB_FEED, TB_USER 조인) -->
+    <select id="selectFeedReports" resultMap="adminFeedReportResultMap">
+        SELECT
+        TFR.FEED_REPORT_ID,
+        TFR.FEED_ID,
+        TFR.REPORTER_USER_ID,
+        TFR.REPORTED_USER_ID,
+        TFR.REPORT_REASON,
+        TFR.REPORT_DETAILS,
+        TFR.STATUS,
+        TFR.PROCESSED_BY,
+        TFR.PROCESSED_DATE,
+        TFR.ACTION_TAKEN,
+        TFR.MEMO,
+        TFR.CREATED_DATE,
+        TFR.CREATED_BY,
+        TFR.UPDATED_DATE,
+        TFR.UPDATED_BY,
+        TF.FEED_TITLE,
+        TF.FEED_CONTENT,
+        TU_REPORTER.USER_EMAIL AS REPORTER_EMAIL,
+        TU_REPORTED.USER_EMAIL AS REPORTED_USER_EMAIL
+        FROM
+        TB_FEED_REPORT TFR
+        INNER JOIN TB_FEED TF ON TFR.FEED_ID = TF.FEED_ID
+        LEFT JOIN TB_USER TU_REPORTER ON TFR.REPORTER_USER_ID = TU_REPORTER.USER_ID
+        LEFT JOIN TB_USER TU_REPORTED ON TFR.REPORTED_USER_ID = TU_REPORTED.USER_ID
+        WHERE 1=1
+        <if test="feedTitle != null and !feedTitle.isEmpty()">
+            AND TF.FEED_TITLE LIKE '%' || #{feedTitle} || '%'
+        </if>
+        <if test="feedContent != null and !feedContent.isEmpty()">
+            AND TF.FEED_CONTENT LIKE '%' || #{feedContent} || '%'
+        </if>
+        <if test="reporterEmail != null and !reporterEmail.isEmpty()">
+            AND TU_REPORTER.USER_EMAIL LIKE '%' || #{reporterEmail} || '%'
+        </if>
+        <if test="reportedUserEmail != null and !reportedUserEmail.isEmpty()">
+            AND TU_REPORTED.USER_EMAIL LIKE '%' || #{reportedUserEmail} || '%'
+        </if>
+        <if test="status != null and !status.isEmpty()">
+            AND TFR.STATUS = #{status}
+        </if>
+        ORDER BY TFR.CREATED_DATE DESC
+    </select>
+
+    <!-- 신고 상태 업데이트 -->
+    <update id="updateFeedReportStatus">
+        UPDATE TB_FEED_REPORT
+        SET
+        STATUS = #{status},
+        PROCESSED_BY = #{processedBy},
+        PROCESSED_DATE = SYSDATE,
+        ACTION_TAKEN = #{actionTaken},
+        MEMO = #{memo},
+        UPDATED_DATE = SYSDATE,
+        UPDATED_BY = #{processedBy}
+        WHERE FEED_REPORT_ID = #{feedReportId}
+    </update>
+
+    <!-- 특정 신고 ID로 상세 정보 조회 -->
+    <select id="selectFeedReportById" resultMap="adminFeedReportResultMap">
+        SELECT
+        TFR.FEED_REPORT_ID,
+        TFR.FEED_ID,
+        TFR.REPORTER_USER_ID,
+        TFR.REPORTED_USER_ID,
+        TFR.REPORT_REASON,
+        TFR.REPORT_DETAILS,
+        TFR.STATUS,
+        TFR.PROCESSED_BY,
+        TFR.PROCESSED_DATE,
+        TFR.ACTION_TAKEN,
+        TFR.MEMO,
+        TFR.CREATED_DATE,
+        TFR.CREATED_BY,
+        TFR.UPDATED_DATE,
+        TFR.UPDATED_BY,
+        TF.FEED_TITLE,
+        TF.FEED_CONTENT,
+        TU_REPORTER.USER_EMAIL AS REPORTER_EMAIL,
+        TU_REPORTED.USER_EMAIL AS REPORTED_USER_EMAIL
+        FROM
+        TB_FEED_REPORT TFR
+        INNER JOIN TB_FEED TF ON TFR.FEED_ID = TF.FEED_ID
+        LEFT JOIN TB_USER TU_REPORTER ON TFR.REPORTER_USER_ID = TU_REPORTER.USER_ID
+        LEFT JOIN TB_USER TU_REPORTED ON TFR.REPORTED_USER_ID = TU_REPORTED.USER_ID
+        WHERE TFR.FEED_REPORT_ID = #{feedReportId}
+    </select>
+
+    <!-- 게시물 삭제 플래그 업데이트 (TB_FEED) -->
+    <update id="updateFeedDeletedFlag">
+        UPDATE TB_FEED
+        SET
+        FEED_DELETED_FLAG = 1,
+        DELETED_DATE = SYSDATE,
+        DELETED_BY = #{deletedBy}
+        WHERE FEED_ID = #{feedId}
+    </update>
+
+</mapper>

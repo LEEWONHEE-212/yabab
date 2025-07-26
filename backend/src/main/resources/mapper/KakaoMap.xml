@@ -13,10 +13,12 @@
         <result property="stadiumAddr2" column="STADIUM_ADDR2"/>
         <result property="stadiumMapX" column="STADIUM_MAPX"/>
         <result property="stadiumMapY" column="STADIUM_MAPY"/>
-        <result property="stadiumContent" column="STADIUM_CONTENT" jdbcType="CLOB"/> <result property="createdDate" column="CREATED_DATE"/>
+        <result property="stadiumContent" column="STADIUM_CONTENT" jdbcType="CLOB"/>
+        <result property="createdDate" column="CREATED_DATE"/>
         <result property="createdBy" column="CREATED_BY"/>
         <result property="updatedDate" column="UPDATED_DATE"/>
         <result property="updatedBy" column="UPDATED_BY"/>
+        <result property="stadiumImagePath" column="STADIUM_IMAGE_PATH"/>
     </resultMap>
 
     <select id="findStadiumById" parameterType="long" resultMap="stadiumResultMap">
@@ -33,8 +35,8 @@
         CREATED_DATE,
         CREATED_BY,
         UPDATED_DATE,
-        UPDATED_BY
-        FROM tb_STADIUM
+        UPDATED_BY,
+        STADIUM_IMAGE_PATH  FROM TB_STADIUM
         WHERE STADIUM_ID = #{stadiumId}
     </select>
 

@@ -1,4 +1,12 @@
-.edit-restaurant-page-container {
+/* src/pages/OwnerPage.css (또는 메뉴 관리 관련 CSS 파일) */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.edit-restaurant-page-container { /* 클래스명 변경 */
     padding: 20px;
     background-color: #f5f5f5;
     min-height: calc(100vh - 90px);
@@ -11,7 +19,7 @@
     width: 100%;
 }
 
-.page-title {
+.edit-restaurant-page-title { /* 클래스명 변경 */
     font-size: 28px;
     font-weight: bold;
     margin-top: 20px;
@@ -23,7 +31,7 @@
 }
 
 /* 🚨 이미지 업로드 섹션에 flexbox 적용 */
-.image-upload-section {
+.edit-restaurant-image-upload-section { /* 클래스명 변경 */
     width: 100%;
     max-width: 500px;
     margin-bottom: 30px;
@@ -33,7 +41,7 @@
     gap: 30px;
 }
 
-.restaurant-image-placeholder-edit {
+.edit-restaurant-image-placeholder-edit { /* 클래스명 변경 (원래도 edit 있었지만 일관성 위해 접두사 추가) */
     width: 300px;
     height: 300px;
     background-color: #e0e0e0;
@@ -47,7 +55,7 @@
     overflow: hidden;
 }
 
-.restaurant-image-placeholder-edit .image-preview {
+.edit-restaurant-image-placeholder-edit .edit-restaurant-image-preview { /* 클래스명 변경 */
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -55,7 +63,7 @@
 
 
 /* 🚨 파일 찾기 버튼 스타일 */
-.find-file-button {
+.edit-restaurant-find-file-button { /* 클래스명 변경 */
     background-color: #e0e0e0;
     color: #333;
     padding: 8px 15px;
@@ -67,14 +75,14 @@
     white-space: nowrap;
 }
 
-.find-file-button:hover {
+.edit-restaurant-find-file-button:hover { /* 클래스명 변경 */
     background-color: #d0d0d0;
     border-color: #b0b0b0;
 }
 
 
 /* Form section */
-.form-section {
+.edit-restaurant-form-section { /* 클래스명 변경 */
     width: 100%;
     max-width: 500px;
     display: flex;
@@ -84,35 +92,29 @@
     align-items: flex-start;
 }
 
-.form-group {
-    /* 레이블과 인풋을 한 줄에 배치 */
+.edit-restaurant-form-group { /* 클래스명 변경 */
     display: flex;
-    align-items: center; /* 세로 중앙 정렬 */
+    align-items: center;
     width: 100%;
     margin-bottom: 0;
-    /* 레이블과 인풋 사이의 간격을 조절 */
-    gap: 15px; /* 레이블과 인풋 사이의 기본 간격 */
+    gap: 15px;
 }
 
-.form-label {
+.edit-restaurant-form-label { /* 클래스명 변경 */
     font-size: 15px;
     color: #333;
     margin-bottom: 0;
     font-weight: normal;
     white-space: nowrap;
-    /* 왼쪽 정렬 */
     text-align: left;
-    /* 너비 고정 제거 (콘텐츠에 따라 유동적으로) */
     width: auto;
-    flex-shrink: 0; /* 레이블이 줄어들지 않도록 */
+    flex-shrink: 0;
 }
 
-.form-input,
-.form-select {
-    flex-grow: 1; /* 남은 공간을 채우도록 */
-    /* max-width는 그대로 유지 (부모의 500px을 넘지 않도록) */
-    /* 레이블의 너비가 유동적이므로 calc() 대신 flex-grow 사용 */
-    max-width: 100%; /* 부모 .form-group 내에서 최대 100% */
+.edit-restaurant-form-input, /* 클래스명 변경 */
+.edit-restaurant-form-select { /* 클래스명 변경 */
+    flex-grow: 1;
+    max-width: 100%;
     padding: 10px 12px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -122,42 +124,42 @@
     height: 40px;
 }
 
-.form-input:focus,
-.form-select:focus {
+.edit-restaurant-form-input:focus, /* 클래스명 변경 */
+.edit-restaurant-form-select:focus { /* 클래스명 변경 */
     border-color: #999;
     outline: none;
 }
 
-.form-select-wrapper {
+.edit-restaurant-form-select-wrapper { /* 클래스명 변경 */
     position: relative;
-    flex-grow: 1; /* select도 남은 공간을 채우도록 */
-    max-width: 100%; /* input과 동일하게 조정 */
+    flex-grow: 1;
+    max-width: 100%;
 }
 
-.radio-group {
+.edit-restaurant-radio-group { /* 클래스명 변경 */
     display: flex;
     align-items: center;
     margin-top: 10px;
     width: 100%;
-    justify-content: flex-start; /* 라디오 그룹 전체를 왼쪽 정렬 */
+    justify-content: flex-start;
 }
 
-.radio-group .form-label {
+.edit-restaurant-radio-group .edit-restaurant-form-label { /* 클래스명 변경 */
     margin-bottom: 0;
-    margin-right: 20px; /* 라디오 그룹 레이블과 옵션 사이 간격 */
+    margin-right: 20px;
     white-space: nowrap;
-    text-align: left; /* 라디오 그룹 내 레이블은 왼쪽 정렬 */
-    width: auto; /* 고정 너비 적용 안함 */
+    text-align: left;
+    width: auto;
     flex-shrink: unset;
 }
 
-.radio-options {
+.edit-restaurant-radio-options { /* 클래스명 변경 */
     display: flex;
     gap: 25px;
     flex-wrap: wrap;
 }
 
-.radio-label {
+.edit-restaurant-radio-label { /* 클래스명 변경 */
     display: flex;
     align-items: center;
     font-size: 15px;
@@ -165,11 +167,11 @@
     cursor: pointer;
 }
 
-.radio-label input[type="radio"] {
+.edit-restaurant-radio-label input[type="radio"] { /* 클래스명 변경 */
     margin-right: 8px;
 }
 
-.form-buttons-container {
+.edit-restaurant-form-buttons-container { /* 클래스명 변경 */
     width: 100%;
     max-width: 500px;
     display: flex;
@@ -178,9 +180,9 @@
     gap: 10px;
 }
 
-.save-button {
-    background-color: #e0e0e0;
-    color: #333;
+.edit-restaurant-save-button { /* 클래스명 변경 */
+    background-color: #007bff;
+    color: white;
     padding: 10px 30px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -191,14 +193,14 @@
     width: auto;
 }
 
-.save-button:hover {
-    background-color: #d0d0d0;
+.edit-restaurant-save-button:hover { /* 클래스명 변경 */
+    background-color: #0056b3;
     border-color: #b0b0b0;
 }
 
-.cancel-button {
-    background-color: #f0f0f0;
-    color: #666;
+.edit-restaurant-cancel-button { /* 클래스명 변경 */
+    background-color: #dc3545;
+    color: white;
     padding: 10px 30px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -209,38 +211,38 @@
     width: auto;
 }
 
-.cancel-button:hover {
-    background-color: #e0e0e0;
+.edit-restaurant-cancel-button:hover { /* 클래스명 변경 */
+    background-color: #c82333;
     border-color: #b0b0b0;
 }
 
 /* 모바일 반응형 (필요시 추가) */
 @media (max-width: 600px) {
-    .page-title,
-    .image-upload-section,
-    .form-section,
-    .form-buttons-container {
+    .edit-restaurant-page-title, /* 클래스명 변경 */
+    .edit-restaurant-image-upload-section, /* 클래스명 변경 */
+    .edit-restaurant-form-section, /* 클래스명 변경 */
+    .edit-restaurant-form-buttons-container { /* 클래스명 변경 */
         padding: 0 10px;
         max-width: 100%;
     }
 
-    .form-group {
-        flex-direction: column; /* 모바일에서는 레이블 위에 입력 필드 */
+    .edit-restaurant-form-group { /* 클래스명 변경 */
+        flex-direction: column;
         align-items: flex-start;
-        gap: 5px; /* 모바일에서 레이블-인풋 간격 줄임 */
+        gap: 5px;
     }
 
-    .form-label {
+    .edit-restaurant-form-label { /* 클래스명 변경 */
         margin-right: 0;
         margin-bottom: 0;
-        text-align: left; /* 모바일에서 레이블 왼쪽 정렬 */
-        width: auto; /* 모바일에서 고정 너비 해제 */
+        text-align: left;
+        width: auto;
         flex-shrink: unset;
     }
 
-    .form-input,
-    .form-select,
-    .form-select-wrapper {
-        max-width: 100%; /* 모바일에서 최대 너비 100% */
+    .edit-restaurant-form-input, /* 클래스명 변경 */
+    .edit-restaurant-form-select, /* 클래스명 변경 */
+    .edit-restaurant-form-select-wrapper { /* 클래스명 변경 */
+        max-width: 100%;
     }
 }

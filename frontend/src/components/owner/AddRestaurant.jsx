@@ -58,7 +58,7 @@ const AddRestaurant = () => {
     useEffect(() => {
         const fetchStadiums = async () => {
             try {
-                const response = await axios.get('http://localhost:18090/api/restaurants/stadiums/names-ids');
+                const response = await axios.get('http://192.168.0.47:18090/api/restaurants/stadiums/names-ids');
                 setStadiumOptions(response.data);
             } catch (error) {
                 console.error("경기장 목록을 가져오는 중 에러 발생:", error);
@@ -74,7 +74,7 @@ const AddRestaurant = () => {
         const fetchZones = async () => {
             if (selectedStadiumId) {
                 try {
-                    const response = await axios.get(`http://localhost:18090/api/restaurants/stadiums/${selectedStadiumId}/zones`);
+                    const response = await axios.get(`http://192.168.0.47:18090/api/restaurants/stadiums/${selectedStadiumId}/zones`);
                     setZoneOptions(response.data);
                     setSelectedInnerZoneId('');
                     setInnerZoneName('');
@@ -218,7 +218,7 @@ const AddRestaurant = () => {
 
         setIsSubmitting(true);
         try {
-            const response = await axios.post(`http://localhost:18090/api/restaurants/register`, formData, {
+            const response = await axios.post(`http://192.168.0.47:18090/api/restaurants/register`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -278,7 +278,7 @@ const AddRestaurant = () => {
 
         setIsCheckingBizNumber(true);
         try {
-            const response = await axios.post(`http://localhost:18090/api/restaurants/check-biz-number`, requestData);
+            const response = await axios.post(`http://192.168.0.47:18090/api/restaurants/check-biz-number`, requestData);
             setApiCorpName(response.data.b_nm || '');
 
             if (response.data.valid && response.data.b_stt === "계속사업자") {
@@ -360,7 +360,7 @@ const AddRestaurant = () => {
 
         setIsVerifyingRestaurantName(true);
         try {
-            const response = await axios.post(`http://localhost:18090/api/restaurants/check-biz-info-full`, requestData);
+            const response = await axios.post(`http://192.168.0.47:18090/api/restaurants/check-biz-info-full`, requestData);
 
             if (response.data.valid) {
                 setIsRestaurantNameVerified(true);

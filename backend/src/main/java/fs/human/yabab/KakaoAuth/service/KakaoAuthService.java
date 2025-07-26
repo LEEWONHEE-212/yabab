@@ -12,8 +12,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.transaction.annotation.Transactional; // Transactional 어노테이션 임포트
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
@@ -31,6 +39,9 @@ public class KakaoAuthService {
     @Value("${kakao.user.info.url}")
     private String kakaoUserInfoUrl;
 
+    @Value("${upload.uploads.image.dir}") // 프로필 이미지 저장 경로 (서버 물리 경로)
+    private String uploadProfileImageDir;
+
     private final RestTemplate restTemplate;
     private final UserMapper userMapper;
 
@@ -40,7 +51,7 @@ public class KakaoAuthService {
         this.userMapper = userMapper;
     }
 
-    @Transactional // kakaoLogin 메서드에 @Transactional 추가
+    @Transactional
     public UserLoginResponse kakaoLogin(String code) {
         KakaoTokenResponse tokenResponse = getKakaoAccessToken(code);
         if (tokenResponse == null || tokenResponse.getAccessToken() == null) {
@@ -84,7 +95,7 @@ public class KakaoAuthService {
     private KakaoUserInfoResponse getKakaoUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+        headers.add("Content-type", "application/x-x-www-form-urlencoded;charset=utf-8");
 
         HttpEntity<MultiValueMap<String, String>> kakaoProfileRequest = new HttpEntity<>(headers);
 
@@ -104,53 +115,123 @@ public class KakaoAuthService {
 
     private UserLoginResponse processUserLogin(KakaoUserInfoResponse userInfo) {
         String socialId = "KAKAO_" + userInfo.getId();
-        System.out.println("DEBUG: [processUserLogin] Attempting to find user with socialId: " + socialId);
+
         KakaoAuthUserVO user = userMapper.findByUserId(socialId);
 
         if (user == null) {
-            System.out.println("DEBUG: [processUserLogin] User with socialId " + socialId + " NOT found in DB. Proceeding with new user registration.");
+            // 새로운 카카오 사용자 등록
             KakaoAuthUserVO newUser = new KakaoAuthUserVO();
             newUser.setUserId(socialId);
-            newUser.setUserPassword(UUID.randomUUID().toString());
+            newUser.setUserPassword(UUID.randomUUID().toString()); // 소셜 로그인 시 임의의 비밀번호
 
             String userName = "카카오 사용자";
             String userEmail = null;
+            String kakaoProfileImageUrl = null; // 카카오에서 받은 원본 프로필 이미지 URL
 
             if (userInfo.getKakaoAccount() != null) {
                 if (userInfo.getKakaoAccount().getProfile() != null) {
                     userName = userInfo.getKakaoAccount().getProfile().getNickname();
+                    kakaoProfileImageUrl = userInfo.getKakaoAccount().getProfile().getProfileImageUrl(); // 카카오 프로필 이미지 URL 가져오기
                 }
                 userEmail = userInfo.getKakaoAccount().getEmail();
             }
 
             if (userEmail == null || userEmail.isEmpty()) {
                 newUser.setUserEmail("kakao_" + userInfo.getId() + "@yabab.com");
-                System.out.println("DEBUG: [processUserLogin] Kakao email was null or empty. Using placeholder email: " + newUser.getUserEmail());
             } else {
                 newUser.setUserEmail(userEmail);
-                System.out.println("DEBUG: [processUserLogin] Kakao email received: " + newUser.getUserEmail());
             }
 
             newUser.setUserName(userName);
-            newUser.setUserNickname(userName); // USER_NICKNAME 필드에 userName 값 설정
+            newUser.setUserNickname(userName); // 닉네임은 이름과 동일하게 설정 (필요시 변경)
 
-            System.out.println("DEBUG: [processUserLogin] Attempting to register new user: " + newUser.getUserId());
+            // --- 카카오 프로필 이미지 다운로드 및 저장 로직 (핵심 변경 부분) ---
+            if (kakaoProfileImageUrl != null && !kakaoProfileImageUrl.isEmpty()) {
+                try {
+                    String fileName = UUID.randomUUID().toString() + ".jpg"; // 고유한 파일명 생성
+                    Path uploadPath = Paths.get(uploadProfileImageDir);
+                    if (!Files.exists(uploadPath)) {
+                        Files.createDirectories(uploadPath); // 디렉토리가 없으면 생성
+                    }
+                    Path filePath = uploadPath.resolve(fileName);
+
+                    URL url = new URL(kakaoProfileImageUrl);
+                    try (InputStream in = url.openStream();
+                         FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = in.read(buffer)) != -1) {
+                            fos.write(buffer, 0, bytesRead);
+                        }
+                    }
+                    newUser.setUserImagePath("/uploads/"); // 웹 접근 경로 (프론트엔드에서 사용할 경로)
+                    newUser.setUserImageName(fileName);
+                    System.out.println("DEBUG: 카카오 프로필 이미지 저장 성공: " + filePath.toString());
+                } catch (IOException e) {
+                    System.err.println("DEBUG: 카카오 프로필 이미지 저장 실패: " + e.getMessage());
+                    // 이미지 저장 실패 시에도 사용자 등록은 진행 (이미지 필드는 null)
+                    newUser.setUserImagePath(null);
+                    newUser.setUserImageName(null);
+                }
+            } else {
+                newUser.setUserImagePath(null);
+                newUser.setUserImageName(null);
+            }
+
+            newUser.setUserFavoriteTeam(null); // 초기에는 null 또는 빈 문자열로 설정. 사용자가 마이페이지에서 수정 가능.
 
             try {
                 userMapper.insertUser(newUser);
-                user = userMapper.findByUserId(socialId); // 삽입 후 다시 조회하여 최신 정보 가져옴
-                System.out.println("DEBUG: [processUserLogin] New Kakao user registered successfully: " + newUser.getUserId());
+                // 삽입 후 다시 조회하여 DB에 저장된 최신 정보 (기본값, 자동 생성된 값 등 포함)를 가져옴
+                user = userMapper.findByUserId(socialId);
+                System.out.println("DEBUG: [processUserLogin] New Kakao user registered: " + user.getUserId());
             } catch (Exception e) {
-                System.err.println("ERROR: [processUserLogin] Failed to insert new Kakao user: " + newUser.getUserId() + ". Error: " + e.getMessage());
+                System.err.println("Error registering new Kakao user: " + e.getMessage());
                 throw new RuntimeException("Failed to register new Kakao user due to database error: " + e.getMessage(), e);
             }
 
         } else {
+            // 기존 사용자 로그인: DB에서 조회된 user 객체는 이미 모든 필드를 포함하고 있음
             System.out.println("DEBUG: [processUserLogin] Existing Kakao user found: " + user.getUserId() + ". Logging in.");
+            // 기존 사용자의 경우, 카카오 프로필 이미지 URL이 변경되었을 수 있으므로 업데이트 로직 추가 (선택적)
+            // 이 부분은 기존 이미지를 삭제하고 새 이미지를 다운로드 받아야 하므로 좀 더 복잡해질 수 있습니다.
+            // 여기서는 간단히 기존 이미지가 없고 새로운 카카오 이미지 URL이 있을 때만 업데이트하도록 예시를 듭니다.
+            String currentKakaoProfileImageUrl = null;
+            if (userInfo.getKakaoAccount() != null && userInfo.getKakaoAccount().getProfile() != null) {
+                currentKakaoProfileImageUrl = userInfo.getKakaoAccount().getProfile().getProfileImageUrl();
+            }
+
+            // 기존 userImagePath나 userImageName이 null이고, 새로운 카카오 이미지 URL이 있다면 업데이트 시도
+            if ((user.getUserImagePath() == null || user.getUserImageName() == null) && currentKakaoProfileImageUrl != null && !currentKakaoProfileImageUrl.isEmpty()) {
+                try {
+                    String fileName = UUID.randomUUID().toString() + ".jpg";
+                    Path uploadPath = Paths.get(uploadProfileImageDir);
+                    if (!Files.exists(uploadPath)) {
+                        Files.createDirectories(uploadPath);
+                    }
+                    Path filePath = uploadPath.resolve(fileName);
+
+                    URL url = new URL(currentKakaoProfileImageUrl);
+                    try (InputStream in = url.openStream();
+                         FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = in.read(buffer)) != -1) {
+                            fos.write(buffer, 0, bytesRead);
+                        }
+                    }
+                    user.setUserImagePath("/uploads/profile/");
+                    user.setUserImageName(fileName);
+                    // TODO: userMapper.updateUserImagePathAndName(user.getUserId(), user.getUserImagePath(), user.getUserImageName());
+                    // 실제 DB 업데이트 로직이 필요합니다.
+                    System.out.println("DEBUG: 기존 카카오 사용자 프로필 이미지 업데이트 성공: " + filePath.toString());
+                } catch (IOException e) {
+                    System.err.println("DEBUG: 기존 카카오 사용자 프로필 이미지 업데이트 실패: " + e.getMessage());
+                }
+            }
         }
 
-        String serviceToken = "SERVICE_TOKEN_FOR_" + user.getUserId();
-        // 여기가 핵심입니다: UserLoginResponse에 KakaoAuthUserVO 객체와 토큰을 함께 반환
-        return new UserLoginResponse(user, serviceToken); // <-- 이 부분이 이렇게 되어 있는지 확인!
+        String serviceToken = "SERVICE_TOKEN_FOR_" + user.getUserId(); // 실제 JWT 토큰 생성 로직으로 대체 필요
+        return new UserLoginResponse(user, serviceToken);
     }
 }

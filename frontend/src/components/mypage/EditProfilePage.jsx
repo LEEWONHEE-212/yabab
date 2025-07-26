@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { UserContext } from '../../context/UserContext';
-import './EditProfilePage.css';
+import './EditProfilePage.css'; // Ensure this CSS file is correctly linked
 
 function EditProfilePage({ isOpen, onClose }) {
     const { user, setUser } = useContext(UserContext);
@@ -12,7 +12,9 @@ function EditProfilePage({ isOpen, onClose }) {
         userFavoriteTeam: '',
         userEmail: '',
         userPhone: '',
-        currentProfileImageUrl: '',
+        userImagePath: '', // Added to store current image path for submission
+        userImageName: '', // Added to store current image name for submission
+        currentProfileImageUrl: '', // For displaying the image in the frontend
     });
 
     const [imageFile, setImageFile] = useState(null);
@@ -24,7 +26,7 @@ function EditProfilePage({ isOpen, onClose }) {
         if (isOpen && user) {
             const initialImageUrl =
                 user.userImagePath && user.userImageName
-                    ? `http://localhost:18090${user.userImagePath}${user.userImageName}`
+                    ? `http://192.168.0.47:18090${user.userImagePath}${user.userImageName}`
                     : '';
 
             setFormData({
@@ -33,6 +35,8 @@ function EditProfilePage({ isOpen, onClose }) {
                 userFavoriteTeam: user.userFavoriteTeam || '',
                 userEmail: user.userEmail || '',
                 userPhone: user.userPhone || '',
+                userImagePath: user.userImagePath || '', // Initialize with existing path
+                userImageName: user.userImageName || '', // Initialize with existing name
                 currentProfileImageUrl: initialImageUrl,
             });
             setImageFile(null);
@@ -44,7 +48,7 @@ function EditProfilePage({ isOpen, onClose }) {
 
     const fetchTeams = async () => {
         try {
-            const response = await axios.get('http://localhost:18090/api/mypage/teams');
+            const response = await axios.get('http://192.168.0.47:18090/api/mypage/teams');
             setTeams(response.data);
         } catch (err) {
             console.error('팀 목록 로드 실패:', err);
@@ -63,7 +67,13 @@ function EditProfilePage({ isOpen, onClose }) {
         const file = e.target.files[0];
         if (file) {
             setImageFile(file);
-            setFormData(prev => ({ ...prev, currentProfileImageUrl: URL.createObjectURL(file) }));
+            // When a new file is selected, clear existing path/name in formData
+            setFormData(prev => ({
+                ...prev,
+                currentProfileImageUrl: URL.createObjectURL(file),
+                userImagePath: '', // Clear existing path as a new image is selected
+                userImageName: ''  // Clear existing name as a new image is selected
+            }));
         }
     };
 
@@ -80,7 +90,7 @@ function EditProfilePage({ isOpen, onClose }) {
 
         try {
             const token = sessionStorage.getItem('token');
-            await axios.delete(`http://localhost:18090/api/mypage/${user.userId}/profile/image`, {
+            await axios.delete(`http://192.168.0.47:18090/api/mypage/${user.userId}/profile/image`, {
                 headers: {
                     ...(token && { Authorization: `Bearer ${token}` })
                 }
@@ -94,8 +104,13 @@ function EditProfilePage({ isOpen, onClose }) {
             setUser(newUserContext);
             sessionStorage.setItem("user", JSON.stringify(newUserContext));
 
-            setFormData(prev => ({ ...prev, currentProfileImageUrl: '' }));
-            setImageFile(null);
+            setFormData(prev => ({
+                ...prev,
+                currentProfileImageUrl: '',
+                userImagePath: null, // Update formData to reflect deletion
+                userImageName: null  // Update formData to reflect deletion
+            }));
+            setImageFile(null); // Clear any selected new file
 
             alert('프로필 이미지가 성공적으로 삭제되었습니다.');
         } catch (err) {
@@ -118,34 +133,32 @@ function EditProfilePage({ isOpen, onClose }) {
 
             const formDataToSend = new FormData();
 
-            const userData = {
-                userId: userId, // 반드시 포함!
-                userNickname: formData.userNickname,
-                userName: formData.userName,
-                userEmail: formData.userEmail,
-                userPhone: formData.userPhone,
-                userFavoriteTeam: formData.userFavoriteTeam,
-            };
+            // Append each field individually as @RequestPart is used on backend
+            formDataToSend.append('userNickname', formData.userNickname);
+            formDataToSend.append('userName', formData.userName);
+            formDataToSend.append('userEmail', formData.userEmail);
+            formDataToSend.append('userPhone', formData.userPhone);
+            formDataToSend.append('userFavoriteTeam', formData.userFavoriteTeam);
 
-            // ✅ 수정된 부분: Blob으로 JSON 전송
-            formDataToSend.append(
-                'data',
-                new Blob([JSON.stringify(userData)], { type: 'application/json' })
-            );
-
+            // If a new image file is selected, append it
             if (imageFile) {
                 formDataToSend.append('profileImage', imageFile);
+            } else {
+                // If no new image file is selected, send the existing image path/name
+                // This is crucial for the backend logic to maintain the image if not changed
+                formDataToSend.append('userImagePath', formData.userImagePath || '');
+                formDataToSend.append('userImageName', formData.userImageName || '');
             }
 
             const token = sessionStorage.getItem('token');
 
             const response = await axios.put(
-                `http://localhost:18090/api/mypage/${userId}/profile`,
+                `http://192.168.0.47:18090/api/user/profile/${userId}`, // Corrected endpoint based on MyPageEditController
                 formDataToSend,
                 {
                     headers: {
                         ...(token && { Authorization: `Bearer ${token}` }),
-                        // ❌ Content-Type 지정하지 마세요. Axios가 자동 설정
+                        // Do NOT set Content-Type for FormData, Axios handles it automatically
                     },
                 }
             );
@@ -166,7 +179,7 @@ function EditProfilePage({ isOpen, onClose }) {
             sessionStorage.setItem("user", JSON.stringify(newUserContext));
 
             alert('정보가 성공적으로 수정되었습니다!');
-            onClose();
+            onClose(); // Close modal and trigger data refresh in MyPage
         } catch (err) {
             console.error('프로필 업데이트 실패:', err);
             const errorMessage = err.response?.data?.message || '정보 수정에 실패했습니다. 다시 시도해주세요.';
@@ -190,23 +203,25 @@ function EditProfilePage({ isOpen, onClose }) {
                                 <div className="placeholder-image">이미지 없음</div>
                             )}
                         </div>
-                        <input
-                            type="file"
-                            id="userProfileImage"
-                            name="userProfileImage"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                        />
-                        {formData.currentProfileImageUrl && (
-                            <button
-                                type="button"
-                                onClick={handleDeleteImage}
-                                disabled={loading}
-                                className="delete-image-btn"
-                            >
-                                이미지 삭제
-                            </button>
-                        )}
+                        <div className="file-input-controls"> {/* New wrapper for file input and delete button */}
+                            <input
+                                type="file"
+                                id="userProfileImage"
+                                name="userProfileImage"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                            />
+                            {formData.currentProfileImageUrl && (
+                                <button
+                                    type="button"
+                                    onClick={handleDeleteImage}
+                                    disabled={loading}
+                                    className="delete-image-btn"
+                                >
+                                    이미지 삭제
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     <div className="form-group">

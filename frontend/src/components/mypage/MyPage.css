@@ -32,10 +32,11 @@ h1 {
 .mypage-user-details-text {
     flex-grow: 1; /* 남은 공간을 채우도록 성장 */
     max-width: 60%; /* 텍스트가 너무 길어지지 않도록 최대 너비 제한 */
-    margin-right: 20px; /* 이미지와의 간격 */
 }
 
 .mypage-user-details-text div {
+    margin-top: 10px;
+    margin-left: 50px;
     margin-bottom: 8px;
     font-size: 1.1em;
     color: #555;

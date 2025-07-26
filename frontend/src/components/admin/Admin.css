@@ -11,7 +11,7 @@
     min-height: 80vh; /* 최소 높이 설정 */
 }
 
-.admin-page-container .main-title {
+.admin-page-container .admin-page-main-title {
     text-align: center;
     color: #333;
     margin-bottom: 30px;
@@ -19,47 +19,47 @@
     font-weight: 700;
 }
 
-/* 탭 컨테이너 (이름 변경 불필요: 이미 admin-tabs-container) */
+/* 탭 컨테이너 (mypage-tabs 스타일 적용) */
 .admin-tabs-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 30px;
-    border-bottom: 2px solid #e9ecef;
+    margin-bottom: 25px; /* mypage-tabs와 동일 */
+    border-bottom: 2px solid #eee; /* mypage-tabs와 동일 */
 }
 
-.admin-tabs-container .tab-button {
-    padding: 12px 25px;
+.admin-tabs-container .admin-page-tab-button { /* tab-button 스타일 적용 */
+    background: none;
     border: none;
-    background-color: transparent;
+    padding: 12px 20px; /* mypage-tabs와 동일 */
     font-size: 1.1em;
-    font-weight: 600;
-    color: #495057;
+    color: #777; /* mypage-tabs와 동일 */
     cursor: pointer;
-    transition: all 0.3s ease;
-    border-bottom: 2px solid transparent; /* 초기에는 투명 테두리 */
-    margin: 0 5px; /* 탭 버튼 간 간격 */
-    flex-grow: 1; /* 탭 버튼들이 공간을 균등하게 차지하도록 */
+    transition: color 0.2s ease, border-bottom 0.2s ease; /* mypage-tabs와 동일 */
+    border-bottom: 2px solid transparent; /* mypage-tabs와 동일 */
+    margin: 0 5px; /* 기존 간격 유지 */
+    flex-grow: 1; /* 기존 유연성 유지 */
     text-align: center;
-    max-width: 250px; /* 각 탭 버튼의 최대 너비 */
+    max-width: 250px; /* 기존 최대 너비 유지 */
 }
 
-.admin-tabs-container .tab-button.active {
-    color: #007bff;
-    border-bottom-color: #007bff;
-    background-color: #eaf5ff;
+.admin-tabs-container .admin-page-tab-button.active { /* tab-button.active 스타일 적용 */
+    color: #333; /* mypage-tabs와 동일 */
+    font-weight: bold; /* mypage-tabs와 동일 */
+    border-bottom-color: #333; /* mypage-tabs와 동일 */
+    background-color: transparent; /* mypage-tabs는 배경색 없음 */
 }
 
-.admin-tabs-container .tab-button:hover:not(.active) {
-    color: #0056b3;
-    background-color: #f1f7fd;
+.admin-tabs-container .admin-page-tab-button:hover:not(.active) { /* tab-button:hover:not(.active) 스타일 적용 */
+    color: #555; /* mypage-tabs와 동일 */
+    background-color: transparent; /* mypage-tabs는 배경색 없음 */
 }
 
-/* 탭 내용 영역 (이름 변경 불필요: 이미 admin-content-area) */
+/* 탭 내용 영역 (mypage-tab-content 스타일 적용) */
 .admin-content-area {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    background-color: #fff; /* mypage-tab-content와 동일 */
+    padding: 25px; /* mypage-tab-content와 동일 */
+    border-radius: 8px; /* mypage-tab-content와 동일 */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* mypage-tab-content와 동일 */
 }
 
 /* 관리 섹션 - 클래스명 변경 */
@@ -189,11 +189,11 @@
 
 /* 특정 액션 버튼 색상 (공통 액션 버튼이므로 이름 변경 불필요) */
 .action-button.detail-button { /* 상세 보기 버튼 */
-    background-color: #6c757d;
+    background-color: #FFC107;
     color: white;
 }
 .action-button.detail-button:hover {
-    background-color: #5a6268;
+    background-color: #E0A800;
     transform: translateY(-1px);
 }
 

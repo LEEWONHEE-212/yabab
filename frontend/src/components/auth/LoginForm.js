@@ -30,7 +30,7 @@ const LoginForm = () => {
 
         try{
             const response = await axios.post(
-                'http://localhost:18090/auth/login',
+                'http://192.168.0.47:18090/auth/login',
                 formData,
                 {withCredentials: true}     // 쿠키 기반 세션 전달 허용
             );

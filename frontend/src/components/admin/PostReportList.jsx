@@ -9,8 +9,10 @@ const PostReportList = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [searchType, setSearchType] = useState('postTitle'); // 검색 기준: postTitle, postContent, reporterEmail, reportedUserEmail
-    const [filterStatus, setFilterStatus] = useState(''); // 상태 필터: '', 0(대기), 1(수락), 2(거절)
+    // 검색 기준: feedTitle, feedContent, reporterEmail, reportedUserEmail
+    const [searchType, setSearchType] = useState('feedTitle');
+    // 상태 필터: '', 'PENDING', 'ACCEPTED', 'REJECTED'
+    const [filterStatus, setFilterStatus] = useState('');
     const [selectedReport, setSelectedReport] = useState(null); // 상세 정보를 볼 신고 객체
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // 상세 모달 열림/닫힘 상태
 
@@ -24,18 +26,34 @@ const PostReportList = () => {
             const params = {
                 page: 0,
                 size: 100,
-                ...(searchTerm && { [searchType]: searchTerm }),
-                ...(filterStatus && { status: parseInt(filterStatus) }),
             };
 
-            const response = await axios.get('http://localhost:18090/api/admin/reports/posts', {
+            // 검색 타입에 따라 파라미터 이름 조정
+            if (searchTerm) {
+                if (searchType === 'feedTitle') {
+                    params.feedTitle = searchTerm;
+                } else if (searchType === 'feedContent') {
+                    params.feedContent = searchTerm;
+                } else if (searchType === 'reporterEmail') {
+                    params.reporterEmail = searchTerm;
+                } else if (searchType === 'reportedUserEmail') {
+                    params.reportedUserEmail = searchTerm;
+                }
+            }
+
+            // 상태 필터 파라미터 (문자열 값으로 변경)
+            if (filterStatus) {
+                params.status = filterStatus;
+            }
+
+            const response = await axios.get('http://192.168.0.47:18090/api/admin/feed-reports', {
                 params: params,
-                // headers: { Authorization: `Bearer ${adminUser.token}` }
+                // headers: { Authorization: `Bearer ${adminUser.token}` } // 인증이 필요하다면 주석 해제
             });
             setReports(response.data.content || response.data);
-            console.log("Fetched post reports:", response.data); // 디버깅용 로그
+            console.log("Fetched feed reports:", response.data);
         } catch (err) {
-            console.error("Failed to fetch post reports:", err);
+            console.error("Failed to fetch feed reports:", err);
             setError("게시물 신고 목록을 불러오는데 실패했습니다: " + (err.response?.data?.message || err.message || err.toString()));
             setReports([]);
         } finally {
@@ -48,12 +66,12 @@ const PostReportList = () => {
         fetchPostReports();
     }, [fetchPostReports]);
 
-    // 신고 상태 코드를 텍스트로 변환하는 헬퍼 함수
-    const getReportStatusText = (statusCode) => {
-        switch (statusCode) {
-            case 0: return '대기';
-            case 1: return '처리 완료 (수락)';
-            case 2: return '처리 완료 (거절)';
+    // 신고 상태 문자열을 텍스트로 변환하는 헬퍼 함수 (DB 상태값 변경에 맞춤)
+    const getReportStatusText = (statusString) => {
+        switch (statusString) {
+            case 'PENDING': return '대기';
+            case 'ACCEPTED': return '처리 완료 (수락)';
+            case 'REJECTED': return '처리 완료 (거절)';
             default: return '알 수 없음';
         }
     };
@@ -81,14 +99,14 @@ const PostReportList = () => {
     if (error) return <p className="error-message">{error}</p>;
 
     return (
-        <div className="management-section">
-            <h2 className="section-title">게시물 신고 목록</h2>
+        <div className="admin-page-management-section"> {/* 클래스명 변경 */}
+            <h2 className="admin-page-section-title">게시물 신고 목록</h2> {/* 클래스명 변경 */}
 
             {/* 검색 및 필터링 폼 */}
-            <form onSubmit={handleSearchSubmit} className="search-filter-form">
+            <form onSubmit={handleSearchSubmit} className="admin-page-search-filter-form"> {/* 클래스명 변경 */}
                 <select value={searchType} onChange={(e) => setSearchType(e.target.value)}>
-                    <option value="postTitle">게시물 제목</option>
-                    <option value="postContent">게시물 내용</option>
+                    <option value="feedTitle">게시물 제목</option>
+                    <option value="feedContent">게시물 내용</option>
                     <option value="reporterEmail">신고자 이메일</option>
                     <option value="reportedUserEmail">대상 회원 이메일</option>
                 </select>
@@ -100,15 +118,15 @@ const PostReportList = () => {
                 />
                 <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
                     <option value="">모든 상태</option>
-                    <option value="0">대기</option>
-                    <option value="1">처리 완료 (수락)</option>
-                    <option value="2">처리 완료 (거절)</option>
+                    <option value="PENDING">대기</option>
+                    <option value="ACCEPTED">처리 완료 (수락)</option>
+                    <option value="REJECTED">처리 완료 (거절)</option>
                 </select>
-                <button type="submit" className="search-button">검색</button>
+                <button type="submit" className="admin-page-search-button">검색</button> {/* 클래스명 변경 */}
             </form>
 
             {/* 게시물 신고 목록 테이블 */}
-            <div className="table-wrapper">
+            <div className="admin-page-table-wrapper"> {/* 클래스명 변경 */}
                 <table>
                     <thead>
                         <tr>
@@ -125,23 +143,21 @@ const PostReportList = () => {
                     <tbody>
                         {reports.length === 0 ? (
                             <tr>
-                                <td colSpan="8" className="no-data">조건에 맞는 신고된 게시물이 없습니다.</td>
+                                <td colSpan="8" className="admin-page-no-data">조건에 맞는 신고된 게시물이 없습니다.</td> {/* 클래스명 변경 */}
                             </tr>
                         ) : (
                             reports.map((p) => (
-                                <tr key={p.reportId}>
-                                    <td>{p.reportId}</td>
-                                    <td>{p.postId}</td>
-                                    <td>{p.reporterId}</td>
+                                <tr key={p.feedReportId}>
+                                    <td>{p.feedReportId}</td>
+                                    <td>{p.feedId}</td>
+                                    <td>{p.reporterUserId}</td>
                                     <td>{p.reportedUserId}</td>
                                     <td>{p.reportReason}</td>
-                                    {/* 날짜 형식에 따라 new Date() 처리 필요 */}
-                                    <td>{p.reportDate ? new Date(p.reportDate).toLocaleDateString() : 'N/A'}</td>
+                                    <td>{p.createdDate ? new Date(p.createdDate).toLocaleDateString() : 'N/A'}</td>
                                     <td>{getReportStatusText(p.status)}</td>
-                                    <td className="actions-cell">
+                                    <td className="admin-page-actions-cell"> {/* 클래스명 변경 */}
                                         {/* 신고 상세 모달 열기 버튼 */}
                                         <button className="action-button detail-button" onClick={() => openReportDetailModal(p)}>상세</button>
-                                        {/* 추가적으로 목록에서 바로 처리하는 버튼을 원하면 여기에 추가할 수 있습니다. */}
                                     </td>
                                 </tr>
                             ))
@@ -154,10 +170,10 @@ const PostReportList = () => {
             {isDetailModalOpen && selectedReport && (
                 <ReportDetailModal
                     report={selectedReport}
-                    reportType="post" // 이 모달이 게시물 신고용임을 명시
+                    reportType="post"
                     onClose={closeReportDetailModal}
                     getReportStatusText={getReportStatusText}
-                    fetchReports={fetchPostReports} // 모달 내에서 처리 후 목록 새로고침
+                    fetchReports={fetchPostReports}
                 />
             )}
         </div>

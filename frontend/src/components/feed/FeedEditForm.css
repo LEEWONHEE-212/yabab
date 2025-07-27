@@ -17,3 +17,21 @@
   justify-content: flex-end;
   gap: 10px;
 }
+
+.edit-cancel-btn {
+  background-color: #eee;
+  color: black;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.edit-complete-btn {
+  background-color: #eee;
+  color: black;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}

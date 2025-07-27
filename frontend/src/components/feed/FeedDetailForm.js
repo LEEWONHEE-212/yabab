@@ -71,7 +71,7 @@ const FeedDetailForm = ({setForceReload}) => {
                     setForceReload(prev => !prev);
                 }
 
-                navigate(`/feed/${teamId}`); // 목록으로 이동
+                navigate(`/feed/${teamId}/list`); // 목록으로 이동
             } else {
                 alert("삭제 실패");
             }
@@ -245,7 +245,7 @@ const FeedDetailForm = ({setForceReload}) => {
                 </div> */}
 
                 <div className="post-nav-buttons">
-                    <button className="post-nav-btn" onClick={() => navigate(-1)}>목록으로</button>
+                    <button className="post-nav-btn" onClick={() => navigate(-1)}>뒤로가기</button>
                 </div>
 
                 <div className="comment-box">

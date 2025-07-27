@@ -92,8 +92,8 @@ const FeedEditForm = () => {
                 <input type="file" onChange={(e) => setImageFile(e.target.files[0])} />
 
                 <div className="feed-edit-buttons">
-                    <button onClick={() => window.history.back()}>취소</button>
-                    <button onClick={handleUpdate}>수정 완료</button>
+                    <button className="edit-cancel-btn" onClick={() => window.history.back()}>취소</button>
+                    <button className="edit-complete-btn" onClick={handleUpdate}>수정 완료</button>
                 </div>
             </div>
         </div>

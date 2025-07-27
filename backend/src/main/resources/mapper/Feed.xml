@@ -20,6 +20,7 @@
             SELECT COUNT(*)
             FROM TB_FEED_COMMENT c
             WHERE c.FEED_ID = f.FEED_ID
+            AND c.COMMENT_DELETED_FLAG = 0
             ) AS feedCommentCount
         FROM TB_FEED f
         JOIN TB_USER u ON f.USER_ID = u.USER_ID

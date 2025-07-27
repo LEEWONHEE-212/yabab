@@ -48,24 +48,24 @@ public class FeedController {
 
         //  이미지 파일이 있을 경우 저장 처리
         if (feedImage != null && !feedImage.isEmpty()) {
-            //  원본 파일명 + UUID를 이용해 파일명 중복 방지
             String originalFilename = feedImage.getOriginalFilename();
             String uniqueFileName = UUID.randomUUID() + "_" + originalFilename;
 
-            //  디렉토리가 없으면 생성
-            File directory = new File(uploadDirectory);
-            if(!directory.exists()) {
-                directory.mkdirs();
-            }
-
-            File destinationFile = new File(directory, uniqueFileName);
-
             try {
+                // 상대경로 → 절대경로로 변환
+                String resolvedPath = new File(uploadDirectory).getAbsolutePath();
+                File directory = new File(resolvedPath);
+
+                if (!directory.exists()) {
+                    directory.mkdirs();  // 디렉토리 없으면 생성
+                }
+
+                File destinationFile = new File(directory, uniqueFileName);
                 feedImage.transferTo(destinationFile);
 
-                //  vo에 이미지 경로와 파일명 저장
-                feedVO.setFeedImageName(uniqueFileName);    //  DB에 저장
-                feedVO.setFeedImagePath("/uploads/" + uniqueFileName);  //  프론트에서 접근 가능한 경로
+                // 저장 정보 VO에 입력
+                feedVO.setFeedImageName(uniqueFileName);  // DB 저장용
+                feedVO.setFeedImagePath("/uploads/" + uniqueFileName);  // 프론트 접근용
             } catch (IOException e) {
                 e.printStackTrace();
                 responseMap.put("success", false);

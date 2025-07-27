@@ -10,10 +10,10 @@ const ImageModal = ({ imageUrl, onClose }) => {
     if (!imageUrl) return null;
 
     return (
-        <div className="image-modal-overlay" onClick={onClose}>
-            <div className="image-modal-content" onClick={e => e.stopPropagation()}>
-                <button className="image-modal-close-btn" onClick={onClose}>X</button>
-                <img src={imageUrl} alt="확대 경기장 이미지" className="image-modal-img" />
+        <div className="stadium-image-modal-overlay" onClick={onClose}>
+            <div className="stadium-image-modal-content" onClick={e => e.stopPropagation()}>
+                <button className="stadium-image-modal-close-btn" onClick={onClose}>X</button>
+                <img src={imageUrl} alt="확대 경기장 이미지" className="stadium-image-modal-img" />
             </div>
         </div>
     );
@@ -59,7 +59,7 @@ const Stadium = () => {
     useEffect(() => {
         const fetchKakaoKey = async () => {
             try {
-                const response = await axios.get(`http://localhost:18090/api/kakaomap/kakao-map-key`);
+                const response = await axios.get(`http://192.168.0.47:18090/api/kakaomap/kakao-map-key`);
                 setKakaoAppKey(response.data.kakaoAppKey);
                 console.log('백엔드에서 받은 카카오 앱 키:', response.data.kakaoAppKey);
             } catch (error) {
@@ -105,7 +105,7 @@ const Stadium = () => {
     useEffect(() => {
         const fetchStadiumInfo = async () => {
             try {
-                const response = await axios.get(`http://localhost:18090/api/kakaomap/stadium/${parsedStadiumId}/location`);
+                const response = await axios.get(`http://192.168.0.47:18090/api/kakaomap/stadium/${parsedStadiumId}/location`);
                 setStadiumData(response.data);
                 console.log('백엔드에서 받은 경기장 정보:', response.data);
             } catch (error) {
@@ -236,7 +236,7 @@ const Stadium = () => {
                     params.floor = selectedFloor.join(',');
                 }
 
-                const response = await axios.get(`http://localhost:18090/api/Stadium/restaurants`, { params });
+                const response = await axios.get(`http://192.168.0.47:18090/api/Stadium/restaurants`, { params });
                 console.log('백엔드에서 받은 식당 데이터:', response.data);
                 setRestaurants(response.data.content);
                 setTotalPages(response.data.totalPages);
@@ -354,7 +354,7 @@ const Stadium = () => {
 
     // 이미지 모달 열기 함수
     const openImageModal = (imagePath) => {
-        setModalImagePath(`http://localhost:18090${imagePath}`);
+        setModalImagePath(`http://192.168.0.47:18090${imagePath}`);
         setIsImageModalOpen(true);
     };
 
@@ -482,7 +482,7 @@ const Stadium = () => {
                                     <div className="stadium-restaurant-image">
                                         <img
                                             src={restaurant.restaurantImagePath
-                                                ? `http://localhost:18090${restaurant.restaurantImagePath}`
+                                                ? `http://192.168.0.47:18090${restaurant.restaurantImagePath}`
                                                 : '/default-restaurant-image.jpg'}
                                             alt={restaurant.restaurantName}className="stadium-restaurant-img"/>
                                     </div>

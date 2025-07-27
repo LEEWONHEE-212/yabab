@@ -1,22 +1,59 @@
 // src/pages/Admin/PostReportList.jsx
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import axios from 'axios';
-import { UserContext } from '../../context/UserContext'; // UserContext 경로를 프로젝트에 맞게 조정해주세요.
-import ReportDetailModal from './ReportDetailModal'; // ReportDetailModal 컴포넌트 경로를 프로젝트에 맞게 조정해주세요.
+import { UserContext } from '../../context/UserContext';
+import PostReportModal from './PostReportModal'; // PostReportModal 컴포넌트 경로를 프로젝트에 맞게 조정해주세요.
+
+// 신고 사유 매핑을 위한 상수 배열 정의 (다시 추가)
+const REPORT_REASONS = [
+    { value: 'ABUSE', label: '욕설/비방' },
+    { value: 'PORNOGRAPHY', label: '음란성/선정성' },
+    { value: 'ADVERTISING', label: '광고/홍보' },
+    { value: 'PERSONAL_INFO', label: '개인 정보 침해' },
+    { value: 'IRRELEVANT', label: '리뷰와 무관한 내용' },
+    { value: 'OTHER', label: '기타' },
+];
 
 const PostReportList = () => {
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    // 검색 기준: feedTitle, feedContent, reporterEmail, reportedUserEmail
-    const [searchType, setSearchType] = useState('feedTitle');
-    // 상태 필터: '', 'PENDING', 'ACCEPTED', 'REJECTED'
-    const [filterStatus, setFilterStatus] = useState('');
-    const [selectedReport, setSelectedReport] = useState(null); // 상세 정보를 볼 신고 객체
-    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // 상세 모달 열림/닫힘 상태
+    const [searchType, setSearchType] = useState('feedTitle'); // 검색 기준: feedTitle, feedContent, reporterEmail, reportedUserEmail
+    const [filterStatus, setFilterStatus] = useState(''); // 상태 필터: '', 'PENDING', 'ACCEPTED', 'REJECTED' (문자열)
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(0); // 현재 페이지 (0부터 시작)
+    const [pageSize, setPageSize] = useState(10);     // 한 페이지당 아이템 수 (UI에서 선택하지 않고 고정값으로 사용)
+    const [totalPages, setTotalPages] = useState(0);  // 전체 페이지 수
+    const [totalElements, setTotalElements] = useState(0); // 전체 항목 수
+    const [isLastPage, setIsLastPage] = useState(false); // 마지막 페이지인지 여부
+    const [isFirstPage, setIsFirstPage] = useState(true); // 첫 페이지인지 여부
+    // sortBy, sortDirection은 이 컴포넌트에서 더 이상 사용하지 않습니다.
+
+    const [selectedReport, setSelectedReport] = useState(null);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
     const { user: adminUser } = useContext(UserContext);
+
+    // 신고 사유 값을 한글 라벨로 변환하는 헬퍼 함수 (다시 추가)
+    const getReportReasonLabel = (reasonValue) => {
+        const foundReason = REPORT_REASONS.find(reason => reason.value === reasonValue);
+        return foundReason ? foundReason.label : reasonValue; // 찾지 못하면 원본 값 반환
+    };
+
+    // 신고 상태 코드를 텍스트로 변환하는 헬퍼 함수
+    const getReportStatusText = (statusCode) => {
+        switch (statusCode) {
+            case 'PENDING': return '대기';
+            case 'ACCEPTED': return '처리 완료 (수락)';
+            case 'REJECTED': return '처리 완료 (거절)';
+            case 0: return '대기'; // Fallback for number status if backend sends it
+            case 1: return '처리 완료 (수락)';
+            case 2: return '처리 완료 (거절)';
+            default: return '알 수 없음';
+        }
+    };
 
     // 게시물 신고 목록을 비동기로 불러오는 함수
     const fetchPostReports = useCallback(async () => {
@@ -24,11 +61,11 @@ const PostReportList = () => {
         setError(null);
         try {
             const params = {
-                page: 0,
-                size: 100,
+                page: currentPage,
+                size: pageSize,
+                // 정렬 파라미터는 백엔드 컨트롤러의 @RequestParam defaultValue에 의해 처리되므로 여기서는 명시하지 않습니다.
             };
 
-            // 검색 타입에 따라 파라미터 이름 조정
             if (searchTerm) {
                 if (searchType === 'feedTitle') {
                     params.feedTitle = searchTerm;
@@ -41,92 +78,127 @@ const PostReportList = () => {
                 }
             }
 
-            // 상태 필터 파라미터 (문자열 값으로 변경)
-            if (filterStatus) {
+            if (filterStatus !== '') {
                 params.status = filterStatus;
             }
 
             const response = await axios.get('http://192.168.0.47:18090/api/admin/feed-reports', {
                 params: params,
-                // headers: { Authorization: `Bearer ${adminUser.token}` } // 인증이 필요하다면 주석 해제
+                // headers: { Authorization: `Bearer ${adminUser?.token}` }
             });
-            setReports(response.data.content || response.data);
-            console.log("Fetched feed reports:", response.data);
+
+            // Update states based on AdminPageResponseDTO
+            setReports(response.data.content || []);
+            setCurrentPage(response.data.pageNumber || 0); // Use pageNumber from backend
+            setTotalPages(response.data.totalPages || 0);
+            setTotalElements(response.data.totalElements || 0);
+            setIsLastPage(response.data.last || false);
+            setIsFirstPage(response.data.first || true);
+
+            console.log("Fetched paginated post reports:", response.data);
         } catch (err) {
-            console.error("Failed to fetch feed reports:", err);
+            console.error("Failed to fetch post reports:", err);
             setError("게시물 신고 목록을 불러오는데 실패했습니다: " + (err.response?.data?.message || err.message || err.toString()));
             setReports([]);
+            setCurrentPage(0);
+            setTotalPages(0);
+            setTotalElements(0);
+            setIsLastPage(true);
+            setIsFirstPage(true);
         } finally {
             setLoading(false);
         }
-    }, [searchTerm, searchType, filterStatus, adminUser]);
+    }, [currentPage, pageSize, searchTerm, searchType, filterStatus, adminUser]);
 
-    // 컴포넌트 마운트 및 필터/검색 조건 변경 시 목록 다시 불러오기
     useEffect(() => {
         fetchPostReports();
     }, [fetchPostReports]);
 
-    // 신고 상태 문자열을 텍스트로 변환하는 헬퍼 함수 (DB 상태값 변경에 맞춤)
-    const getReportStatusText = (statusString) => {
-        switch (statusString) {
-            case 'PENDING': return '대기';
-            case 'ACCEPTED': return '처리 완료 (수락)';
-            case 'REJECTED': return '처리 완료 (거절)';
-            default: return '알 수 없음';
-        }
-    };
-
-    // 검색 버튼 클릭 또는 Enter 시
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        fetchPostReports();
+        setCurrentPage(0); // Reset to first page on search
     };
 
-    // 신고 상세 모달 열기
     const openReportDetailModal = (report) => {
         setSelectedReport(report);
         setIsDetailModalOpen(true);
     };
 
-    // 신고 상세 모달 닫기
     const closeReportDetailModal = () => {
         setIsDetailModalOpen(false);
         setSelectedReport(null);
-        fetchPostReports(); // 상세 처리 후 목록 새로고침
+        fetchPostReports(); // Refresh list after detail processing
     };
 
-    if (loading) return <p>게시물 신고 목록을 불러오는 중...</p>;
+    const handlePageChange = (newPage) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
+
+    // handleSort 함수는 이 컴포넌트에서 제거되었습니다.
+
+    const renderPagination = () => {
+        const pages = [];
+        if (totalPages === 0) return null;
+
+        for (let i = 0; i < totalPages; i++) {
+            pages.push(
+                <button
+                    key={i}
+                    onClick={() => handlePageChange(i)}
+                    className={currentPage === i ? 'active-page' : ''}
+                >
+                    {i + 1}
+                </button>
+            );
+        }
+        return (
+            <div className="admin-page-pagination">
+                <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 0}>
+                    이전
+                </button>
+                {pages}
+                <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages - 1}>
+                    다음
+                </button>
+            </div>
+        );
+    };
+
+    if (loading) return <p className="loading-message">게시물 신고 목록을 불러오는 중...</p>;
     if (error) return <p className="error-message">{error}</p>;
 
     return (
-        <div className="admin-page-management-section"> {/* 클래스명 변경 */}
-            <h2 className="admin-page-section-title">게시물 신고 목록</h2> {/* 클래스명 변경 */}
+        <div className="admin-page-management-section">
+            <h2 className="admin-page-section-title">게시물 신고 목록</h2>
 
-            {/* 검색 및 필터링 폼 */}
-            <form onSubmit={handleSearchSubmit} className="admin-page-search-filter-form"> {/* 클래스명 변경 */}
-                <select value={searchType} onChange={(e) => setSearchType(e.target.value)}>
-                    <option value="feedTitle">게시물 제목</option>
-                    <option value="feedContent">게시물 내용</option>
-                    <option value="reporterEmail">신고자 이메일</option>
-                    <option value="reportedUserEmail">대상 회원 이메일</option>
-                </select>
-                <input
-                    type="text"
-                    placeholder="검색어 입력..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
-                    <option value="">모든 상태</option>
-                    <option value="PENDING">대기</option>
-                    <option value="ACCEPTED">처리 완료 (수락)</option>
-                    <option value="REJECTED">처리 완료 (거절)</option>
-                </select>
-                <button type="submit" className="admin-page-search-button">검색</button> {/* 클래스명 변경 */}
-            </form>
+            <div className="search-filter-area">
+                <form onSubmit={handleSearchSubmit} className="admin-page-search-filter-form">
+                    <select value={searchType} onChange={(e) => setSearchType(e.target.value)} className="select-box admin-page-select-box">
+                        <option value="feedTitle">게시물 제목</option>
+                        <option value="feedContent">게시물 내용</option>
+                        <option value="reporterEmail">신고자 이메일</option>
+                        <option value="reportedUserEmail">대상 회원 이메일</option>
+                    </select>
+                    <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="select-box admin-page-select-box">
+                        <option value="">모든 상태</option>
+                        <option value="PENDING">대기</option>
+                        <option value="ACCEPTED">처리 완료 (수락)</option>
+                        <option value="REJECTED">처리 완료 (거절)</option>
+                    </select>
+                    <input
+                        type="text"
+                        placeholder="검색어를 입력하세요."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input admin-page-search-input"
+                    />
+                    <button type="submit" className="admin-page-search-button">검색</button>
+                </form>
+            </div>
 
-            {/* 게시물 신고 목록 테이블 */}
-            <div className="admin-page-table-wrapper"> {/* 클래스명 변경 */}
+            <div className="admin-page-table-wrapper">
                 <table>
                     <thead>
                         <tr>
@@ -134,30 +206,22 @@ const PostReportList = () => {
                             <th>게시물 ID</th>
                             <th>신고자 ID</th>
                             <th>대상 회원 ID</th>
-                            <th>신고 사유</th>
-                            <th>신고일</th>
+                            <th>신고 사유</th> {/* 정렬 기능 제거 */}
                             <th>상태</th>
+                            <th>신고일</th>
                             <th>관리</th>
                         </tr>
                     </thead>
                     <tbody>
                         {reports.length === 0 ? (
                             <tr>
-                                <td colSpan="8" className="admin-page-no-data">조건에 맞는 신고된 게시물이 없습니다.</td> {/* 클래스명 변경 */}
+                                <td colSpan="8" className="admin-page-no-data">조건에 맞는 신고된 게시물이 없습니다.</td>
                             </tr>
                         ) : (
-                            reports.map((p) => (
-                                <tr key={p.feedReportId}>
-                                    <td>{p.feedReportId}</td>
-                                    <td>{p.feedId}</td>
-                                    <td>{p.reporterUserId}</td>
-                                    <td>{p.reportedUserId}</td>
-                                    <td>{p.reportReason}</td>
-                                    <td>{p.createdDate ? new Date(p.createdDate).toLocaleDateString() : 'N/A'}</td>
-                                    <td>{getReportStatusText(p.status)}</td>
-                                    <td className="admin-page-actions-cell"> {/* 클래스명 변경 */}
-                                        {/* 신고 상세 모달 열기 버튼 */}
-                                        <button className="action-button detail-button" onClick={() => openReportDetailModal(p)}>상세</button>
+                            reports.map((r) => (
+                                <tr key={r.feedReportId}>
+                                    <td>{r.feedReportId}</td><td>{r.feedId}</td><td>{r.reporterUserId}</td><td>{r.reportedUserId}</td><td>{getReportReasonLabel(r.reportReason)}</td><td>{getReportStatusText(r.status)}</td><td>{r.createdDate ? new Date(r.createdDate).toLocaleDateString() : 'N/A'}</td><td className="admin-page-actions-cell">
+                                        <button className="action-button detail-button" onClick={() => openReportDetailModal(r)}>상세</button>
                                     </td>
                                 </tr>
                             ))
@@ -166,16 +230,20 @@ const PostReportList = () => {
                 </table>
             </div>
 
-            {/* 신고 상세 모달 */}
+            {totalPages > 0 && renderPagination()}
+            <p className="admin-page-total-elements-info">총 {totalElements}건</p>
+
             {isDetailModalOpen && selectedReport && (
-                <ReportDetailModal
+                <PostReportModal
                     report={selectedReport}
                     reportType="post"
                     onClose={closeReportDetailModal}
                     getReportStatusText={getReportStatusText}
                     fetchReports={fetchPostReports}
+                    adminUser={adminUser}
                 />
             )}
+            {/* Styles are assumed to be in an external CSS file or defined elsewhere */}
         </div>
     );
 };

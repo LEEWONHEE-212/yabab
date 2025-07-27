@@ -12,7 +12,7 @@ import fs.human.yabab.common.BaseVO;
 @AllArgsConstructor
 public class AdminFeedReportDTO extends BaseVO{ // 클래스 이름도 AdminFeedReportDTO로 변경
     private Long feedReportId;
-    private String feedId; // DDL에 VARCHAR2(50 BYTE)로 되어 있으므로 String으로 변경합니다.
+    private Long feedId;
     private String reporterUserId;
     private String reportedUserId;
     private String reportReason;

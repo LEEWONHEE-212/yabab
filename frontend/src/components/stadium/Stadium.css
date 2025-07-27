@@ -83,7 +83,7 @@
 
 
 /* =========================== 이미지 모달 스타일 (재확인 및 유지) =========================== */
-.image-modal-overlay {
+.stadium-image-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -96,7 +96,7 @@
     z-index: 1000; /* 다른 요소 위에 표시 */
 }
 
-.image-modal-content {
+.stadium-image-modal-content {
     position: relative;
     background-color: #fff;
     padding: 20px;
@@ -110,14 +110,14 @@
     justify-content: center;
 }
 
-.image-modal-img {
+.stadium-image-modal-img {
     max-width: 100%; /* 모달 내용에 맞춰 이미지 크기 조절 */
     max-height: 100%;
     display: block; /* 이미지 하단 공백 제거 */
     border-radius: 4px;
 }
 
-.image-modal-close-btn {
+.stadium-image-modal-close-btn {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -132,7 +132,7 @@
     z-index: 1001; /* 닫기 버튼이 이미지 위에 오도록 */
 }
 
-.image-modal-close-btn:hover {
+.stadium-image-modal-close-btn:hover {
     background-color: #eee;
 }
 

@@ -56,11 +56,11 @@
         r.RESTAURANT_RESV_STATUS,
         z.ZONE_NAME,
         r.RESTAURANT_LOCATION,
-        -- ✨ AVERAGE_RATING 계산
+        -- AVERAGE_RATING 계산
         (SELECT COALESCE(ROUND(AVG(sub_rv.REVIEW_RATING), 2), 0.0)
         FROM TB_REVIEW sub_rv
         WHERE sub_rv.RESTAURANT_ID = r.RESTAURANT_ID AND sub_rv.REVIEW_DELETED_FLAG = 0) AS AVERAGE_RATING,
-        -- ✨ REVIEW_COUNT 계산
+        -- REVIEW_COUNT 계산
         (SELECT COUNT(sub_rv.REVIEW_ID)
         FROM TB_REVIEW sub_rv
         WHERE sub_rv.RESTAURANT_ID = r.RESTAURANT_ID AND sub_rv.REVIEW_DELETED_FLAG = 0) AS REVIEW_COUNT,
@@ -107,7 +107,7 @@
 
     <insert id="insertReview" parameterType="map">
         INSERT INTO TB_REVIEW (
-        REVIEW_ID,
+        REVIEW_ID,       <!-- 이 부분을 시퀀스로 대체합니다. -->
         RESTAURANT_ID,
         USER_ID,
         REVIEW_CONTENT,
@@ -120,7 +120,8 @@
         UPDATED_BY,
         REVIEW_DELETED_FLAG
         ) VALUES (
-        1,  #{restaurantId},
+        REVIEW_SEQ.NEXTVAL,  <!-- ⭐ 수정된 부분: 1 대신 시퀀스 호출 ⭐ -->
+        #{restaurantId},
         #{review.userId},
         #{review.reviewContent},
         #{review.reviewRating},

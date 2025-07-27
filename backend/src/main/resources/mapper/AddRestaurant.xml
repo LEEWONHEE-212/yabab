@@ -25,8 +25,7 @@
 
     <insert id="insertRestaurant" parameterType="fs.human.yabab.AddRestaurant.vo.RestaurantRegisterRequest">
         INSERT INTO TB_RESTAURANT (
-        RESTAURANT_ID,
-        OWNER_ID,
+        RESTAURANT_ID,  OWNER_ID,
         STADIUM_ID,
         ZONE_ID,
         RESTAURANT_NAME,
@@ -45,8 +44,7 @@
         CREATED_DATE,
         CREATED_BY
         ) VALUES (
-        1,
-        #{ownerId},
+        RESTAURANT_SEQ.NEXTVAL,  #{ownerId},
         #{stadiumId},
         #{zoneId},
         #{restaurantName},

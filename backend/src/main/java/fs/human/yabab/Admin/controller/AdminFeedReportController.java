@@ -1,49 +1,51 @@
 // src/main/java/fs/human/yabab/Admin/controller/AdminFeedReportController.java
-package fs.human.yabab.Admin.controller; // 패키지 경로 변경
+package fs.human.yabab.Admin.controller;
 
-import fs.human.yabab.Admin.service.AdminFeedReportService; // Service 임포트 경로 변경
-import fs.human.yabab.Admin.vo.AdminFeedReportDTO; // DTO 임포트 경로 변경
+import fs.human.yabab.Admin.service.AdminFeedReportService;
+import fs.human.yabab.Admin.vo.AdminFeedReportDTO;
+import fs.human.yabab.Admin.vo.AdminFeedRequestDTO;
+import fs.human.yabab.Admin.vo.AdminPageResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/feed-reports")
 @CrossOrigin(origins = "http://192.168.0.47:3000", allowCredentials = "true")
-public class AdminFeedReportController { // 컨트롤러 이름도 AdminFeedReportController로 변경
+public class AdminFeedReportController {
 
-    private final AdminFeedReportService adminFeedReportService; // Service 타입 및 필드명 변경
+    private final AdminFeedReportService adminFeedReportService;
 
     @Autowired
-    public AdminFeedReportController(AdminFeedReportService adminFeedReportService) { // 생성자 파라미터 변경
+    public AdminFeedReportController(AdminFeedReportService adminFeedReportService) {
         this.adminFeedReportService = adminFeedReportService;
     }
 
-    /**
-     * 게시물 신고 목록을 조회하는 API.
-     * GET /api/admin/feed-reports
-     * @param feedTitle 게시물 제목 검색어
-     * @param feedContent 게시물 내용 검색어
-     * @param reporterEmail 신고자 이메일 검색어
-     * @param reportedUserEmail 대상 회원 이메일 검색어
-     * @param status 신고 처리 상태 ('PENDING', 'ACCEPTED', 'REJECTED')
-     * @return 신고 목록
-     */
     @GetMapping
-    public ResponseEntity<List<AdminFeedReportDTO>> getFeedReports(
+    public ResponseEntity<AdminPageResponseDTO<AdminFeedReportDTO>> getFeedReports(
             @RequestParam(required = false) String feedTitle,
             @RequestParam(required = false) String feedContent,
             @RequestParam(required = false) String reporterEmail,
             @RequestParam(required = false) String reportedUserEmail,
-            @RequestParam(required = false) String status) { // status 타입 String으로 변경
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "CREATED_DATE") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDirection) {
         try {
-            List<AdminFeedReportDTO> reports = adminFeedReportService.getFeedReports( // Service 메서드 호출
-                    feedTitle, feedContent, reporterEmail, reportedUserEmail, status);
-            if (reports.isEmpty()) {
+            AdminFeedRequestDTO requestDTO = new AdminFeedRequestDTO();
+            requestDTO.setPage(page);
+            requestDTO.setSize(size);
+            requestDTO.setSortBy(sortBy);
+            requestDTO.setSortDirection(sortDirection);
+
+            AdminPageResponseDTO<AdminFeedReportDTO> reports = adminFeedReportService.getFeedReports(
+                    feedTitle, feedContent, reporterEmail, reportedUserEmail, status, requestDTO);
+
+            if (reports.getContent().isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
             return new ResponseEntity<>(reports, HttpStatus.OK);
@@ -53,31 +55,37 @@ public class AdminFeedReportController { // 컨트롤러 이름도 AdminFeedRepo
         }
     }
 
-    /**
-     * 게시물 신고 상태를 업데이트하는 API.
-     * PUT /api/admin/feed-reports/{feedReportId}/status
-     * @param feedReportId 처리할 신고 ID
-     * @param payload 요청 본문 (newStatus, actionTaken, memo)
-     * @param authorizationHeader (관리자 인증 토큰)
-     * @return 처리 결과 메시지
-     */
+    @GetMapping("/{feedReportId}")
+    public ResponseEntity<AdminFeedReportDTO> getFeedReportDetail(@PathVariable("feedReportId") Long feedReportId) {
+        try {
+            AdminFeedReportDTO report = adminFeedReportService.selectFeedReportById(feedReportId);
+            if (report == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(report, HttpStatus.OK);
+        } catch (Exception e) {
+            System.err.println("Error fetching feed report detail for ID " + feedReportId + ": " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PutMapping("/{feedReportId}/status")
     public ResponseEntity<String> updateFeedReportStatus(
             @PathVariable("feedReportId") Long feedReportId,
             @RequestBody Map<String, String> payload,
             @RequestHeader(name = "Authorization", required = false) String authorizationHeader) {
         try {
-            String newStatus = payload.get("status"); // 'ACCEPTED' or 'REJECTED'
+            String newStatus = payload.get("status");
             String actionTaken = payload.get("actionTaken");
             String memo = payload.get("memo");
 
-            String processedBy = "admin"; // TODO: 실제 관리자 ID를 인증 토큰에서 추출하는 로직 구현 필요
+            String processedBy = "admin"; // TODO: Implement actual admin ID extraction
 
             if (newStatus == null || (!newStatus.equals("ACCEPTED") && !newStatus.equals("REJECTED") && !newStatus.equals("PENDING"))) {
                 return new ResponseEntity<>("유효하지 않은 신고 상태입니다.", HttpStatus.BAD_REQUEST);
             }
 
-            boolean success = adminFeedReportService.processFeedReport(feedReportId, newStatus, processedBy, actionTaken, memo); // Service 메서드 호출
+            boolean success = adminFeedReportService.processFeedReport(feedReportId, newStatus, processedBy, actionTaken, memo);
 
             if (success) {
                 return new ResponseEntity<>("게시물 신고가 성공적으로 처리되었습니다.", HttpStatus.OK);

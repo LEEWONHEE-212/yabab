@@ -45,7 +45,6 @@ function UserInfoDisplay({ user, onEditClick }) {
                 <div className="mypage-user-image">
                     <img
                         src={profileImageSrc}
-                        alt="프로필 이미지"
                         onError={(e) => {
                             if (!imageLoadFailed) {
                                 e.target.onerror = null;
@@ -290,7 +289,6 @@ function MyPage() {
 
         } catch (error) {
             console.error("마이페이지 데이터 로드 실패:", error);
-            alert("마이페이지 데이터를 불러오는데 실패했습니다. 서버 상태를 확인해주세요.");
             setReservationsData([]);
             setReviewsData([]);
             setPostsData([]);

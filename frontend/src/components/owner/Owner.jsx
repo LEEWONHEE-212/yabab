@@ -398,8 +398,8 @@ const Owner = () => {
         return (
             <div className="owner-page-container no-restaurant">
                 <Header />
-                <p className="error-message">아직 등록된 식당 정보가 없습니다. 식당을 등록해주세요.</p>
-                <button className="add-restaurant-button" onClick={() => navigate('/add-AddRestaurant')}>식당 등록하기</button>
+                <p className="Owner-error-message">아직 등록된 식당 정보가 없습니다. 식당을 등록해주세요.</p>
+                <button className="Owner-add-restaurant-button" onClick={() => navigate('/add-AddRestaurant')}>식당 등록하기</button>
             </div>
         );
     }

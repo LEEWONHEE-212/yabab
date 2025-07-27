@@ -6,6 +6,7 @@ import "./FeedBoardSection.css"
 import { UserContext } from "../../context/UserContext";
 import { teamList } from "../../api/teamList";
 import Top5Section from "./Top5Section";
+import Footer from "../common/Footer";
 
 const FeedBoardSection = () => {
     const [forceReload, setForceReload] = useState(false)
@@ -48,6 +49,7 @@ const FeedBoardSection = () => {
                     </div>
                 )}
             </section>
+            <Footer/>
         </div>
     );
 };

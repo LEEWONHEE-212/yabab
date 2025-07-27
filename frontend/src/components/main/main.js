@@ -3,6 +3,7 @@ import './Main.css';
 import Header from "../common/Header";
 import GameScheduleSection from "./GameScheduleSection";
 import { useNavigate } from 'react-router-dom';
+import Footer from '../common/Footer';
 
 const Main = () => {
     const navigate = useNavigate();
@@ -54,6 +55,7 @@ const Main = () => {
                     ))}
                 </div>
             </section>
+                <Footer/>
         </div>
     );
 };

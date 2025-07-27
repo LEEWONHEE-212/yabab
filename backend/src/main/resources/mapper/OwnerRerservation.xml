@@ -53,8 +53,8 @@
         UPDATE TB_RESERVATION
         SET
         RESV_STATUS = #{newStatus},
-        UPDATED_DATE = SYSDATE,  -- 사용하는 DB에 따라 SYSDATE, NOW(), GETDATE() 등 사용
-        UPDATED_BY = (SELECT USER_ID FROM TB_RESTAURANT WHERE RESTAURANT_ID = #{restaurantId}) -- 적절한 사장님 ID로 변경
+        UPDATED_DATE = SYSDATE,
+        UPDATED_BY = (SELECT USER_ID FROM TB_RESTAURANT WHERE RESTAURANT_ID = #{restaurantId})
         WHERE RESV_ID = #{resvId}
     </update>
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './PlayerRestaurantPick.css';
 import Header from '../common/Header';
+import Footer from '../common/Footer';
 
 const PlayerRestaurantPick = () => {
     // 백엔드에서 받아올 데이터를 저장할 상태
@@ -332,6 +333,7 @@ const PlayerRestaurantPick = () => {
                     )}
                 </div>
             </div>
+            <Footer/>
         </>
     );
 };

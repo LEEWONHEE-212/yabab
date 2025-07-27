@@ -5,6 +5,7 @@ import './MyPage.css';
 import Header from '../common/Header';
 import { UserContext } from '../../context/UserContext';
 import EditProfilePage from './EditProfilePage';
+import Footer from '../common/Footer';
 
 // 사용자 정보를 표시하는 서브 컴포넌트
 function UserInfoDisplay({ user, onEditClick }) {
@@ -428,6 +429,7 @@ function MyPage() {
             </div>
 
             <EditProfilePage isOpen={isEditModalOpen} onClose={handleCloseEditModal} />
+            <Footer/>
         </>
     );
 }

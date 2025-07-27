@@ -118,12 +118,12 @@
 }
 
 .confirm-button {
-    background-color: #808080; 
+    background-color: #007bff;
     color: #fff;
 }
 
 .confirm-button:hover {
-    background-color: #666666;
+    background-color: #0056b3;
     transform: translateY(-1px);
 }
 

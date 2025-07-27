@@ -4,6 +4,7 @@ import { teamList } from "../../api/teamList";
 import TeamCard from "./TeamCard";
 import "./FeedMain.css";
 import Header from "../common/Header";
+import Footer from "../common/Footer";
 
 const FeedMain = () => {
   const topTeams = teamList.slice(0, 5);
@@ -27,6 +28,7 @@ const FeedMain = () => {
           ))}
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

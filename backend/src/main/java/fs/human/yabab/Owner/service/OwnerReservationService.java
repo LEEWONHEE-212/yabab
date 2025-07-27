@@ -1,8 +1,8 @@
-package fs.human.yabab.Owner.service; // 패키지 경로에 주의: Owner 대문자
+package fs.human.yabab.Owner.service;
 
-import fs.human.yabab.Owner.dao.OwnerReservationDAO; // DAO 경로에 주의: Owner 대문자
-import fs.human.yabab.Owner.vo.OwnerReservationDTO; // DTO 경로에 주의: Owner 대문자
-import fs.human.yabab.Owner.vo.OwnerReservationMenuDTO; // DTO 경로에 주의: Owner 대문자
+import fs.human.yabab.Owner.dao.OwnerReservationDAO;
+import fs.human.yabab.Owner.vo.OwnerReservationDTO;
+import fs.human.yabab.Owner.vo.OwnerReservationMenuDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,10 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class OwnerReservationService { // 클래스명도 OwnerReservationService로 변경하여 일관성 유지
+public class OwnerReservationService {
 
     @Autowired
-    private OwnerReservationDAO ownerReservationDAO; // DAO 이름에 맞춰 필드명 변경
+    private OwnerReservationDAO ownerReservationDAO;
 
     /**
      * 특정 식당의 모든 예약 목록을 조회하고, 각 예약에 대한 메뉴 상세 정보와 총 가격을 계산하여 반환합니다.
@@ -54,20 +54,15 @@ public class OwnerReservationService { // 클래스명도 OwnerReservationServic
      * 특정 예약의 상태를 변경합니다.
      * 이 메서드는 트랜잭션으로 묶여 있어, 작업 중 오류 발생 시 롤백됩니다.
      *
-     * @param resvId      예약 ID
-     * @param newStatus   변경할 예약 상태 코드 (0: 대기, 1: 완료, 2: 취소 등)
-     * @param updaterId   상태를 변경한 사용자(사장님)의 ID (UPDATED_BY 컬럼에 기록될 값) - 현재 DAO에는 이 파라미터가 없음.
-     * DAO의 updateReservationStatus 메서드를 수정하거나, 해당 값을 DB에서 가져오는 방식으로 변경해야 함.
+     * @param resvId       예약 ID
+     * @param newStatus    변경할 예약 상태 코드 (0: 대기, 1: 완료, 2: 취소 등)
+     * @param restaurantId 상태를 변경한 식당의 ID (UPDATED_BY 컬럼 조회에 사용)
      * @return 상태 변경 성공 여부 (true: 성공, false: 실패)
      */
     @Transactional
-    public boolean updateReservationStatus(Long resvId, Integer newStatus, String updaterId) {
-        // 현재 DAO의 updateReservationStatus 메서드는 updaterId를 직접 받지 않습니다.
-        // XML 매퍼에서 UPDATED_BY를 (SELECT USER_ID FROM TB_RESTAURANT WHERE RESTAURANT_ID = #{restaurantId}) 로 설정했으므로
-        // 이 메서드에서는 restaurantId를 추가 파라미터로 받거나, DAO 메서드를 수정해야 합니다.
-        // 현재 DAO와 XML에 맞춰 파라미터는 resvId와 newStatus만 사용합니다.
-        // TODO: UPDATED_BY를 updaterId로 설정하려면 DAO와 XML 매퍼의 updateReservationStatus 메서드를 수정해야 합니다.
-        int updatedRows = ownerReservationDAO.updateReservationStatus(resvId, newStatus);
+    public boolean updateReservationStatus(Long resvId, Integer newStatus, Long restaurantId) {
+        // DAO의 updateReservationStatus 메서드가 이제 restaurantId를 받으므로, 함께 전달합니다.
+        int updatedRows = ownerReservationDAO.updateReservationStatus(resvId, newStatus, restaurantId);
         return updatedRows > 0;
     }
 

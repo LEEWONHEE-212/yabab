@@ -131,7 +131,7 @@ const FeedWriteForm = ({ onSuccess }) => {
           <button type="button" onClick={() => window.history.back()}>
             취소
           </button>
-          <button type="submit">등록</button>
+          <button type="submit" onClick={() => window.history.back()}>등록</button>
         </div>
       </form>
     </div>

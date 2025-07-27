@@ -4,6 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import Header from "../common/Header";
 import "./FeedBoardSection.css"
 import { UserContext } from "../../context/UserContext";
+import { teamList } from "../../api/teamList";
+import Top5Section from "./Top5Section";
 
 const FeedBoardSection = () => {
     const { teamId } = useParams();
@@ -17,11 +19,17 @@ const FeedBoardSection = () => {
         navigate(`/feed/${teamId}/write`);
     };
 
+    const team = teamList.find(t => t.teamId === parseInt(teamId));
+    const teamName = team ? team.name : "알 수 없음";
+
     return (
         <div>
             <Header />
+
+            <Top5Section teamId={parseInt(teamId)} />
+
             <section className="team-board-section">
-                <h2>📣 한화 이글스 피드</h2>
+                <h2>📣 {teamName} 피드</h2>
 
                 <div className="feed-sort-tabs">
                     <button className={sortOption === "latest" ? "active" : ""} onClick={() => setSortOption("latest")}>최신순</button>

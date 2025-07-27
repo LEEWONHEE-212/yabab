@@ -25,4 +25,7 @@ public class FeedVO extends BaseVO {
     private int feedDeletedFlag;    //  0: 정상, 1: 삭제
     private Date deletedDate;
     private String deletedBy;
+
+    //  TB_USER랑 조인
+    private String userNickname;
 }

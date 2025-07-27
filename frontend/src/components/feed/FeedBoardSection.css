@@ -100,52 +100,6 @@ body {
   border-color: #444;
 }
 
-/* 게시글 테이블 */
-.feed-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  table-layout: fixed;
-}
-
-.feed-table thead {
-  background-color: #f9f9f9;
-  border-top: 2px solid #444;
-}
-
-.feed-table th,
-.feed-table td {
-  border-bottom: 1px solid #e0e0e0;
-  padding: 10px 6px;
-  text-align: center;
-  color: #333;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* 제목 열은 왼쪽 정렬 + 댓글수 강조 */
-.feed-table td:nth-child(2) {
-  text-align: left;
-}
-
-.title-link {
-  color: #333;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.title-link:hover {
-  text-decoration: underline;
-}
-
-.comment-count {
-  color: #0066cc;
-  font-weight: bold;
-  margin-left: 4px;
-  font-size: 13px;
-}
-
 /* 글쓰기 버튼 우측 정렬 */
 .feed-write-btn {
   margin-top: 16px;
@@ -259,4 +213,27 @@ body {
 
 .best-list a:hover {
   text-decoration: underline;
+}
+
+.top5-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; /* 화면 작을 땐 아래로 떨어지게 */
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.top5-feed-box {
+  flex: 1 1 30%;
+  background-color: white;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.08);
+  min-width: 280px;
+}
+
+.top5-feed-box h3 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: bold;
 }

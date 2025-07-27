@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "./FeedTable.css"
 
 const FeedTable = ({ teamId, sortOption, category }) => {
     const [posts, setPosts] = useState([]);
@@ -7,8 +8,8 @@ const FeedTable = ({ teamId, sortOption, category }) => {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                            console.log("📡 요청 URL:", `http://localhost:18090/feed/team/${teamId}`);
-            console.log("📎 파라미터:", { sort: sortOption, category });
+                console.log("요청 URL:", `http://localhost:18090/feed/team/${teamId}`);
+                console.log("파라미터:", { sort: sortOption, category });
                 const response = await axios.get(
                     `http://localhost:18090/feed/team/${teamId}`, 
                     {
@@ -18,7 +19,7 @@ const FeedTable = ({ teamId, sortOption, category }) => {
                         }
                     }
                 );
-                console.log("📥 응답 데이터:", response.data);
+                console.log("응답 데이터:", response.data);
                 setPosts(response.data);
             } catch (error) {
                 console.error("게시글 불러오기 실패:", error);
@@ -30,6 +31,15 @@ const FeedTable = ({ teamId, sortOption, category }) => {
 
     return (
         <table className="feed-table">
+            <colgroup>
+                <col style={{ width: "10%" }} />  {/* 카테고리 */}
+                <col style={{ width: "55%" }} />  {/* 제목 */}
+                <col style={{ width: "10%" }} />  {/* 작성자 */}
+                <col style={{ width: "20%" }} />  {/* 작성일 */}
+                <col style={{ width: "5%" }} />   {/* 조회 */}
+                <col style={{ width: "5%" }} />   {/* 추천 */}
+            </colgroup>
+            
             <thead>
                 <tr>
                     <th>카테고리</th>
@@ -45,7 +55,7 @@ const FeedTable = ({ teamId, sortOption, category }) => {
                 {posts.length > 0 ? (
                     posts.map((post) => (
                         <tr key={post.feedId}>
-                            <td>{post.feedCategory === "cheer" ? "응원글" : "먹거리"}</td>
+                            <td>{post.feedCategory === 0 ? "응원글" : "먹거리"}</td>
                             <td>
                                 <a
                                 href={`/feed/${teamId}/view/${post.feedId}`}
@@ -57,8 +67,8 @@ const FeedTable = ({ teamId, sortOption, category }) => {
                                 </span>
                                 </a>
                             </td>
-                            <td>{post.userId}</td>
-                            <td>{post.feedCreatedDate?.substring(5, 10)}</td>
+                            <td>{post.userNickname}</td>
+                            <td>{post.createdDate?.substring(0, 19).replace('T',' ')}</td>
                             <td>{post.feedViews}</td>
                             <td>{post.feedLikes}</td>
                         </tr>

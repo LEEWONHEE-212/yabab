@@ -22,7 +22,7 @@ const Header = () => {
 
                 <nav className="header-center">
                     <Link to="/">홈</Link>
-                    <Link to="/feed/:teamId/list">응원피드</Link>
+                    <Link to="/feed/main">응원피드</Link>
                     <Link to="/">선수 추천 맛집</Link>
                     <Link to="/myPage">마이페이지</Link>
                     <Link to="/owner">사장님페이지</Link>

@@ -1,0 +1,16 @@
+.team-main-container {
+  text-align: center;
+  padding: 40px;
+}
+
+.team-main-container h2 {
+  font-size: 45px;
+  margin-bottom: 32px;  
+}
+
+.team-grid-row {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 30px;
+}

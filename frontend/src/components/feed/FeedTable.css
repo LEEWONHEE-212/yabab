@@ -1,0 +1,45 @@
+/* 게시글 테이블 */
+.feed-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  table-layout: fixed;
+}
+
+.feed-table thead {
+  background-color: #f9f9f9;
+  border-top: 2px solid #444;
+}
+
+.feed-table th,
+.feed-table td {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 10px 6px;
+  text-align: center;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 제목 열은 왼쪽 정렬 + 댓글수 강조 */
+.feed-table td:nth-child(2) {
+  text-align: left;
+}
+
+.title-link {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.title-link:hover {
+  text-decoration: underline;
+}
+
+.comment-count {
+  color: #0066cc;
+  font-weight: bold;
+  margin-left: 4px;
+  font-size: 13px;
+}

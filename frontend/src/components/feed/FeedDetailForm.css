@@ -67,19 +67,53 @@
 
 .post-nav-buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   margin: 30px 0;
 }
 
-.post-comments {
-  margin-top: 20px;
-  font-size: 14px;
+.post-nav-btn {
+  padding: 5px 10px;
+  font-size: 15px;
+  background-color: #ffffff;
+  color: #333;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.comment-login-required {
-  padding: 12px;
-  background: #f6f6f6;
-  border: 1px solid #ddd;
-  text-align: center;
-  color: #666;
+.post-nav-btn:hover {
+  background-color: #f0f0f0;
+  border-color: #999;
+}
+
+.like-button {
+  background-color: #eee;
+  color: black;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.like-button.liked {
+  background-color: #007bff;
+  color: white;
+}
+
+.comment-list {
+  margin-top: 20px;
+  list-style: none;
+  padding: 0;
+}
+
+.comment-submit-btn {
+  padding: 5px 10px;
+  font-size: 15px;
+  background-color: #ffffff;
+  color: #333;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }

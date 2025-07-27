@@ -1,0 +1,59 @@
+.comment-card-container {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 14px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  position: relative;
+  font-size: 14px;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.comment-nickname {
+  font-weight: bold;
+  color: #333;
+}
+
+.comment-time {
+  font-size: 12px;
+  color: #777;
+}
+
+.comment-content {
+  margin-bottom: 12px;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.comment-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.comment-like-btn,
+.comment-report-btn {
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.comment-like-btn:hover,
+.comment-report-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.comment-like-btn.liked {
+  background-color: #007bff;
+  color: white;
+}

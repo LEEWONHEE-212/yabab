@@ -1,6 +1,7 @@
 package fs.human.yabab.feed.controller;
 
 import fs.human.yabab.feed.service.FeedService;
+import fs.human.yabab.feed.vo.CommentVO;
 import fs.human.yabab.feed.vo.FeedVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,7 +83,10 @@ public class FeedController {
 
     //  피드 상세 조회(피드 ID 기준)
     @GetMapping("/detail/{feedId}")
-    public ResponseEntity<Map<String, Object>> fetchFeedDetail(@PathVariable int feedId) {
+    public ResponseEntity<Map<String, Object>> fetchFeedDetail(
+            @PathVariable int feedId,
+            @RequestParam(name = "userId", required = false ) String userId
+    ) {
         FeedVO feed = feedService.getFeedDetail(feedId);
 
         Map<String, Object> responseMap = new HashMap<>();
@@ -90,6 +94,13 @@ public class FeedController {
         if(feed != null) {
             responseMap.put("success", true);
             responseMap.put("feed", feed);
+
+            if(userId != null) {
+                boolean liked = feedService.hasUserLikedFeed(feedId, userId);
+                responseMap.put("liked", liked);
+            }
+            List<CommentVO> comments = feedService.getCommentsByFeedId(feedId, userId);
+            responseMap.put("comments", comments);
         } else {
             responseMap.put("success", false);
             responseMap.put("message", "해당 게시글이 존재하지 않습니다.");
@@ -97,4 +108,72 @@ public class FeedController {
         return ResponseEntity.ok(responseMap);
     }
 
+    //  추천 기능
+    @PostMapping("/like/{feedId}")
+    public ResponseEntity<Map<String, Object>> toggleLike(
+            @PathVariable int feedId,
+            @RequestBody Map<String, String> requestMap
+    ) {
+        String userId = requestMap.get("userId");  //  프론트에서 보내준 userId
+
+        //  로그인 여부 확인
+        if(userId == null || userId.trim().isEmpty()) {
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("success", false);
+            responseMap.put("message", "로그인이 필요합니다.");
+            return ResponseEntity.badRequest().body(responseMap);
+        }
+        boolean liked = feedService.toggleFeedLike(feedId, userId);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("liked", liked);   //  true: 추천됨, false: 추천 취소됨
+
+        return ResponseEntity.ok(response);
+    }
+
+    //  댓글 등록
+    @PostMapping("/comment")
+    public ResponseEntity<Map<String, Object>> addComment(@RequestBody CommentVO commentVO) {
+        feedService.addComment(commentVO);
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("success", true);
+        responseMap.put("message","댓글이 등록되었습니다.");
+        return ResponseEntity.ok(responseMap);
+    }
+
+    // 댓글 추천 기능
+    @PostMapping("/comment/like/{commentId}")
+    public ResponseEntity<Map<String, Object>> toggleCommentLike(
+            @PathVariable int commentId,
+            @RequestBody Map<String, String> requestBody
+    ) {
+        String userId = requestBody.get("userId");
+        Map<String,Object> responseMap = new HashMap<>();
+
+        if(userId == null) {
+            responseMap.put("success", false);
+            responseMap.put("message", "로그인이 필요합니다.");
+            return ResponseEntity.badRequest().body(responseMap);
+        }
+
+        boolean liked = feedService.toggleCommentLike(commentId, userId);
+        responseMap.put("success", true);
+        responseMap.put("liked", liked);
+        return ResponseEntity.ok(responseMap);
+    }
+
+    // Top 5 피드 조회 (응원글)
+    @GetMapping("/{teamId}/top5")
+    public ResponseEntity<Map<String, Object>> fetchTop5Feeds(
+            @PathVariable int teamId,
+            @RequestParam(name = "category", defaultValue = "0") int category
+    ) {
+        Map<String, Object> responseMap = new HashMap<>();
+        List<FeedVO> top5List = feedService.getTop5FeedsByTeamAndCategory(teamId, category);
+
+        responseMap.put("success", true);
+        responseMap.put("feedList", top5List);
+        return ResponseEntity.ok(responseMap);
+    }
 }

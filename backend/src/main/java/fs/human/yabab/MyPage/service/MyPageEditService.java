@@ -18,7 +18,7 @@ import java.util.UUID;
 public class MyPageEditService {
     private final MyPageEditDAO myPageEditDAO;
 
-    @Value("${upload.restaurant.image.dir}")
+    @Value("${upload.uploads.image.dir}")
     private String baseUploadDir;
 
     private final String WEB_IMAGE_PREFIX = "/restaurant-images/";

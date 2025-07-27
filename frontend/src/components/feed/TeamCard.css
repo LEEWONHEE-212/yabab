@@ -1,0 +1,26 @@
+.team-card {
+  width: 140px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.team-card:hover {
+  transform: scale(1.05);
+}
+
+.team-card-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.team-name {
+  font-size: 15px;
+  font-weight: bold;
+}

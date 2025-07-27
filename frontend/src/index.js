@@ -9,13 +9,11 @@ import reportWebVitals from './reportWebVitals';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 //  BrowserRouter로 App을 감싸서 useNavigate()가 동작할 수 있게 함
 root.render(
-  <React.StrictMode>
     <UserProvider>
       <BrowserRouter>
         <App />
       </BrowserRouter>
     </UserProvider>
-  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

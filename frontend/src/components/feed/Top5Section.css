@@ -1,0 +1,74 @@
+.top5-section-wrapper {
+  display: flex;
+  justify-content: space-between;
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.logo-area {
+  flex: 1;
+}
+
+.logo-text {
+  font-size: 42px;
+  font-weight: 800;
+  color: #333;
+  font-family: "Black Han Sans", sans-serif;
+}
+
+.top5-card-area {
+  display: flex;
+  /* flex-direction: column; */
+  gap: 16px;
+  width: 320px;
+}
+
+.top5-feed-box {
+  background-color: white;
+  padding: 14px 18px;
+  border-radius: 10px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+  font-size: 14px;
+}
+
+.top5-feed-box h3 {
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.top5-feed-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.top5-feed-box li {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.top5-feed-box li:last-child {
+  border-bottom: none;
+}
+
+.top5-feed-box .rank {
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+.top5-feed-box .title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top5-feed-box .likes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

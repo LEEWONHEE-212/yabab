@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.PlayerRestaurantPick.dao.PlayerPickDAO">
+
+    <select id="findAllPlayerPicksWithRestaurantInfo" resultType="fs.human.yabab.PlayerRestaurantPick.vo.PlayerPickCombinedDTO">
+        SELECT
+        pp.RESTAURANT_ID AS id,                 -- TB_RESTAURANT.RESTAURANT_ID를 DTO의 'id'로 매핑
+        r.RESTAURANT_NAME AS name,              -- TB_RESTAURANT.RESTAURANT_NAME을 DTO의 'name'으로 매핑
+        r.RESTAURANT_IMAGE_PATH AS image,       -- TB_RESTAURANT.RESTAURANT_IMAGE_PATH를 DTO의 'image'로 매핑
+        pp.PICK_PLAYER_NAME AS player,          -- TB_PLAYER_PICK.PICK_PLAYER_NAME을 DTO의 'player'로 매핑
+        pp.PICK_COMMENT AS reason,              -- TB_PLAYER_PICK.PICK_COMMENT를 DTO의 'reason'으로 매핑
+        pp.PICK_SOURCE_URL AS sourceUrl,        -- TB_PLAYER_PICK.PICK_SOURCE_URL을 DTO의 'sourceUrl'로 매핑
+        pp.PICK_TEAM_NAME AS teamName           -- TB_PLAYER_PICK.PICK_TEAM_NAME을 DTO의 'teamName'으로 매핑 (서비스에서 그룹화에 사용)
+        FROM
+        TB_PLAYER_PICK pp
+        JOIN
+        TB_RESTAURANT r ON pp.RESTAURANT_ID = r.RESTAURANT_ID
+        ORDER BY
+        pp.PICK_TEAM_NAME, pp.RESTAURANT_ID
+    </select>
+
+</mapper>

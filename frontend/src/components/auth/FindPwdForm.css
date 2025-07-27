@@ -109,7 +109,7 @@ body {
 }
 
 .submit-btn {
-  background: #999;
+  background: #007bff;
   color: white;
   padding: 12px;
   font-size: 16px;
@@ -117,6 +117,10 @@ body {
   border-radius: 30px;
   cursor: pointer;
   margin-top: 20px;
+}
+
+.submit-btn:hover{
+  background-color:#0056b3;
 }
 
 .modal-overlay {

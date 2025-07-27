@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.Admin.dao.AdminFeedReportDAO">
+
+    <resultMap id="adminFeedReportResultMap" type="fs.human.yabab.Admin.vo.AdminFeedReportDTO">
+        <id property="feedReportId" column="FEED_REPORT_ID"/>
+        <result property="feedId" column="FEED_ID"/> <!-- ⭐ Ensure this maps to Long ⭐ -->
+        <result property="reporterUserId" column="REPORTER_USER_ID"/>
+        <result property="reportedUserId" column="REPORTED_USER_ID"/>
+        <result property="reportReason" column="REPORT_REASON"/>
+        <result property="reportDetails" column="REPORT_DETAILS"/>
+        <result property="status" column="STATUS"/>
+        <result property="processedBy" column="PROCESSED_BY"/>
+        <result property="processedDate" column="PROCESSED_DATE"/>
+        <result property="actionTaken" column="ACTION_TAKEN"/>
+        <result property="memo" column="MEMO"/>
+        <result property="createdDate" column="CREATED_DATE"/>
+        <result property="createdBy" column="CREATED_BY"/>
+        <result property="updatedDate" column="UPDATED_DATE"/>
+        <result property="updatedBy" column="UPDATED_BY"/>
+
+        <!-- Joined fields for frontend display and search -->
+        <result property="feedTitle" column="FEED_TITLE"/>
+        <result property="feedContent" column="FEED_CONTENT"/>
+        <result property="reporterEmail" column="REPORTER_EMAIL"/>
+        <result property="reportedUserEmail" column="REPORTED_USER_EMAIL"/>
+    </resultMap>
+
+    <select id="countFeedReports" resultType="int">
+        SELECT
+        COUNT(TFR.FEED_REPORT_ID)
+        FROM
+        TB_FEED_REPORT TFR
+        INNER JOIN TB_FEED TF ON TFR.FEED_ID = TF.FEED_ID
+        LEFT JOIN TB_USER TU_REPORTER ON TFR.REPORTER_USER_ID = TU_REPORTER.USER_ID
+        LEFT JOIN TB_USER TU_REPORTED ON TFR.REPORTED_USER_ID = TU_REPORTED.USER_ID
+        WHERE 1=1
+        <if test="feedTitle != null and !feedTitle.isEmpty()">
+            AND TF.FEED_TITLE LIKE '%' || #{feedTitle} || '%'
+        </if>
+        <if test="feedContent != null and !feedContent.isEmpty()">
+            AND TF.FEED_CONTENT LIKE '%' || #{feedContent} || '%'
+        </if>
+        <if test="reporterEmail != null and !reporterEmail.isEmpty()">
+            AND TU_REPORTER.USER_EMAIL LIKE '%' || #{reporterEmail} || '%'
+        </if>
+        <if test="reportedUserEmail != null and !reportedUserEmail.isEmpty()">
+            AND TU_REPORTED.USER_EMAIL LIKE '%' || #{reportedUserEmail} || '%'
+        </if>
+        <if test="status != null and !status.isEmpty()">
+            AND TFR.STATUS = #{status}
+        </if>
+    </select>
+
+    <select id="selectFeedReports" resultMap="adminFeedReportResultMap">
+        SELECT
+        TFR.FEED_REPORT_ID,
+        TFR.FEED_ID,
+        TFR.REPORTER_USER_ID,
+        TFR.REPORTED_USER_ID,
+        TFR.REPORT_REASON,
+        TFR.REPORT_DETAILS,
+        TFR.STATUS,
+        TFR.PROCESSED_BY,
+        TFR.PROCESSED_DATE,
+        TFR.ACTION_TAKEN,
+        TFR.MEMO,
+        TFR.CREATED_DATE,
+        TFR.CREATED_BY,
+        TFR.UPDATED_DATE,
+        TFR.UPDATED_BY,
+        TF.FEED_TITLE,
+        TF.FEED_CONTENT,
+        TU_REPORTER.USER_EMAIL AS REPORTER_EMAIL,
+        TU_REPORTED.USER_EMAIL AS REPORTED_USER_EMAIL
+        FROM
+        TB_FEED_REPORT TFR
+        INNER JOIN TB_FEED TF ON TFR.FEED_ID = TF.FEED_ID
+        LEFT JOIN TB_USER TU_REPORTER ON TFR.REPORTER_USER_ID = TU_REPORTER.USER_ID
+        LEFT JOIN TB_USER TU_REPORTED ON TFR.REPORTED_USER_ID = TU_REPORTED.USER_ID
+        WHERE 1=1
+        <if test="feedTitle != null and !feedTitle.isEmpty()">
+            AND TF.FEED_TITLE LIKE '%' || #{feedTitle} || '%'
+        </if>
+        <if test="feedContent != null and !feedContent.isEmpty()">
+            AND TF.FEED_CONTENT LIKE '%' || #{feedContent} || '%'
+        </if>
+        <if test="reporterEmail != null and !reporterEmail.isEmpty()">
+            AND TU_REPORTER.USER_EMAIL LIKE '%' || #{reporterEmail} || '%'
+        </if>
+        <if test="reportedUserEmail != null and !reportedUserEmail.isEmpty()">
+            AND TU_REPORTED.USER_EMAIL LIKE '%' || #{reportedUserEmail} || '%'
+        </if>
+        <if test="status != null and !status.isEmpty()">
+            AND TFR.STATUS = #{status}
+        </if>
+        ORDER BY
+        <choose>
+            <when test="sortBy != null and !sortBy.isEmpty()">
+                <if test="sortBy == 'FEED_REPORT_ID'">TFR.FEED_REPORT_ID</if>
+                <if test="sortBy == 'FEED_ID'">TFR.FEED_ID</if>
+                <if test="sortBy == 'REPORTER_USER_ID'">TFR.REPORTER_USER_ID</if>
+                <if test="sortBy == 'REPORTED_USER_ID'">TFR.REPORTED_USER_ID</if>
+                <if test="sortBy == 'REPORT_REASON'">TFR.REPORT_REASON</if>
+                <if test="sortBy == 'STATUS'">TFR.STATUS</if>
+                <if test="sortBy == 'CREATED_DATE'">TFR.CREATED_DATE</if>
+                <if test="sortBy == 'FEED_TITLE'">TF.FEED_TITLE</if>
+                <if test="sortBy == 'REPORTER_EMAIL'">TU_REPORTER.USER_EMAIL</if>
+                <if test="sortBy == 'REPORTED_USER_EMAIL'">TU_REPORTED.USER_EMAIL</if>
+            </when>
+            <otherwise>
+                TFR.CREATED_DATE
+            </otherwise>
+        </choose>
+        <if test="sortDirection != null and sortDirection.toLowerCase() == 'asc'">ASC</if>
+        <if test="sortDirection != null and sortDirection.toLowerCase() == 'desc'">DESC</if>
+        <if test="sortDirection == null or sortDirection.isEmpty()">DESC</if>
+        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="selectFeedReportById" resultMap="adminFeedReportResultMap">
+        SELECT
+        TFR.FEED_REPORT_ID,
+        TFR.FEED_ID,
+        TFR.REPORTER_USER_ID,
+        TFR.REPORTED_USER_ID,
+        TFR.REPORT_REASON,
+        TFR.REPORT_DETAILS,
+        TFR.STATUS,
+        TFR.PROCESSED_BY,
+        TFR.PROCESSED_DATE,
+        TFR.ACTION_TAKEN,
+        TFR.MEMO,
+        TFR.CREATED_DATE,
+        TFR.CREATED_BY,
+        TFR.UPDATED_DATE,
+        TFR.UPDATED_BY,
+        TF.FEED_TITLE,
+        TF.FEED_CONTENT,
+        TU_REPORTER.USER_EMAIL AS REPORTER_EMAIL,
+        TU_REPORTED.USER_EMAIL AS REPORTED_USER_EMAIL
+        FROM
+        TB_FEED_REPORT TFR
+        INNER JOIN TB_FEED TF ON TFR.FEED_ID = TF.FEED_ID
+        LEFT JOIN TB_USER TU_REPORTER ON TFR.REPORTER_USER_ID = TU_REPORTER.USER_ID
+        LEFT JOIN TB_USER TU_REPORTED ON TFR.REPORTED_USER_ID = TU_REPORTED.USER_ID
+        WHERE TFR.FEED_REPORT_ID = #{feedReportId}
+    </select>
+
+    <update id="updateFeedReportStatus">
+        UPDATE TB_FEED_REPORT
+        SET
+        STATUS = #{status},
+        PROCESSED_BY = #{processedBy},
+        PROCESSED_DATE = SYSDATE,
+        ACTION_TAKEN = #{actionTaken},
+        MEMO = #{memo},
+        UPDATED_DATE = SYSDATE,
+        UPDATED_BY = #{processedBy}
+        WHERE FEED_REPORT_ID = #{feedReportId}
+    </update>
+
+    <update id="updateFeedDeletedFlag">
+        UPDATE TB_FEED
+        SET
+        FEED_DELETED_FLAG = 1,
+        DELETED_DATE = SYSDATE,
+        DELETED_BY = #{deletedBy}
+        WHERE FEED_ID = #{feedId} <!-- ⭐ This will now correctly bind a Long value ⭐ -->
+    </update>
+
+</mapper>

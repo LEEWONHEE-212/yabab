@@ -70,14 +70,14 @@ public class AddRestaurantService {
 
             // 3. 데이터베이스에 저장할 이미지 경로 설정
             // 웹에서 접근 가능한 URL 경로를 저장합니다. WebConfig의 ResourceHandler와 일치해야 합니다.
-            request.setRestaurantImagePath("/restaurant-images/" + newFileName);
+            request.setRestaurantImagePath("" + newFileName);
             request.setRestaurantImageName(newFileName);
         } else {
             request.setRestaurantImagePath(null);
             request.setRestaurantImageName(null);
         }
 
-        // DAO를 호출하여 식당 정보를 DB에 삽입
+        // DAO를 호출하여 식당 정보를 DB에 삽입/uploads/
         int insertedRows = addRestaurantDAO.insertRestaurant(request);
         return insertedRows == 1;
     }

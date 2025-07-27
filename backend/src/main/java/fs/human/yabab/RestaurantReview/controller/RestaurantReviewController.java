@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController // RESTful 웹 서비스 컨트롤러임을 나타냅니다.
 @RequestMapping("/api/Reviews") // 기존대로 /api/Reviews로 유지
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://192.168.0.47:3000")
 public class RestaurantReviewController {
     private static final Logger logger = LoggerFactory.getLogger(RestaurantReviewController.class); // ✨ 로거 인스턴스 생성
 

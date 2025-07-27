@@ -12,6 +12,7 @@
         <result property="restaurantImageName" column="restaurant_image_name"/>
         <result property="stadiumId" column="stadium_id"/>
         <result property="stadiumName" column="stadium_name"/>
+        <result property="stadiumImagePath" column="stadium_image_path"/>
         <result property="restaurantResvStatus" column="restaurant_resv_status"/>
 
         <result property="zoneName" column="zone_name"/>
@@ -31,7 +32,7 @@
         r.RESTAURANT_IMAGE_NAME AS restaurant_image_name,
         r.STADIUM_ID AS stadium_id,
         s.STADIUM_NAME AS stadium_name,
-        r.RESTAURANT_RESV_STATUS AS restaurant_resv_status,
+        s.STADIUM_IMAGE_PATH AS stadium_image_path, r.RESTAURANT_RESV_STATUS AS restaurant_resv_status,
         z.ZONE_NAME AS zone_name,
         r.RESTAURANT_LOCATION AS restaurant_location,
         r.RESTAURANT_INSIDE_FLAG AS restaurant_inside_flag,
@@ -157,7 +158,7 @@
         r.RESTAURANT_IMAGE_NAME AS restaurant_image_name,
         r.STADIUM_ID AS stadium_id,
         s.STADIUM_NAME AS stadium_name,
-        r.RESTAURANT_RESV_STATUS AS restaurant_resv_status,
+        s.STADIUM_IMAGE_PATH AS stadium_image_path, r.RESTAURANT_RESV_STATUS AS restaurant_resv_status,
         z.ZONE_NAME AS zone_name,
         r.RESTAURANT_LOCATION AS restaurant_location,
         r.RESTAURANT_ADDR1 AS restaurant_addr1,

@@ -9,18 +9,15 @@
         r.OWNER_ID AS ownerId,
         r.RESTAURANT_NAME AS restaurantName,
         r.RESTAURANT_IMAGE_PATH AS restaurantImagePath,
-        r.RESTAURANT_IMAGE_NAME AS restaurantImageName, <!-- ✨ 추가: 이미지 파일명 조회 -->
-        s.STADIUM_NAME AS stadiumName,             -- STADIUM 테이블과 JOIN
+        r.RESTAURANT_IMAGE_NAME AS restaurantImageName,
+        s.STADIUM_NAME AS stadiumName,
         r.RESTAURANT_INSIDE_FLAG AS restaurantInsideFlag,
 
-        -- restaurantInsideFlag 값에 따라 프론트엔드에서 다르게 사용되는 필드들
-        -- 0 (구장 내부): restaurantLocation (구역), zoneName (상세 구역)
-        -- 1 (구장 외부): restaurantAddr1 (기본 주소), restaurantAddr2 (상세 주소)
-        r.RESTAURANT_LOCATION AS restaurantLocation, -- 내부 식당일 경우 '구역'
-        r.RESTAURANT_ADDR1 AS restaurantAddr1,       -- 외부 식당일 경우 '기본 주소'
-        r.RESTAURANT_ADDR2 AS restaurantAddr2,       -- 외부 식당일 경우 '상세 주소'
+        r.RESTAURANT_LOCATION AS restaurantLocation,
+        r.RESTAURANT_ADDR1 AS restaurantAddr1,
+        r.RESTAURANT_ADDR2 AS restaurantAddr2,
 
-        z.ZONE_NAME AS zoneName,                     -- 내부 식당일 경우 '상세 구역'
+        z.ZONE_NAME AS zoneName,
 
         r.RESTAURANT_TEL AS restaurantPhone,
         r.RESTAURANT_OPEN_TIME AS restaurantOpenTime,
@@ -39,14 +36,13 @@
     </select>
 
     <!-- 특정 restaurantId로 레스토랑 정보 조회 -->
-    <!-- OwnerService에서 기존 정보를 가져오거나, 업데이트 후 최신 정보를 가져올 때 사용됩니다. -->
     <select id="findRestaurantById" parameterType="java.lang.Long" resultType="fs.human.yabab.Owner.vo.OwnerDTO">
         SELECT
         r.RESTAURANT_ID AS id,
         r.OWNER_ID AS ownerId,
         r.RESTAURANT_NAME AS restaurantName,
         r.RESTAURANT_IMAGE_PATH AS restaurantImagePath,
-        r.RESTAURANT_IMAGE_NAME AS restaurantImageName, <!-- ✨ 추가: 이미지 파일명 조회 -->
+        r.RESTAURANT_IMAGE_NAME AS restaurantImageName,
         s.STADIUM_NAME AS stadiumName,
         r.RESTAURANT_LOCATION AS restaurantLocation,
         z.ZONE_NAME AS zoneName,
@@ -94,7 +90,7 @@
         RESTAURANT_NAME = #{restaurantName},
         STADIUM_ID = (SELECT STADIUM_ID FROM TB_STADIUM WHERE STADIUM_NAME = #{stadiumName}),
         RESTAURANT_RESV_STATUS = #{restaurantResvStatus},
-        RESTAURANT_INSIDE_FLAG = 0, -- ✨ 항상 0으로 설정
+        RESTAURANT_INSIDE_FLAG = 0,
         RESTAURANT_IMAGE_PATH = #{restaurantImagePath},
         RESTAURANT_IMAGE_NAME = #{restaurantImageName},
         UPDATED_DATE = SYSDATE,
@@ -104,7 +100,6 @@
         AND STADIUM_ID = (SELECT STADIUM_ID FROM TB_STADIUM WHERE STADIUM_NAME = #{stadiumName})
         ),
         RESTAURANT_LOCATION = #{restaurantLocation, jdbcType=VARCHAR},
-        -- 내부 식당이므로 외부 식당 관련 필드는 NULL로 설정하거나 제거 (필요에 따라)
         RESTAURANT_TEL = NULL,
         RESTAURANT_OPEN_TIME = NULL,
         RESTAURANT_LAST_ORDER = NULL,
@@ -137,7 +132,8 @@
         CREATED_DATE,
         CREATED_BY
         ) VALUES (
-        1,             #{restaurantId},
+        MENU_SEQ.NEXTVAL, <!-- ⭐ 수정된 부분: 1 대신 시퀀스 호출 ⭐ -->
+        #{restaurantId},
         #{menuName},
         #{menuPrice},
         SYSDATE,

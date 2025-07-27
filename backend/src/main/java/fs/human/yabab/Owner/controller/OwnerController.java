@@ -20,7 +20,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/owner/restaurants") //
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://192.168.0.47:3000")
 public class OwnerController {
     private final OwnerService ownerService;
 
@@ -144,7 +144,7 @@ public class OwnerController {
                 Files.copy(restaurantImage.getInputStream(), filePath);
 
                 // WebConfig의 addResourceHandler("/restaurant-images/**")와 일치하는 웹 접근 경로
-                String webAccessPathPrefix = "/restaurant-images/";
+                String webAccessPathPrefix = "/uploads/";
 
                 // DTO에 웹 접근 경로와 파일 이름 설정
                 // restaurantImagePath에 웹 접근 경로 + 파일명을 저장하여 DB 스크린샷과 일치시킴

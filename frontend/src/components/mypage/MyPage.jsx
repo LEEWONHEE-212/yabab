@@ -6,7 +6,7 @@ import Header from '../common/Header';
 import { UserContext } from '../../context/UserContext';
 import EditProfilePage from './EditProfilePage';
 
-// 사용자 정보를 표시하는 서브 컴포넌트 (변경 없음)
+// 사용자 정보를 표시하는 서브 컴포넌트
 function UserInfoDisplay({ user, onEditClick }) {
     console.log("UserInfoDisplay 컴포넌트 - 현재 user 객체 확인 (모든 속성):", user);
 
@@ -29,14 +29,14 @@ function UserInfoDisplay({ user, onEditClick }) {
 
     const nickname = user.userNickname || '닉네임 정보 없음';
     const name = user.userName || '이름 정보 없음';
-    const team = user.userFavoriteTeam || '';
+    const team = user.userFavoriteTeam || '응원하는 팀 정보 없음';
     const email = user.userEmail || '이메일 정보 없음';
     const phoneNumber = user.userPhone || '전화번호 정보 없음';
 
     const profileImageSrc = imageLoadFailed
         ? 'https://via.placeholder.com/150?text=Load+Error'
         : (user.userImagePath && user.userImageName
-            ? `http://localhost:18090${user.userImagePath}${user.userImageName}`
+            ? `http://192.168.0.47:18090${user.userImagePath}${user.userImageName}`
             : 'https://via.placeholder.com/150?text=No+Image');
 
     return (
@@ -68,7 +68,7 @@ function UserInfoDisplay({ user, onEditClick }) {
     );
 }
 
-// 탭 메뉴를 표시하는 서브 컴포넌트 (변경 없음)
+// 탭 메뉴를 표시하는 서브 컴포넌트
 function TabSection({ activeTab, onTabChange }) {
     return (
         <div className="mypage-tabs">
@@ -84,21 +84,36 @@ function TabSection({ activeTab, onTabChange }) {
             >
                 작성 리뷰
             </button>
-            {/* 게시글 탭은 지금 사용하지 않으므로 제거하거나 주석 처리합니다. */}
-            {/*
             <button
                 className={`tab-button ${activeTab === 'posts' ? 'active' : ''}`}
                 onClick={() => onTabChange('posts')}
             >
                 작성 게시글
             </button>
-            */}
         </div>
     );
 }
 
-// 예약 내역 리스트를 표시하는 서브 컴포넌트 - 수정됨
-function MyReservations({ data }) {
+// 예약 내역 리스트를 표시하는 서브 컴포넌트 (삭제 버튼 추가)
+function MyReservations({ data, onDeleteReservation }) { // onDeleteReservation prop 추가
+    const deleteButtonStyle = {
+        backgroundColor: '#dc3545',
+        color: 'white',
+        border: 'none',
+        borderRadius: '5px',
+        padding: '8px 12px',
+        cursor: 'pointer',
+        fontSize: '0.9em',
+        marginTop: '10px',
+        transition: 'background-color 0.2s ease',
+    };
+
+    const deleteButtonHoverStyle = {
+        backgroundColor: '#c82333',
+    };
+
+    const [isHovered, setIsHovered] = useState(false);
+
     return (
         <div className="mypage-tab-pane">
             <h2 className="section-title">예약 내역</h2>
@@ -110,7 +125,6 @@ function MyReservations({ data }) {
                         {data.map((reservation) => (
                             <li key={reservation.reservationId} className="mypage-list-item">
                                 <strong>{reservation.restaurantName || '식당명 알 수 없음'}</strong>
-                                {/* menuItems가 배열로 오고, 각 항목에 menuName과 count가 있다고 가정 */}
                                 {reservation.menuItems && reservation.menuItems.length > 0 ? (
                                     <div className="mypage-menu-items">
                                         {reservation.menuItems.map((item, index) => (
@@ -123,6 +137,14 @@ function MyReservations({ data }) {
                                     <p>주문 메뉴 정보 없음</p>
                                 )}
                                 <p>예약 현황: {reservation.status || '상태 알 수 없음'}</p>
+                                <button
+                                    style={isHovered ? { ...deleteButtonStyle, ...deleteButtonHoverStyle } : deleteButtonStyle}
+                                    onMouseEnter={() => setIsHovered(true)}
+                                    onMouseLeave={() => setIsHovered(false)}
+                                    onClick={() => onDeleteReservation(reservation.reservationId)} // 삭제 버튼
+                                >
+                                    예약 취소
+                                </button>
                             </li>
                         ))}
                     </ul>
@@ -132,8 +154,26 @@ function MyReservations({ data }) {
     );
 }
 
-// 작성 리뷰 리스트를 표시하는 서브 컴포넌트 - 수정됨
-function MyReviews({ data }) {
+// 작성 리뷰 리스트를 표시하는 서브 컴포넌트 (삭제 버튼 추가)
+function MyReviews({ data, onDeleteReview }) { // onDeleteReview prop 추가
+    const deleteButtonStyle = {
+        backgroundColor: '#dc3545',
+        color: 'white',
+        border: 'none',
+        borderRadius: '5px',
+        padding: '8px 12px',
+        cursor: 'pointer',
+        fontSize: '0.9em',
+        marginTop: '10px',
+        transition: 'background-color 0.2s ease',
+    };
+
+    const deleteButtonHoverStyle = {
+        backgroundColor: '#c82333',
+    };
+
+    const [isHovered, setIsHovered] = useState(false);
+
     return (
         <div className="mypage-tab-pane">
             <h2 className="section-title">작성 리뷰</h2>
@@ -145,8 +185,16 @@ function MyReviews({ data }) {
                         {data.map((review) => (
                             <li key={review.reviewId} className="mypage-list-item">
                                 <strong>{review.restaurantName || '식당명 알 수 없음'}</strong>
-                                <p>내용: {review.content || '내용 없음'}</p> {/* review.reviewContent -> review.content로 변경 */}
-                                <p>별점: {review.rating || '별점 없음'} / 5</p> {/* review.rating 필드 사용 */}
+                                <p>내용: {review.content || '내용 없음'}</p>
+                                <p>별점: {review.rating || '별점 없음'} / 5</p>
+                                <button
+                                    style={isHovered ? { ...deleteButtonStyle, ...deleteButtonHoverStyle } : deleteButtonStyle}
+                                    onMouseEnter={() => setIsHovered(true)}
+                                    onMouseLeave={() => setIsHovered(false)}
+                                    onClick={() => onDeleteReview(review.reviewId)} // 삭제 버튼
+                                >
+                                    리뷰 삭제
+                                </button>
                             </li>
                         ))}
                     </ul>
@@ -156,9 +204,26 @@ function MyReviews({ data }) {
     );
 }
 
-// 작성 게시글 리스트를 표시하는 서브 컴포넌트 (더 이상 사용되지 않으므로 제거하거나 주석 처리합니다.)
-/*
-function MyPosts({ data }) {
+// 작성 게시글 리스트를 표시하는 서브 컴포넌트
+function MyPosts({ data, onDeletePost }) {
+    const deleteButtonStyle = {
+        backgroundColor: '#dc3545',
+        color: 'white',
+        border: 'none',
+        borderRadius: '5px',
+        padding: '8px 12px',
+        cursor: 'pointer',
+        fontSize: '0.9em',
+        marginTop: '10px',
+        transition: 'background-color 0.2s ease',
+    };
+
+    const deleteButtonHoverStyle = {
+        backgroundColor: '#c82333',
+    };
+
+    const [isHovered, setIsHovered] = useState(false);
+
     return (
         <div className="mypage-tab-pane">
             <h2 className="section-title">작성 게시글</h2>
@@ -168,9 +233,22 @@ function MyPosts({ data }) {
                 ) : (
                     <ul className="mypage-list">
                         {data.map((post) => (
-                            <li key={post.postId} className="mypage-list-item">
-                                <strong>{post.postTitle}</strong>
-                                <p>{new Date(post.postDate).toLocaleDateString()} - 조회수: {post.postViews} - 댓글: {post.postComments}</p>
+                            <li key={post.feedId} className="mypage-list-item">
+                                <strong>{post.feedTitle || '제목 없음'}</strong>
+                                <p>내용: {post.feedContent || '내용 없음'}</p>
+                                <p>
+                                    작성일: {new Date(post.createdDate).toLocaleDateString() || '날짜 없음'} -
+                                    조회수: {post.feedViews || 0} -
+                                    댓글: {post.feedCommentCount || 0}
+                                </p>
+                                <button
+                                    style={isHovered ? { ...deleteButtonStyle, ...deleteButtonHoverStyle } : deleteButtonStyle}
+                                    onMouseEnter={() => setIsHovered(true)}
+                                    onMouseLeave={() => setIsHovered(false)}
+                                    onClick={() => onDeletePost(post.feedId)}
+                                >
+                                    삭제
+                                </button>
                             </li>
                         ))}
                     </ul>
@@ -179,9 +257,9 @@ function MyPosts({ data }) {
         </div>
     );
 }
-*/
 
-// MyPage 메인 컴포넌트 (변경 없음)
+
+// MyPage 메인 컴포넌트
 function MyPage() {
     const navigate = useNavigate();
     const { user, setUser } = useContext(UserContext);
@@ -193,20 +271,24 @@ function MyPage() {
     const [loadingData, setLoadingData] = useState(true);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+    // 모든 마이페이지 데이터를 불러오는 함수
     const fetchMyPageData = useCallback(async (userId) => {
         setLoadingData(true);
         try {
-            const reservationsResponse = await axios.get(`http://localhost:18090/api/mypage/${userId}/reservations`);
+            const reservationsResponse = await axios.get(`http://192.168.0.47:18090/api/mypage/${userId}/reservations`);
             setReservationsData(reservationsResponse.data);
             console.log("예약 내역:", reservationsResponse.data);
 
-            const reviewsResponse = await axios.get(`http://localhost:18090/api/mypage/${userId}/reviews`);
+            const reviewsResponse = await axios.get(`http://192.168.0.47:18090/api/mypage/${userId}/reviews`);
             setReviewsData(reviewsResponse.data);
             console.log("작성 리뷰:", reviewsResponse.data);
 
+            const postsResponse = await axios.get(`http://192.168.0.47:18090/api/mypage/${userId}/posts`);
+            setPostsData(postsResponse.data);
+            console.log("작성 게시글:", postsResponse.data);
+
         } catch (error) {
             console.error("마이페이지 데이터 로드 실패:", error);
-            alert("마이페이지 데이터를 불러오는데 실패했습니다. 서버 상태를 확인해주세요.");
             setReservationsData([]);
             setReviewsData([]);
             setPostsData([]);
@@ -214,6 +296,70 @@ function MyPage() {
             setLoadingData(false);
         }
     }, []);
+
+    // 예약 삭제 핸들러 추가
+    const handleDeleteReservation = useCallback(async (reservationId) => {
+        if (!user || !user.userId) {
+            alert("로그인이 필요합니다.");
+            navigate('/auth/login');
+            return;
+        }
+
+        if (window.confirm("정말로 이 예약을 취소하시겠습니까?")) {
+            try {
+                const response = await axios.delete(`http://192.168.0.47:18090/api/mypage/${user.userId}/reservations/${reservationId}`);
+                console.log(response.data);
+                alert(response.data);
+                fetchMyPageData(user.userId); // 삭제 후 목록 새로고침
+            } catch (error) {
+                console.error("예약 취소 실패:", error);
+                alert(`예약 취소 실패: ${error.response ? error.response.data : error.message}`);
+            }
+        }
+    }, [user, navigate, fetchMyPageData]);
+
+    // 리뷰 삭제 핸들러 추가
+    const handleDeleteReview = useCallback(async (reviewId) => {
+        if (!user || !user.userId) {
+            alert("로그인이 필요합니다.");
+            navigate('/auth/login');
+            return;
+        }
+
+        if (window.confirm("정말로 이 리뷰를 삭제하시겠습니까?")) {
+            try {
+                const response = await axios.delete(`http://192.168.0.47:18090/api/mypage/${user.userId}/reviews/${reviewId}`);
+                console.log(response.data);
+                alert(response.data);
+                fetchMyPageData(user.userId); // 삭제 후 목록 새로고침
+            } catch (error) {
+                console.error("리뷰 삭제 실패:", error);
+                alert(`리뷰 삭제 실패: ${error.response ? error.response.data : error.message}`);
+            }
+        }
+    }, [user, navigate, fetchMyPageData]);
+
+    // 게시글 삭제 핸들러 (기존 코드 유지)
+    const handleDeletePost = useCallback(async (feedId) => {
+        if (!user || !user.userId) {
+            alert("로그인이 필요합니다.");
+            navigate('/auth/login');
+            return;
+        }
+
+        if (window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+            try {
+                const response = await axios.delete(`http://192.168.0.47:18090/api/mypage/${user.userId}/posts/${feedId}`);
+                console.log(response.data);
+                alert(response.data);
+                fetchMyPageData(user.userId);
+            } catch (error) {
+                console.error("게시글 삭제 실패:", error);
+                alert(`게시글 삭제 실패: ${error.response ? error.response.data : error.message}`);
+            }
+        }
+    }, [user, navigate, fetchMyPageData]);
+
 
     useEffect(() => {
         if (!user || Object.keys(user).length === 0) {
@@ -241,6 +387,10 @@ function MyPage() {
 
     const handleCloseEditModal = () => {
         setIsEditModalOpen(false);
+        // 프로필 수정 후 데이터 새로고침 (업데이트된 사용자 정보 반영)
+        if (user && user.userId) {
+            fetchMyPageData(user.userId);
+        }
     };
 
     const handleLogout = () => {
@@ -269,10 +419,9 @@ function MyPage() {
                         <div className="loading">데이터 로딩 중...</div>
                     ) : (
                         <>
-                            {activeTab === 'reservations' && <MyReservations data={reservationsData} />}
-                            {activeTab === 'reviews' && <MyReviews data={reviewsData} />}
-                            {/* 게시글 탭은 지금 사용하지 않으므로 제거합니다. */}
-                            {/* {activeTab === 'posts' && <MyPosts data={postsData} />} */}
+                            {activeTab === 'reservations' && <MyReservations data={reservationsData} onDeleteReservation={handleDeleteReservation} />}
+                            {activeTab === 'reviews' && <MyReviews data={reviewsData} onDeleteReview={handleDeleteReview} />}
+                            {activeTab === 'posts' && <MyPosts data={postsData} onDeletePost={handleDeletePost} />}
                         </>
                     )}
                 </div>

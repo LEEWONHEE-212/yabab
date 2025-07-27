@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.Admin.dao.AdminReviewReportDAO">
+
+    <resultMap id="adminReviewReportResultMap" type="fs.human.yabab.Admin.vo.AdminReviewReportDTO">
+        <id property="reportId" column="REPORT_ID"/>
+        <result property="reviewId" column="REVIEW_ID"/>
+
+        <result property="reportReason" column="REPORT_REASON"/>
+        <result property="reportDetails" column="REPORT_DETAILS"/>
+        <result property="status" column="STATUS"/>
+        <result property="processedBy" column="PROCESSED_BY"/>
+        <result property="processedDate" column="PROCESSED_DATE"/>
+        <result property="actionTaken" column="ACTION_TAKEN"/>
+        <result property="memo" column="MEMO"/>
+        <result property="createdDate" column="CREATED_DATE"/>
+        <result property="createdBy" column="CREATED_BY"/>
+        <result property="updatedDate" column="UPDATED_DATE"/>
+        <result property="updatedBy" column="UPDATED_BY"/>
+
+        <result property="reporterUserId" column="R_USER_ID"/>
+        <result property="reporterUserName" column="R_USER_NAME"/>
+        <result property="reporterUserNickname" column="R_USER_NICKNAME"/>
+        <result property="reporterUserEmail" column="R_USER_EMAIL"/>
+
+        <result property="reportedUserId" column="D_USER_ID"/>
+        <result property="reportedUserName" column="D_USER_NAME"/>
+        <result property="reportedUserNickname" column="D_USER_NICKNAME"/>
+        <result property="reportedUserEmail" column="D_USER_EMAIL"/>
+
+        <result property="originalReviewContent" column="OREVIEW_CONTENT"/>
+        <result property="originalReviewAuthorId" column="OREVIEW_AUTHOR_ID"/>
+    </resultMap>
+
+    <sql id="baseReviewReportJoins">
+        FROM
+        TB_REPORT tr
+        LEFT JOIN
+        TB_USER r_user ON tr.REPORTER_USER_ID = r_user.USER_ID
+        LEFT JOIN
+        TB_USER d_user ON tr.REPORTED_USER_ID = d_user.USER_ID
+        LEFT JOIN
+        TB_REVIEW oreview ON tr.REVIEW_ID = oreview.REVIEW_ID
+    </sql>
+
+    <select id="selectReviewReports" resultMap="adminReviewReportResultMap" parameterType="fs.human.yabab.Admin.vo.AdminReviewReportSearchRequestDTO">
+        SELECT
+        tr.REPORT_ID,
+        tr.REVIEW_ID,
+        tr.REPORTER_USER_ID AS R_USER_ID,
+        r_user.USER_NAME AS R_USER_NAME,
+        r_user.USER_NICKNAME AS R_USER_NICKNAME,
+        r_user.USER_EMAIL AS R_USER_EMAIL,
+        tr.REPORTED_USER_ID AS D_USER_ID,
+        d_user.USER_NAME AS D_USER_NAME,
+        d_user.USER_NICKNAME AS D_USER_NICKNAME,
+        d_user.USER_EMAIL AS D_USER_EMAIL,
+        tr.REPORT_REASON,
+        tr.REPORT_DETAILS,
+        tr.STATUS,
+        tr.PROCESSED_BY,
+        tr.PROCESSED_DATE,
+        tr.ACTION_TAKEN,
+        tr.MEMO,
+        tr.CREATED_DATE,
+        tr.CREATED_BY,
+        tr.UPDATED_DATE,
+        tr.UPDATED_BY,
+        oreview.REVIEW_CONTENT AS OREVIEW_CONTENT,
+        oreview.USER_ID AS OREVIEW_AUTHOR_ID
+        <include refid="baseReviewReportJoins"/> WHERE 1=1
+        <if test="searchType != null and searchTerm != null and searchTerm != ''">
+            <choose>
+                <when test='searchType == "reviewContent"'>
+                    AND LOWER(oreview.REVIEW_CONTENT) LIKE LOWER('%' || #{searchTerm} || '%')
+                </when>
+                <when test='searchType == "reporterEmail"'>
+                    AND LOWER(r_user.USER_EMAIL) LIKE LOWER('%' || #{searchTerm} || '%')
+                </when>
+                <when test='searchType == "reportedUserEmail"'>
+                    AND LOWER(d_user.USER_EMAIL) LIKE LOWER('%' || #{searchTerm} || '%')
+                </when>
+                <otherwise>
+                </otherwise>
+            </choose>
+        </if>
+        <if test="status != null">
+            AND tr.STATUS =
+            <choose>
+                <when test="status == 0"> 'PENDING' </when>
+                <when test="status == 1"> 'ACCEPTED' </when>
+                <when test="status == 2"> 'REJECTED' </when>
+                <otherwise> 'PENDING' </otherwise>
+            </choose>
+        </if>
+        ORDER BY tr.CREATED_DATE DESC, tr.REPORT_ID DESC
+        OFFSET #{page} * #{size} ROWS FETCH NEXT #{size} ROWS ONLY
+    </select>
+
+    <select id="selectReviewReportsCount" resultType="int" parameterType="fs.human.yabab.Admin.vo.AdminReviewReportSearchRequestDTO">
+        SELECT COUNT(tr.REPORT_ID)
+        <include refid="baseReviewReportJoins"/> WHERE 1=1
+        <if test="searchType != null and searchTerm != null and searchTerm != ''">
+            <choose>
+                <when test='searchType == "reviewContent"'>
+                    AND LOWER(oreview.REVIEW_CONTENT) LIKE LOWER('%' || #{searchTerm} || '%')
+                </when>
+                <when test='searchType == "reporterEmail"'>
+                    AND LOWER(r_user.USER_EMAIL) LIKE LOWER('%' || #{searchTerm} || '%')
+                </when>
+                <when test='searchType == "reportedUserEmail"'>
+                    AND LOWER(d_user.USER_EMAIL) LIKE LOWER('%' || #{searchTerm} || '%')
+                </when>
+            </choose>
+        </if>
+        <if test="status != null">
+            AND tr.STATUS =
+            <choose>
+                <when test="status == 0"> 'PENDING' </when>
+                <when test="status == 1"> 'ACCEPTED' </when>
+                <when test="status == 2"> 'REJECTED' </when>
+                <otherwise> 'PENDING' </otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <select id="selectReviewReportById" resultMap="adminReviewReportResultMap" parameterType="long">
+        SELECT
+        tr.REPORT_ID,
+        tr.REVIEW_ID,
+        tr.REPORTER_USER_ID AS R_USER_ID,
+        r_user.USER_NAME AS R_USER_NAME,
+        r_user.USER_NICKNAME AS R_USER_NICKNAME,
+        r_user.USER_EMAIL AS R_USER_EMAIL,
+        tr.REPORTED_USER_ID AS D_USER_ID,
+        d_user.USER_NAME AS D_USER_NAME,
+        d_user.USER_NICKNAME AS D_USER_NICKNAME,
+        d_user.USER_EMAIL AS D_USER_EMAIL,
+        tr.REPORT_REASON,
+        tr.REPORT_DETAILS,
+        tr.STATUS,
+        tr.PROCESSED_BY,
+        tr.PROCESSED_DATE,
+        tr.ACTION_TAKEN,
+        tr.MEMO,
+        tr.CREATED_DATE,
+        tr.CREATED_BY,
+        tr.UPDATED_DATE,
+        tr.UPDATED_BY,
+        oreview.REVIEW_CONTENT AS OREVIEW_CONTENT,
+        oreview.USER_ID AS OREVIEW_AUTHOR_ID
+        <include refid="baseReviewReportJoins"/> WHERE tr.REPORT_ID = #{reportId}
+    </select>
+
+    <update id="updateReviewReportStatus">
+        UPDATE TB_REPORT
+        SET
+        STATUS = #{newStatus},
+        PROCESSED_BY = #{processedBy},
+        PROCESSED_DATE = SYSDATE,
+        ACTION_TAKEN = #{actionTaken},
+        MEMO = #{memo},
+        UPDATED_DATE = SYSDATE,
+        UPDATED_BY = #{processedBy}
+        WHERE
+        REPORT_ID = #{reportId}
+    </update>
+
+    <delete id="deleteReview">
+        DELETE FROM TB_REVIEW
+        WHERE REVIEW_ID = #{reviewId}
+    </delete>
+
+</mapper>

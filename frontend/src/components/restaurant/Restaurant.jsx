@@ -7,6 +7,7 @@ import Header from '../common/Header';
 import { UserContext } from '../../context/UserContext';
 import ReportReasonModal from './ReportReasonModal';
 
+// 별점 컴포넌트 (변동 없음)
 const StarRating = ({ rating, setRating }) => {
     return (
         <div className="restaurant-star-rating">
@@ -46,19 +47,19 @@ const Restaurant = ({ restaurant, onClose }) => {
     const [showImageModal, setShowImageModal] = useState(false);
     const [selectedImage, setSelectedImage] = useState(''); // 크게 볼 이미지 URL
 
-    // ⭐⭐ 신고 모달 관련 상태 추가 ⭐⭐
+    // 신고 모달 관련 상태 추가
     const [isReportReasonModalOpen, setIsReportReasonModalOpen] = useState(false); // 신고 사유 모달
     const [reviewToReport, setReviewToReport] = useState(null); // 신고할 리뷰 정보 (ID와 내용)
 
-    // useAuth 훅 대신 UserContext에서 사용자 정보 가져오기
-    const { user, isLoading } = useContext(UserContext); // UserContext 사용
+    // UserContext에서 사용자 정보 가져오기
+    const { user, isLoading } = useContext(UserContext);
     const isLoggedIn = !!user; // user 객체가 있으면 로그인 상태로 간주
 
     const navigate = useNavigate();
 
-    // 모달이 열릴 때 body 스크롤 방지 (신고 사유 모달 상태 추가)
+    // 모달이 열릴 때 body 스크롤 방지
     useEffect(() => {
-        if (isAlertModalOpen || isReserveModalOpen || showImageModal || isReportReasonModalOpen) { // ⭐ isReportReasonModalOpen 추가
+        if (isAlertModalOpen || isReserveModalOpen || showImageModal || isReportReasonModalOpen) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = 'unset';
@@ -66,37 +67,79 @@ const Restaurant = ({ restaurant, onClose }) => {
         return () => {
             document.body.style.overflow = 'unset';
         };
-    }, [isAlertModalOpen, isReserveModalOpen, showImageModal, isReportReasonModalOpen]); // ⭐ isReportReasonModalOpen 추가
+    }, [isAlertModalOpen, isReserveModalOpen, showImageModal, isReportReasonModalOpen]);
 
-    // 식당 상세 정보를 다시 불러오는 함수 (API 경로 수정)
+    // 식당 상세 정보를 다시 불러오는 함수 (API 경로 수정 및 메뉴 좋아요 정보 포함)
     const fetchRestaurantDetails = async (restaurantId) => {
+        console.log(`[fetchRestaurantDetails] 레스토랑 ID: ${restaurantId} - 상세 정보 로드 시작`);
         if (!restaurantId) {
-            console.warn("restaurantId is undefined, cannot fetch details.");
+            console.warn("[fetchRestaurantDetails] restaurantId is undefined, cannot fetch details.");
             return;
         }
         try {
-            const response = await fetch(`http://localhost:18090/api/Reviews/${restaurantId}`);
+            const response = await fetch(`http://192.168.0.47:18090/api/Reviews/${restaurantId}`);
             if (response.ok) {
                 const data = await response.json();
-                console.log("Fetched restaurant details:", data);
-                setCurrentRestaurantData(data);
+                console.log("[fetchRestaurantDetails] 초기 식당 상세 정보 (리뷰 포함):", data);
+                console.log("[fetchRestaurantDetails] 원본 메뉴 데이터:", data.menus);
+
+                // 메뉴 데이터 처리: 각 메뉴의 좋아요 상태를 백엔드에서 직접 가져옴
+                const menusWithLikeStatus = await Promise.all(
+                    (data.menus || []).map(async (menu) => {
+                        // isLikedByUser 대신 likedByUser로 초기화
+                        let likeStatus = { likeCount: 0, likedByUser: false }; // 기본값 설정
+                        
+                        // 사용자가 로그인했을 경우에만 좋아요 상태를 요청
+                        if (user && user.userId) {
+                            console.log(`[fetchRestaurantDetails] 사용자 로그인됨 (${user.userId}), 메뉴 ${menu.menuId}의 좋아요 상태 요청.`);
+                            try {
+                                const likeResponse = await fetch(`http://192.168.0.47:18090/api/menus/${menu.menuId}/like/status?userId=${user.userId}`);
+                                if (likeResponse.ok) {
+                                    likeStatus = await likeResponse.json();
+                                    console.log(`[fetchRestaurantDetails] 메뉴 ${menu.menuId} 좋아요 상태 API 응답:`, likeStatus);
+                                } else {
+                                    console.warn(`[fetchRestaurantDetails] 메뉴 ${menu.menuId}의 좋아요 상태를 가져오는데 실패:`, likeResponse.status, await likeResponse.text());
+                                }
+                            } catch (error) {
+                                console.error(`[fetchRestaurantDetails] 메뉴 ${menu.menuId}의 좋아요 상태 API 호출 오류:`, error);
+                            }
+                        } else {
+                            console.log(`[fetchRestaurantDetails] 사용자 로그인되지 않음, 메뉴 ${menu.menuId}에 기본 좋아요 상태 적용.`);
+                        }
+                        
+                        const finalMenu = {
+                            ...menu,
+                            likeCount: likeStatus.likeCount,
+                            // isLikedByUser 대신 likedByUser 사용
+                            likedByUser: likeStatus.likedByUser, 
+                        };
+                        console.log(`[fetchRestaurantDetails] 메뉴 ${menu.menuId}의 최종 객체:`, finalMenu);
+                        return finalMenu;
+                    })
+                );
+                console.log("[fetchRestaurantDetails] 모든 메뉴 좋아요 상태 처리 완료:", menusWithLikeStatus);
+                setCurrentRestaurantData({ ...data, menus: menusWithLikeStatus });
+                console.log("[fetchRestaurantDetails] currentRestaurantData 업데이트 완료.");
+
             } else {
                 const errorText = await response.text();
-                console.error('Failed to fetch restaurant details.', response.status, response.statusText, errorText);
+                console.error('[fetchRestaurantDetails] 식당 상세 정보 가져오기 실패.', response.status, response.statusText, errorText);
             }
         } catch (error) {
-            console.error('Error fetching restaurant details:', error);
+            console.error('[fetchRestaurantDetails] 식당 상세 정보 가져오기 중 오류 발생:', error);
         }
     };
 
     // 컴포넌트 마운트 시 (또는 restaurant prop 변경 시) 초기 데이터 로드
     useEffect(() => {
+        console.log("[useEffect] restaurant 또는 user 변경 감지. fetchRestaurantDetails 호출.");
         if (restaurant && restaurant.id) {
             fetchRestaurantDetails(restaurant.id);
         }
-    }, [restaurant]);
+    }, [restaurant, user]); // user가 변경될 때도 좋아요 상태를 새로고침해야 할 수 있으므로 의존성 추가
 
     if (isLoading || !currentRestaurantData || !currentRestaurantData.restaurantName) {
+        console.log("[렌더링] 로딩 중 또는 데이터 없음.");
         return null; // 또는 로딩 스피너 등을 표시
     }
 
@@ -169,7 +212,7 @@ const Restaurant = ({ restaurant, onClose }) => {
         }
 
         try {
-            const response = await fetch(`http://localhost:18090/api/Reviews/${currentRestaurantData.id}/reviews`, {
+            const response = await fetch(`http://192.168.0.47:18090/api/Reviews/${currentRestaurantData.id}/reviews`, {
                 method: 'POST',
                 body: formData
             });
@@ -225,10 +268,10 @@ const Restaurant = ({ restaurant, onClose }) => {
 
     // 이미지 경로를 조합합니다. (prop restaurant.restaurantImagePath 사용)
     const fullImageUrl = currentRestaurantData.restaurantImagePath
-        ? `http://localhost:18090${currentRestaurantData.restaurantImagePath}`
+        ? `http://192.168.0.47:18090${currentRestaurantData.restaurantImagePath}`
         : '/default-restaurant-image.jpg'; // 폴백 이미지
 
-    // ⭐⭐ 기존 handleReportReview 수정: 신고 사유 모달을 띄우도록 ⭐⭐
+    // 기존 handleReportReview 수정: 신고 사유 모달을 띄우도록
     const handleReportReview = (review) => { // review 객체 전체를 받도록 변경
         if (!isLoggedIn) {
             alert('리뷰를 신고하려면 로그인해야 합니다.');
@@ -246,12 +289,12 @@ const Restaurant = ({ restaurant, onClose }) => {
         setIsReportReasonModalOpen(true);
     };
 
-    // ⭐⭐ ReportReasonModal에서 제출 시 호출될 함수 ⭐⭐
+    // ReportReasonModal에서 제출 시 호출될 함수
     const onReportSubmit = async (reviewId, reportReason, reportDetails) => {
         console.log(`신고 제출: reviewId=${reviewId}, reason=${reportReason}, details=${reportDetails}, reporterUserId=${user.userId}, reportedUserId=${reviewToReport?.userId}`);
         
         try {
-            const response = await fetch(`http://localhost:18090/api/Reviews/${reviewId}/report`, {
+            const response = await fetch(`http://192.168.0.47:18090/api/Reviews/${reviewId}/report`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -259,7 +302,7 @@ const Restaurant = ({ restaurant, onClose }) => {
                 },
                 body: JSON.stringify({
                     reporterUserId: user.userId, // 신고자 ID
-                    reportedUserId: reviewToReport?.userId, // ⭐⭐ 이 줄이 추가되었습니다! ⭐⭐
+                    reportedUserId: reviewToReport?.userId, // 신고 대상 리뷰 작성자 ID
                     reportReason: reportReason,  // 선택된 사유
                     reportDetails: reportDetails // 상세 사유
                 })
@@ -277,9 +320,71 @@ const Restaurant = ({ restaurant, onClose }) => {
         } catch (error) {
             console.error('리뷰 신고 중 오류 발생:', error);
             alert('리뷰 신고 중 문제가 발생했습니다. 네트워크 연결을 확인하거나 다시 시도해주세요.');
-        } finally {
-            setIsReportReasonModalOpen(false); // 신고 처리 후 모달 닫기
-            setReviewToReport(null); // 신고할 리뷰 정보 초기화
+        }
+    };
+
+    // 메뉴 좋아요 버튼 클릭 핸들러
+    const handleLikeMenu = async (menuId, currentIsLiked) => { // currentIsLiked는 이제 사용되지 않음
+        if (!isLoggedIn) {
+            alert('메뉴에 좋아요를 누르려면 로그인해야 합니다.');
+            return;
+        }
+        if (!user || !user.userId) {
+            alert('사용자 정보를 가져올 수 없습니다. 다시 로그인해 주세요.');
+            console.error('User ID is missing from UserContext. User object:', user);
+            return;
+        }
+
+        console.log(`[handleLikeMenu] 메뉴 ID: ${menuId}, 현재 좋아요 상태 (클릭 전): ${currentRestaurantData.menus.find(m => m.menuId === menuId)?.likedByUser}`);
+
+        // 백엔드 API 호출 로직 활성화
+        const endpoint = `http://192.168.0.47:18090/api/menus/${menuId}/like`;
+        const method = 'POST'; // 좋아요 토글은 항상 POST로 요청하고, 백엔드에서 상태에 따라 처리
+
+        try {
+            const response = await fetch(endpoint, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    // 'Authorization': `Bearer ${user.token}` // 인증 토큰이 필요하다면 추가
+                },
+                body: JSON.stringify({
+                    menuId: menuId, // DTO에 menuId 포함
+                    userId: user.userId
+                })
+            });
+
+            if (response.ok) {
+                const updatedStatus = await response.json(); // 백엔드에서 반환하는 최신 좋아요 상태 및 수
+                console.log(`[handleLikeMenu] 백엔드 응답 성공. 새 상태:`, updatedStatus);
+
+                // currentRestaurantData 상태를 직접 업데이트하여 UI를 효율적으로 반영
+                setCurrentRestaurantData(prevData => {
+                    console.log("[setCurrentRestaurantData] 이전 메뉴 데이터:", prevData.menus);
+                    const updatedMenus = prevData.menus.map(menu => {
+                        // 여기가 수정된 부분: updatedStatus.menuId를 사용하여 정확한 메뉴를 찾습니다.
+                        if (menu.menuId === updatedStatus.menuId) { 
+                            console.log(`[setCurrentRestaurantData] 메뉴 ${menu.menuId} 업데이트: likedByUser ${menu.likedByUser} -> ${updatedStatus.likedByUser}`);
+                            return {
+                                ...menu,
+                                likeCount: updatedStatus.likeCount,
+                                // isLikedByUser 대신 likedByUser 사용
+                                likedByUser: updatedStatus.likedByUser 
+                            };
+                        }
+                        return menu;
+                    });
+                    console.log("[setCurrentRestaurantData] 업데이트된 메뉴 데이터:", updatedMenus);
+                    return { ...prevData, menus: updatedMenus };
+                });
+            } else {
+                const errorText = await response.text();
+                console.error('메뉴 좋아요 처리 실패:', response.status, errorText);
+                alert(`메뉴 좋아요 처리 실패: ${errorText || '알 수 없는 오류'}`);
+            }
+        } catch (error) {
+            console.error('메뉴 좋아요 처리 중 오류 발생:', error);
+            alert('메뉴 좋아요 처리 중 문제가 발생했습니다. 네트워크 연결을 확인하거나 다시 시도해주세요.');
         }
     };
 
@@ -342,12 +447,30 @@ const Restaurant = ({ restaurant, onClose }) => {
                                 <h2>메뉴</h2>
                                 {currentRestaurantData.menus && currentRestaurantData.menus.length > 0 ? (
                                     <ul className="restaurant-menu-list">
-                                        {currentRestaurantData.menus.map((item) => (
-                                            <li key={item.menuId} className="restaurant-menu-item">
-                                                <span className="restaurant-menu-item-name">{item.menuName}</span>
-                                                <span className="restaurant-menu-item-price">{item.menuPrice?.toLocaleString()}원</span>
-                                            </li>
-                                        ))}
+                                        {currentRestaurantData.menus.map((item) => {
+                                            // isLikedByUser 대신 likedByUser 사용
+                                            console.log(`[렌더링] 메뉴 ID: ${item.menuId}, likedByUser: ${item.likedByUser}, 클래스: restaurant-like-button ${item.likedByUser ? 'liked' : ''}`);
+                                            return (
+                                                <li key={item.menuId} className="restaurant-menu-item">
+                                                    <span className="restaurant-menu-item-name">{item.menuName}</span>
+                                                    <span className="restaurant-menu-item-price">{item.menuPrice?.toLocaleString()}원</span>
+                                                    {/* 좋아요 버튼 및 횟수 추가 */}
+                                                    <div className="restaurant-menu-like-section">
+                                                        <button
+                                                            // isLikedByUser 대신 likedByUser 사용
+                                                            className={`restaurant-like-button ${item.likedByUser ? 'liked' : ''}`}
+                                                            onClick={() => handleLikeMenu(item.menuId, item.likedByUser)}
+                                                            disabled={!isLoggedIn} // 로그인하지 않으면 비활성화
+                                                        >
+                                                            {/* 유니코드 이모지 하트 직접 사용 */}
+                                                            {item.likedByUser ? '❤️' : '🤍'}
+                                                        </button>
+                                                        {/* 좋아요 횟수 (좋아요수) 형식으로 변경 */}
+                                                        <span className="restaurant-like-count">({item.likeCount})</span>
+                                                    </div>
+                                                </li>
+                                            );
+                                        })}
                                     </ul>
                                 ) : (
                                     <p>메뉴 정보가 없습니다.</p>
@@ -376,7 +499,7 @@ const Restaurant = ({ restaurant, onClose }) => {
                                                         <span className="restaurant-review-date">
                                                             {review.createdDate ? new Date(review.createdDate).toLocaleDateString() : '날짜 없음'}
                                                         </span>
-                                                        {/* ⭐⭐ 신고 버튼 클릭 시 handleReportReview에 review 객체 전달 ⭐⭐ */}
+                                                        {/* 신고 버튼 클릭 시 handleReportReview에 review 객체 전달 */}
                                                         {user && user.userId !== review.userId && ( // 본인 리뷰가 아닐 경우에만 표시
                                                             <button
                                                                 className="restaurant-report-button"
@@ -389,10 +512,10 @@ const Restaurant = ({ restaurant, onClose }) => {
                                                     <p className="restaurant-review-text">{review.reviewContent}</p>
                                                     {review.reviewImagePath && (
                                                         <img
-                                                            src={`http://localhost:18090${review.reviewImagePath}`}
+                                                            src={`http://192.168.0.47:18090${review.reviewImagePath}`}
                                                             alt="Review"
                                                             className="restaurant-review-image"
-                                                            onClick={() => handleImageClick(`http://localhost:18090${review.reviewImagePath}`)}
+                                                            onClick={() => handleImageClick(`http://192.168.0.47:18090${review.reviewImagePath}`)}
                                                         />
                                                     )}
                                                 </li>
@@ -487,7 +610,7 @@ const Restaurant = ({ restaurant, onClose }) => {
                     </div>
                 )}
 
-                {/* ⭐⭐ 신고 사유 모달 추가 ⭐⭐ */}
+                {/* 신고 사유 모달 */}
                 <ReportReasonModal
                     isOpen={isReportReasonModalOpen}
                     onClose={() => setIsReportReasonModalOpen(false)}

@@ -1,0 +1,161 @@
+/* src/components/Admin/Modal.css */
+
+/* 모달 오버레이 (배경 어둡게) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* 반투명 검은색 배경 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* 다른 요소들 위에 표시 */
+}
+
+/* 모달 콘텐츠 박스 */
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4); /* 그림자 효과 */
+    width: 90%;
+    max-width: 650px; /* 모달의 최대 너비 */
+    max-height: 90vh; /* 화면 높이의 90%를 넘지 않도록 */
+    overflow-y: auto; /* 내용이 길면 세로 스크롤바 생성 */
+    position: relative;
+    animation: fadeInScale 0.3s ease-out forwards; /* 애니메이션 적용 */
+    box-sizing: border-box; /* 패딩, 보더가 너비에 포함되도록 */
+}
+
+/* 모달 등장 애니메이션 */
+@keyframes fadeInScale {
+    from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 모달 헤더 */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.8em;
+    color: #333;
+    font-weight: 700;
+}
+
+/* 닫기 버튼 */
+.close-button {
+    background: none;
+    border: none;
+    font-size: 2.2em;
+    cursor: pointer;
+    color: #666;
+    line-height: 1; /* 텍스트 줄 간격 */
+    padding: 0;
+    transition: color 0.2s ease;
+}
+
+.close-button:hover {
+    color: #333;
+}
+
+/* 모달 바디 */
+.modal-body p {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: #555;
+}
+
+.modal-body p strong {
+    color: #333;
+    font-weight: 600;
+}
+
+/* 상세 정보 섹션 */
+.detail-section {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px dashed #e9ecef; /* 점선 구분선 */
+}
+
+.detail-section h3 {
+    font-size: 1.4em;
+    color: #444;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+/* select 박스 및 작은 버튼 */
+.detail-section select {
+    padding: 8px 12px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    min-width: 150px;
+    vertical-align: middle; /* 버튼과 정렬 */
+}
+
+/* 모달 내 작은 액션 버튼 */
+.action-button.small-button {
+    padding: 8px 15px;
+    font-size: 0.95em;
+    margin-top: 5px; /* 버튼 위에 여백 */
+    vertical-align: middle; /* select 박스와 정렬 */
+}
+
+/* 삭제 섹션 */
+.delete-section {
+    margin-top: 30px;
+    border-top: 2px solid #ff6347; /* 경고를 위한 빨간색 굵은 구분선 */
+    padding-top: 20px;
+}
+
+/* 전체 너비 버튼 (예: 삭제 버튼) */
+.action-button.full-width-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+    margin-top: 15px;
+}
+
+/* 신고 상세 모달 전용: 원본 콘텐츠 표시 영역 */
+.report-detail-modal .original-content-display {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    padding: 15px;
+    border-radius: 8px;
+    max-height: 200px; /* 내용이 길 경우 스크롤 */
+    overflow-y: auto;
+    font-size: 0.95em;
+    color: #495057;
+    white-space: pre-wrap; /* 원본 텍스트의 줄바꿈 유지 */
+    word-break: break-word; /* 긴 단어가 잘리도록 */
+    line-height: 1.5;
+}
+
+/* 신고 처리 버튼 그룹 */
+.report-detail-modal .process-actions {
+    display: flex;
+    gap: 15px; /* 버튼 간 간격 */
+    justify-content: center;
+    margin-top: 30px;
+    flex-wrap: wrap; /* 작은 화면에서 줄바꿈 */
+}
+
+.report-detail-modal .process-actions .action-button {
+    flex: 1; /* 버튼들이 공간을 균등하게 차지하도록 */
+    max-width: 250px; /* 각 버튼의 최대 너비 */
+    font-size: 1.05em;
+    padding: 12px 20px;
+}

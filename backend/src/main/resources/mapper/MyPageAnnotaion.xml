@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ⭐ 중요: namespace는 DAO 인터페이스의 풀 패키지 경로와 정확히 일치해야 합니다. ⭐ -->
+<mapper namespace="fs.human.yabab.MyPage.dao.MyPageAnnotaionDAO">
+
+    <!-- ⭐ 중요: resultMap의 type은 DTO의 풀 패키지 경로와 정확히 일치해야 합니다. ⭐ -->
+    <resultMap id="myPageFeedResultMap" type="fs.human.yabab.MyPage.vo.MyPageAnnotaion">
+        <id property="feedId" column="FEED_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="feedContent" column="FEED_CONTENT"/>
+        <result property="feedImagePath" column="FEED_IMAGE_PATH"/>
+        <result property="feedImageName" column="FEED_IMAGE_NAME"/>
+        <result property="feedDeletedFlag" column="FEED_DELETED_FLAG"/>
+        <result property="createdDate" column="CREATED_DATE"/>
+        <result property="createdBy" column="CREATED_BY"/>
+        <result property="updatedDate" column="UPDATED_DATE"/>
+        <result property="updatedBy" column="UPDATED_BY"/>
+        <result property="deletedDate" column="DELETED_DATE"/>
+        <result property="deletedBy" column="DELETED_BY"/>
+        <result property="teamId" column="TEAM_ID"/>
+        <result property="feedCategory" column="FEED_CATEGORY"/>
+        <result property="feedTitle" column="FEED_TITLE"/>
+        <result property="feedViews" column="FEED_VIEWS"/>
+        <result property="feedLikes" column="FEED_LIKES"/>
+        <result property="feedCommentCount" column="FEED_COMMENT_COUNT"/>
+    </resultMap>
+
+    <!-- ⭐ 중요: select id는 DAO 인터페이스의 메서드 이름과 정확히 일치해야 합니다. ⭐ -->
+    <select id="selectFeedsByUserId" resultMap="myPageFeedResultMap">
+        SELECT
+        FEED_ID,
+        USER_ID,
+        FEED_CONTENT,
+        FEED_IMAGE_PATH,
+        FEED_IMAGE_NAME,
+        FEED_DELETED_FLAG,
+        CREATED_DATE,
+        CREATED_BY,
+        UPDATED_DATE,
+        UPDATED_BY,
+        DELETED_DATE,
+        DELETED_BY,
+        TEAM_ID,
+        FEED_CATEGORY,
+        FEED_TITLE,
+        FEED_VIEWS,
+        FEED_LIKES,
+        FEED_COMMENT_COUNT
+        FROM
+        TB_FEED
+        WHERE
+        USER_ID = #{userId}
+        AND FEED_DELETED_FLAG = 0
+        ORDER BY
+        CREATED_DATE DESC
+    </select>
+
+    <update id="softDeleteFeed">
+        UPDATE TB_FEED
+        SET
+        FEED_DELETED_FLAG = 1,
+        DELETED_DATE = SYSDATE,
+        DELETED_BY = #{updatedBy},
+        UPDATED_DATE = SYSDATE,
+        UPDATED_BY = #{updatedBy}
+        WHERE
+        FEED_ID = #{feedId}
+        AND FEED_DELETED_FLAG = 0
+    </update>
+
+    <select id="selectFeedById" resultMap="myPageFeedResultMap">
+        SELECT
+        FEED_ID,
+        USER_ID,
+        FEED_CONTENT,
+        FEED_IMAGE_PATH,
+        FEED_IMAGE_NAME,
+        FEED_DELETED_FLAG,
+        CREATED_DATE,
+        CREATED_BY,
+        UPDATED_DATE,
+        UPDATED_BY,
+        DELETED_DATE,
+        DELETED_BY,
+        TEAM_ID,
+        FEED_CATEGORY,
+        FEED_TITLE,
+        FEED_VIEWS,
+        FEED_LIKES,
+        FEED_COMMENT_COUNT
+        FROM
+        TB_FEED
+        WHERE
+        FEED_ID = #{feedId}
+        AND FEED_DELETED_FLAG = 0
+    </select>
+
+</mapper>

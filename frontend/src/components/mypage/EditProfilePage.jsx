@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { UserContext } from '../../context/UserContext';
-import './EditProfilePage.css';
+import './EditProfilePage.css'; // Ensure this CSS file is correctly linked
 
 function EditProfilePage({ isOpen, onClose }) {
     const { user, setUser } = useContext(UserContext);
@@ -12,7 +12,9 @@ function EditProfilePage({ isOpen, onClose }) {
         userFavoriteTeam: '',
         userEmail: '',
         userPhone: '',
-        currentProfileImageUrl: '',
+        userImagePath: '', // Added to store current image path for submission
+        userImageName: '', // Added to store current image name for submission
+        currentProfileImageUrl: '', // For displaying the image in the frontend
     });
 
     const [imageFile, setImageFile] = useState(null);
@@ -24,7 +26,7 @@ function EditProfilePage({ isOpen, onClose }) {
         if (isOpen && user) {
             const initialImageUrl =
                 user.userImagePath && user.userImageName
-                    ? `http://localhost:18090${user.userImagePath}${user.userImageName}`
+                    ? `http://192.168.0.47:18090${user.userImagePath}${user.userImageName}`
                     : '';
 
             setFormData({
@@ -33,6 +35,8 @@ function EditProfilePage({ isOpen, onClose }) {
                 userFavoriteTeam: user.userFavoriteTeam || '',
                 userEmail: user.userEmail || '',
                 userPhone: user.userPhone || '',
+                userImagePath: user.userImagePath || '', // Initialize with existing path
+                userImageName: user.userImageName || '', // Initialize with existing name
                 currentProfileImageUrl: initialImageUrl,
             });
             setImageFile(null);
@@ -44,7 +48,8 @@ function EditProfilePage({ isOpen, onClose }) {
 
     const fetchTeams = async () => {
         try {
-            const response = await axios.get('http://localhost:18090/api/mypage/teams');
+            // ⭐ 이 URL이 백엔드 MyPageEditController의 /api/mypage/teams 와 일치합니다. ⭐
+            const response = await axios.get('http://192.168.0.47:18090/api/mypage/teams');
             setTeams(response.data);
         } catch (err) {
             console.error('팀 목록 로드 실패:', err);
@@ -63,7 +68,12 @@ function EditProfilePage({ isOpen, onClose }) {
         const file = e.target.files[0];
         if (file) {
             setImageFile(file);
-            setFormData(prev => ({ ...prev, currentProfileImageUrl: URL.createObjectURL(file) }));
+            setFormData(prev => ({
+                ...prev,
+                currentProfileImageUrl: URL.createObjectURL(file),
+                userImagePath: '',
+                userImageName: ''
+            }));
         }
     };
 
@@ -80,7 +90,8 @@ function EditProfilePage({ isOpen, onClose }) {
 
         try {
             const token = sessionStorage.getItem('token');
-            await axios.delete(`http://localhost:18090/api/mypage/${user.userId}/profile/image`, {
+            // ⭐ 이 URL이 백엔드 MyPageEditController의 /api/mypage/{userId}/profile/image 와 일치합니다. ⭐
+            await axios.delete(`http://192.168.0.47:18090/api/mypage/${user.userId}/profile/image`, {
                 headers: {
                     ...(token && { Authorization: `Bearer ${token}` })
                 }
@@ -94,7 +105,12 @@ function EditProfilePage({ isOpen, onClose }) {
             setUser(newUserContext);
             sessionStorage.setItem("user", JSON.stringify(newUserContext));
 
-            setFormData(prev => ({ ...prev, currentProfileImageUrl: '' }));
+            setFormData(prev => ({
+                ...prev,
+                currentProfileImageUrl: '',
+                userImagePath: null,
+                userImageName: null
+            }));
             setImageFile(null);
 
             alert('프로필 이미지가 성공적으로 삭제되었습니다.');
@@ -118,34 +134,28 @@ function EditProfilePage({ isOpen, onClose }) {
 
             const formDataToSend = new FormData();
 
-            const userData = {
-                userId: userId, // 반드시 포함!
-                userNickname: formData.userNickname,
-                userName: formData.userName,
-                userEmail: formData.userEmail,
-                userPhone: formData.userPhone,
-                userFavoriteTeam: formData.userFavoriteTeam,
-            };
-
-            // ✅ 수정된 부분: Blob으로 JSON 전송
-            formDataToSend.append(
-                'data',
-                new Blob([JSON.stringify(userData)], { type: 'application/json' })
-            );
+            formDataToSend.append('userNickname', formData.userNickname);
+            formDataToSend.append('userName', formData.userName);
+            formDataToSend.append('userEmail', formData.userEmail);
+            formDataToSend.append('userPhone', formData.userPhone);
+            formDataToSend.append('userFavoriteTeam', formData.userFavoriteTeam);
 
             if (imageFile) {
                 formDataToSend.append('profileImage', imageFile);
+            } else {
+                formDataToSend.append('userImagePath', formData.userImagePath || '');
+                formDataToSend.append('userImageName', formData.userImageName || '');
             }
 
             const token = sessionStorage.getItem('token');
 
+            // ⭐ 이 URL이 백엔드 MyPageEditController의 /api/mypage/profile/{userId} 와 일치해야 합니다. ⭐
             const response = await axios.put(
-                `http://localhost:18090/api/mypage/${userId}/profile`,
+                `http://192.168.0.47:18090/api/mypage/profile/${userId}`, // <-- ⭐ 이 부분을 이렇게 수정해야 합니다! ⭐
                 formDataToSend,
                 {
                     headers: {
                         ...(token && { Authorization: `Bearer ${token}` }),
-                        // ❌ Content-Type 지정하지 마세요. Axios가 자동 설정
                     },
                 }
             );
@@ -185,28 +195,30 @@ function EditProfilePage({ isOpen, onClose }) {
                         <label htmlFor="userProfileImage">프로필 이미지</label>
                         <div className="profile-image-preview">
                             {formData.currentProfileImageUrl ? (
-                                <img src={formData.currentProfileImageUrl} alt="Profile Preview"/>
+                                <img src={formData.currentProfileImageUrl}/>
                             ) : (
                                 <div className="placeholder-image">이미지 없음</div>
                             )}
                         </div>
-                        <input
-                            type="file"
-                            id="userProfileImage"
-                            name="userProfileImage"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                        />
-                        {formData.currentProfileImageUrl && (
-                            <button
-                                type="button"
-                                onClick={handleDeleteImage}
-                                disabled={loading}
-                                className="delete-image-btn"
-                            >
-                                이미지 삭제
-                            </button>
-                        )}
+                        <div className="file-input-controls">
+                            <input
+                                type="file"
+                                id="userProfileImage"
+                                name="userProfileImage"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                            />
+                            {formData.currentProfileImageUrl && (
+                                <button
+                                    type="button"
+                                    onClick={handleDeleteImage}
+                                    disabled={loading}
+                                    className="delete-image-btn"
+                                >
+                                    이미지 삭제
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     <div className="form-group">

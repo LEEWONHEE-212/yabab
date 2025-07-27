@@ -118,7 +118,7 @@ public class RestaurantReviewService {
                 logger.info("이미지 파일 저장 성공: 원본 파일명 '{}' -> 저장된 파일명 '{}'", originalFilename, uniqueFilename);
 
                 // 2.5. ReviewDetailDTO에 저장된 웹 접근 경로 설정 (WebConfig의 /restaurant-images/** 매핑과 일치해야 함)
-                String webAccessiblePath = "/restaurant-images/" + uniqueFilename;
+                String webAccessiblePath = "/uploads/" + uniqueFilename;
                 reviewDetailDTO.setReviewImagePath(webAccessiblePath);
                 reviewDetailDTO.setReviewImageName(originalFilename); // 원본 파일명 DTO에 설정
             } catch (IOException e) {

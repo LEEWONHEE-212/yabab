@@ -6,21 +6,24 @@
 
     <resultMap id="reservationResultMap" type="fs.human.yabab.MyPage.vo.MyPageReservationDTO">
         <id property="reservationId" column="RESV_ID"/>
-        <result property="restaurantName" column="RESTAURANT_NAME"/> <result property="reservationDate" column="RESV_DATE"/>
+        <result property="restaurantName" column="RESTAURANT_NAME"/>
+        <result property="reservationDate" column="RESV_DATE"/>
         <result property="reservationTime" column="RESV_TIME"/>
         <result property="personCount" column="RESV_PERSON_COUNT"/>
         <result property="reservationRequest" column="RESV_REQUEST"/>
-        <result property="status" column="RESV_STATUS_STR"/> <collection property="menuItems" ofType="fs.human.yabab.MyPage.vo.MyPageReservationMenuDTO"
-                                                                         javaType="java.util.ArrayList"
-                                                                         column="RESV_ID" select="getReservationMenusForReservation">
-    </collection>
+        <result property="status" column="RESV_STATUS_STR"/>
+        <collection property="menuItems" ofType="fs.human.yabab.MyPage.vo.MyPageReservationMenuDTO"
+                    javaType="java.util.ArrayList"
+                    column="RESV_ID" select="getReservationMenusForReservation">
+        </collection>
     </resultMap>
 
     <select id="getReservationsByUserId" resultMap="reservationResultMap">
         SELECT
         TR.RESV_ID,
         TR.RESTAURANT_ID,
-        TRE.RESTAURANT_NAME, TR.USER_ID,
+        TRE.RESTAURANT_NAME,
+        TR.USER_ID,
         TR.RESV_DATE,
         TR.RESV_TIME,
         TR.RESV_PERSON_COUNT,
@@ -36,7 +39,8 @@
         FROM
         TB_RESERVATION TR
         INNER JOIN
-        TB_RESTAURANT TRE ON TR.RESTAURANT_ID = TRE.RESTAURANT_ID WHERE
+        TB_RESTAURANT TRE ON TR.RESTAURANT_ID = TRE.RESTAURANT_ID
+        WHERE
         TR.USER_ID = #{userId}
         ORDER BY
         TR.CREATED_DATE DESC, TR.RESV_DATE DESC
@@ -45,31 +49,47 @@
     <select id="getReservationMenusForReservation" resultType="fs.human.yabab.MyPage.vo.MyPageReservationMenuDTO">
         SELECT
         TRM.MENU_ID,
-        TM.MENU_NAME, TRM.QUANTITY,
-        TRM.MENU_PRICE_AT_RESV AS menuPriceAtReservation FROM
+        TM.MENU_NAME,
+        TRM.QUANTITY,
+        TRM.MENU_PRICE_AT_RESV AS menuPriceAtReservation
+        FROM
         TB_RESERVATION_MENU TRM
         INNER JOIN
-        TB_MENU TM ON TRM.MENU_ID = TM.MENU_ID WHERE
+        TB_MENU TM ON TRM.MENU_ID = TM.MENU_ID
+        WHERE
         TRM.RESV_ID = #{resvId}
         ORDER BY
         TRM.RESV_MENU_ID ASC
     </select>
 
+    <!-- 예약 내역 삭제 쿼리 추가 -->
+    <!-- TB_RESERVATION 테이블의 실제 삭제 플래그가 있다면 소프트 삭제로 변경 가능 -->
+    <delete id="deleteReservation">
+        DELETE FROM TB_RESERVATION
+        WHERE RESV_ID = #{reservationId} AND USER_ID = #{userId}
+    </delete>
+
 
     <resultMap id="reviewResultMap" type="fs.human.yabab.MyPage.vo.MyPageReviewDTO">
         <id property="reviewId" column="REVIEW_ID"/>
-        <result property="authorNickname" column="USER_NICKNAME"/> <result property="restaurantName" column="RESTAURANT_NAME"/> <result property="content" column="REVIEW_CONTENT"/>
+        <result property="authorNickname" column="USER_NICKNAME"/>
+        <result property="restaurantName" column="RESTAURANT_NAME"/>
+        <result property="content" column="REVIEW_CONTENT"/>
         <result property="rating" column="REVIEW_RATING"/>
         <result property="reviewImageUrl" column="FULL_IMAGE_URL"/>
         <result property="createdAt" column="CREATED_DATE"/>
-        <result property="likesCount" column="LIKES_COUNT"/>     <result property="commentsCount" column="COMMENTS_COUNT"/> </resultMap>
+        <result property="likesCount" column="LIKES_COUNT"/>
+        <result property="commentsCount" column="COMMENTS_COUNT"/>
+    </resultMap>
 
     <select id="getReviewsByUserId" resultMap="reviewResultMap">
         SELECT
         TR.REVIEW_ID,
         TR.USER_ID,
-        TU.USER_NICKNAME, TR.RESTAURANT_ID,
-        TRE.RESTAURANT_NAME, TR.REVIEW_CONTENT,
+        TU.USER_NICKNAME,
+        TR.RESTAURANT_ID,
+        TRE.RESTAURANT_NAME,
+        TR.REVIEW_CONTENT,
         TR.REVIEW_RATING,
         TR.REVIEW_IMAGE_PATH,
         TR.REVIEW_IMAGE_NAME,
@@ -82,11 +102,25 @@
         FROM
         TB_REVIEW TR
         INNER JOIN
-        TB_USER TU ON TR.USER_ID = TU.USER_ID INNER JOIN
-        TB_RESTAURANT TRE ON TR.RESTAURANT_ID = TRE.RESTAURANT_ID WHERE
+        TB_USER TU ON TR.USER_ID = TU.USER_ID
+        INNER JOIN
+        TB_RESTAURANT TRE ON TR.RESTAURANT_ID = TRE.RESTAURANT_ID
+        WHERE
         TR.USER_ID = #{userId}
-        AND TR.REVIEW_DELETED_FLAG = 0 ORDER BY
+        AND TR.REVIEW_DELETED_FLAG = 0
+        ORDER BY
         TR.CREATED_DATE DESC
     </select>
+
+    <!-- 리뷰 삭제 쿼리 추가 -->
+    <!-- TB_REVIEW 테이블의 REVIEW_DELETED_FLAG 컬럼을 사용하는 소프트 삭제로 구현 -->
+    <update id="deleteReview">
+        UPDATE TB_REVIEW
+        SET
+        REVIEW_DELETED_FLAG = 1,
+        DELETED_DATE = SYSDATE,
+        DELETED_BY = #{userId}
+        WHERE REVIEW_ID = #{reviewId} AND USER_ID = #{userId} AND REVIEW_DELETED_FLAG = 0
+    </update>
 
 </mapper>

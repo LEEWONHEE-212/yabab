@@ -18,6 +18,7 @@ public class StadiumResDTO {
     private Long stadiumId;
     private String stadiumName;
     private Integer restaurantResvStatus;
+    private String stadiumImagePath;
 
     //구장 내부 식당 관련 필드
     private String zoneName; // 구역 이름 (ZONE_ID -> ZONE_NAME 변환 필요)

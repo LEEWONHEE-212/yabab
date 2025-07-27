@@ -1,6 +1,6 @@
 /* Restaurant.css */
 
-/* 모달 백드롭 (배경 어둡게) */
+/* 모달 백드롭 (배고 어둡게) */
 .restaurant-modal-backdrop {
     position: fixed;
     top: 0;
@@ -101,7 +101,7 @@
 
 .restaurant-tab-button.active {
     color: #333;
-    border-bottom: 3px solid #2D2A32; /* 활성 탭 밑줄 색상 변경 */
+    border-bottom: 3px solid #007bff; /* 활성 탭 밑줄 색상 변경 */
 }
 
 .restaurant-tab-button:hover:not(.active) {
@@ -243,9 +243,9 @@
 }
 
 .restaurant-page-button.active {
-    background-color: #2D2A32;
+    background-color: #007bff;
     color: white;
-    border-color: #2D2A32;
+    border-color: #007bff;
 }
 
 .restaurant-page-button:hover:not(.active) {
@@ -337,7 +337,7 @@
 
 /* 예약하기 버튼 (모달 하단에 고정) */
 .restaurant-reserve-button {
-    background-color: #2D2A32;
+    background-color: #007bff;
     color: white;
     border: none;
     padding: 15px 0;
@@ -354,12 +354,12 @@
 }
 
 .restaurant-reserve-button:hover {
-    background-color: #555;
+    background-color: #0056b3;
 }
 
 /* 후기 작성 완료 버튼 (기본 크기 및 스타일) */
 .restaurant-submit-review-button {
-    background-color: #2D2A32;
+    background-color: #007bff;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -375,7 +375,7 @@
 }
 
 .restaurant-submit-review-button:hover {
-    background-color: #555;
+    background-color: #0056b3;
 }
 
 /* 모바일 반응형 (768px 이하) - 통합 및 수정 */
@@ -427,6 +427,12 @@
         font-size: 14px;
         padding: 10px 15px;
         min-width: 80px;
+    }
+
+    .restaurant-menu-item-price,
+    .restaurant-menu-like-section {
+        margin-left: 0; /* 작은 화면에서 왼쪽 마진 제거 */
+        margin-top: 5px; /* 세로 간격 추가 */
     }
 }
 
@@ -494,8 +500,8 @@
 
 .image-modal-content {
     position: relative;
-    max-width: 90%;
-    max-height: 90%;
+    max-width: 50%;
+    max-height: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -503,8 +509,8 @@
 }
 
 .image-modal-content img {
-    max-width: 100%;
-    max-height: 100%;
+    max-width:50%;
+    max-height: 50%;
     object-fit: contain; /* 이미지가 잘리지 않고 전체 보이도록 */
     border-radius: 8px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
@@ -513,7 +519,7 @@
 .image-modal-close-button {
     position: absolute;
     top: 15px;
-    right: 25px;
+    right: 23%;
     font-size: 40px;
     color: white;
     cursor: pointer;
@@ -585,4 +591,58 @@
     color: #888;
     margin-left: auto; /* 신고 버튼 전까지 남은 공간을 채움 */
     flex-shrink: 0;
+}
+
+/* 메뉴 좋아요 섹션 전체를 감싸는 컨테이너 */
+.restaurant-menu-like-section {
+    display: flex; /* 하트 버튼과 횟수를 한 줄에 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    margin-left: 15px; /* 메뉴 가격과의 간격 */
+}
+
+/* 좋아요 버튼 (이모지 하트를 감싸는 버튼) 스타일 */
+.restaurant-like-button {
+    background: none; /* 배경 없음 */
+    border: none; /* 테두리 없음 */
+    font-size: 1em; /* 이모지 하트 크기 조정 */
+    cursor: pointer;
+    transition: filter 0.2s ease, transform 0.1s ease; /* 필터 및 변형 애니메이션 */
+    padding: 0;
+    line-height: 1;
+    /* 기본 상태 (🤍) - 회색조 및 투명도 적용 */
+}
+
+/* 좋아요가 눌렸을 때의 버튼 스타일 (❤️) - 필터 제거하여 원래 색상 표시 */
+.restaurant-like-button.liked {
+    filter: none; /* 모든 필터 제거 */
+}
+
+/* 마우스 오버 시 하트 아이콘 크기 확대 및 필터 제거 (비활성화되지 않은 경우) */
+.restaurant-like-button:hover:not(:disabled) {
+    transform: scale(1.1);
+    filter: none; /* 호버 시 원래 색상과 밝기로 돌아옴 */
+}
+
+/* 비활성화된 버튼 스타일 */
+.restaurant-like-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5; /* 투명도 조절 */
+    filter: grayscale(100%); /* 비활성화 시 항상 회색조 */
+}
+
+/* 좋아요 횟수 텍스트 스타일 */
+.restaurant-like-count {
+    font-size: 1em; /* 폰트 크기 */
+    color: #555; /* 텍스트 색상 */
+    margin-left: 5px; /* 하트 아이콘과의 간격 */
+    font-weight: 500; /* 폰트 두께 */
+}
+
+/* 반응형 디자인을 위한 추가 조정 (필요시) */
+@media (max-width: 768px) {
+    .restaurant-menu-item-price,
+    .restaurant-menu-like-section {
+        margin-left: 0; /* 작은 화면에서 왼쪽 마진 제거 */
+        margin-top: 5px; /* 세로 간격 추가 */
+    }
 }

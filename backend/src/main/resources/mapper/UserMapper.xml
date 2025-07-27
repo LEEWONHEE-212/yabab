@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fs.human.yabab.KakaoAuth.dao.UserMapper">
+
+    <!-- findByUserId 쿼리 수정: USER_PHONE 컬럼 추가 -->
+    <select id="findByUserId" parameterType="string" resultType="fs.human.yabab.KakaoAuth.vo.KakaoAuthUserVO">
+        SELECT
+        USER_ID AS userId,
+        USER_PASSWORD AS userPassword,
+        USER_NAME AS userName,
+        USER_NICKNAME AS userNickname,
+        USER_EMAIL AS userEmail,
+        USER_PHONE AS userPhone,
+        USER_FAVORITE_TEAM AS userFavoriteTeam,
+        USER_IMAGE_PATH AS userImagePath,
+        USER_IMAGE_NAME AS userImageName
+        FROM
+        TB_USER
+        WHERE
+        USER_ID = #{userId}
+    </select>
+
+    <!-- insertUser 쿼리 수정: USER_PHONE 컬럼 추가 -->
+    <insert id="insertUser" parameterType="fs.human.yabab.KakaoAuth.vo.KakaoAuthUserVO">
+        INSERT INTO TB_USER (
+        USER_ID,
+        USER_PASSWORD,
+        USER_NAME,
+        USER_NICKNAME,
+        USER_EMAIL,
+        USER_PHONE,
+        USER_ROLE,
+        USER_JOINDATE,
+        CREATED_DATE,
+        USER_FAVORITE_TEAM,
+        USER_IMAGE_PATH,
+        USER_IMAGE_NAME
+        ) VALUES (
+        #{userId},
+        #{userPassword},
+        #{userName},
+        #{userNickname},
+        #{userEmail},
+        #{userPhone, jdbcType=VARCHAR},
+        1,
+        SYSDATE,
+        SYSDATE,
+        #{userFavoriteTeam},
+        #{userImagePath, jdbcType=VARCHAR},
+        #{userImageName, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <!-- ⭐ 추가된 쿼리: 기존 카카오 사용자 정보 업데이트 ⭐ -->
+    <update id="updateUserForKakaoLogin" parameterType="fs.human.yabab.KakaoAuth.vo.KakaoAuthUserVO">
+        UPDATE TB_USER
+        SET
+        USER_NAME = #{userName},
+        USER_NICKNAME = #{userNickname},
+        USER_EMAIL = #{userEmail},
+        USER_PHONE = #{userPhone, jdbcType=VARCHAR},
+        USER_FAVORITE_TEAM = #{userFavoriteTeam},
+        USER_IMAGE_PATH = #{userImagePath, jdbcType=VARCHAR},
+        USER_IMAGE_NAME = #{userImageName, jdbcType=VARCHAR},
+        UPDATED_DATE = SYSDATE,
+        UPDATED_BY = #{userId}
+        WHERE USER_ID = #{userId}
+    </update>
+
+</mapper>

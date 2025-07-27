@@ -59,7 +59,7 @@ const Reserve = ({ isOpen, onClose, title, restaurantId, availableMenus, restaur
 
                 // ** 백엔드 포트 확인 (예: 8080 또는 18090) **
                 const backendPort = 18090; // 또는 18090, 실제 백엔드 포트에 맞춰주세요.
-                const response = await fetch(`http://localhost:${backendPort}/api/reservations/${restaurantId}`, {
+                const response = await fetch(`http://192.168.0.47:${backendPort}/api/reservations/${restaurantId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

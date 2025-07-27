@@ -26,6 +26,19 @@ public interface MyPageReservationDAO {
      */
     List<MyPageReviewDTO> getReviewsByUserId(@Param("userId") String userId);
 
-    // 필요하다면, 예약 메뉴 상세 정보를 조회하는 별도의 메서드도 추가할 수 있습니다.
-    // List<MyPageReservationMenuDTO> getReservationMenusByResvId(@Param("resvId"
+    /**
+     * 특정 예약 내역을 삭제합니다.
+     * @param reservationId 삭제할 예약 ID
+     * @param userId        예약 소유자 ID (보안을 위해 확인)
+     * @return 삭제된 레코드 수
+     */
+    int deleteReservation(@Param("reservationId") Long reservationId, @Param("userId") String userId);
+
+    /**
+     * 특정 리뷰를 삭제합니다.
+     * @param reviewId 삭제할 리뷰 ID
+     * @param userId   리뷰 작성자 ID (보안을 위해 확인)
+     * @return 삭제된 레코드 수
+     */
+    int deleteReview(@Param("reviewId") Long reviewId, @Param("userId") String userId);
 }

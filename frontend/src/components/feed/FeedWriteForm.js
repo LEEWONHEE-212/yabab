@@ -1,31 +1,17 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import './FeedWriteForm.css'
 import Header from "../common/Header";
-import { UserContext } from "../../context/UserContext";
-import { useNavigate, useParams } from "react-router-dom";
 
-const FeedWriteForm = ({ onSuccess }) => {
-  const { teamId } = useParams();
-  const { user } = useContext(UserContext);
-  const navigate = useNavigate();
-
-  // 로그인 안 한 경우 접근 차단
-  useEffect(() => {
-    if (!user) {
-      alert("로그인 후 글쓰기를 이용할 수 있습니다.");
-      navigate("/auth/login");
-    }
-  }, [user, navigate]);
-
+const FeedWriteForm = ({ teamId, onSuccess }) => {
   const [formData, setFormData] = useState({
     feedTitle: "",
     feedContent: "",
     feedCategory: 0, // 기본은 cheer
     feedImage: null,
+    userId: "testuser01", // 🔄 실제 로그인 연동 시 바꿔야 함
   });
 
-  //  입력값 변경 핸들러
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -33,47 +19,36 @@ const FeedWriteForm = ({ onSuccess }) => {
       [name]: value,
     }));
   };
-  
-  //  이미지 선택 핸들러
-  const handleImageChange = (e) => {
+
+  const handleFileChange = (e) => {
     setFormData((prev) => ({
       ...prev,
       feedImage: e.target.files[0],
     }));
   };
 
-  //  글 등록 처리
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("🔥 전달된 teamId:", teamId, typeof teamId);
-
-    if(!formData.feedTitle.trim() || !formData.feedContent.trim()) {
-      alert("제목과 내용을 모두 입력해주세요.");
-      return;
-    }
-
-    const data = new FormData();
-    data.append("teamId", parseInt(teamId));
-    data.append("userId", user?.userId);
-    data.append("feedTitle", formData.feedTitle);
-    data.append("feedContent", formData.feedContent);
-    data.append("feedCategory", formData.feedCategory);
-    if (formData.feedImage) {
-      data.append("feedImage", formData.feedImage);
-    }
     try {
-      const response = await axios.post(
-        "http://localhost:18090/feed/write", data)
-      if(response.data.success) {
-        alert("글이 성공적으로 등록되었습니다.");
-        if (onSuccess) onSuccess();
-      } else {
-        alert("등록 실패:" + response.data.message);
-      } 
-    } catch (error) {
-      console.error("글 등록 중 오류:", error);
-      alert("서버 오류로 인해 등록에 실패하였습니다.")
+      const data = new FormData();
+      data.append("teamId", teamId);
+      data.append("userId", formData.userId);
+      data.append("feedTitle", formData.feedTitle);
+      data.append("feedContent", formData.feedContent);
+      data.append("feedCategory", formData.feedCategory);
+      if (formData.feedImage) {
+        data.append("feedImage", formData.feedImage);
+      }
+
+      await axios.post("http://localhost:18090/api/feed/write", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      alert("등록 완료!");
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      console.error("등록 실패:", err);
     }
   };
 
@@ -90,7 +65,6 @@ const FeedWriteForm = ({ onSuccess }) => {
             name="feedTitle"
             value={formData.feedTitle}
             onChange={handleChange}
-            placeholder="제목을 입력해주세요"
             required
           />
         </div>
@@ -120,11 +94,7 @@ const FeedWriteForm = ({ onSuccess }) => {
 
         <div className="write-form-group">
           <label>이미지 첨부</label>
-          <input 
-            type="file" 
-            accept="image/*"
-            onChange={handleImageChange} 
-          />
+          <input type="file" onChange={handleFileChange} />
         </div>
 
         <div className="form-actions">

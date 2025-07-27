@@ -1,0 +1,388 @@
+/* PlayerRestaurantPage 전체를 감싸는 새로운 래퍼 */
+.player-restaurant-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* 기존의 player-restaurant-page-container */
+.player-restaurant-page-container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    min-height: calc(100vh - 90px);
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    box-sizing: border-box;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    flex-grow: 1;
+}
+
+/* --- PlayerRestaurantPage 내부 요소들: player-restaurant-page-container 접두사 사용 --- */
+
+.player-restaurant-page-container .page-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 40px;
+    color: #333;
+    text-align: center;
+}
+
+.player-restaurant-page-container .food-category-section {
+    margin-bottom: 40px;
+}
+
+.player-restaurant-page-container .category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+}
+
+.player-restaurant-page-container .category-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.player-restaurant-page-container .restaurant-list-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.player-restaurant-page-container .restaurant-list {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: hidden; /* 스크롤바 숨김 */
+    gap: 20px;
+    justify-content: flex-start;
+    flex-grow: 1;
+    scroll-behavior: smooth;
+}
+
+.player-restaurant-page-container .restaurant-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    min-width: 250px;
+    max-width: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease-in-out;
+    text-align: center;
+    flex-shrink: 0;
+    cursor: pointer; /* 클릭 가능함을 나타냄 */
+}
+
+.player-restaurant-page-container .restaurant-card:hover {
+    transform: translateY(-5px);
+}
+
+.player-restaurant-page-container .restaurant-card-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-bottom: 1px solid #eee;
+}
+
+.player-restaurant-page-container .restaurant-card-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    padding: 15px 10px 5px; /* 하단 패딩 줄임 */
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* 선수 이름 Pick 스타일 */
+.player-restaurant-page-container .restaurant-player-pick {
+    font-size: 14px; /* 폰트 크기 조정 */
+    color: #007bff; /* 파란색으로 변경하여 강조 */
+    margin-top: 0;
+    margin-bottom: 10px; /* 아래 여백 추가 */
+    font-weight: 600; /* 두껍게 */
+}
+
+/* 출처 정보 스타일 */
+.player-restaurant-page-container .restaurant-source {
+    font-size: 13px; /* 폰트 크기 조정 */
+    color: #888;
+    margin-top: 5px;
+    margin-bottom: 10px; /* 아래 여백 추가 */
+    padding: 0 10px;
+}
+
+.player-restaurant-page-container .restaurant-source .source-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.player-restaurant-page-container .restaurant-source .source-link:hover {
+    text-decoration: underline;
+}
+
+.player-restaurant-page-container .nav-button {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    color: #555;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    flex-shrink: 0;
+}
+
+.player-restaurant-page-container .nav-button:hover {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.player-restaurant-page-container .nav-button:disabled {
+    background-color: #f9f9f9;
+    color: #aaa;
+    cursor: not-allowed;
+    border-color: #eee;
+}
+
+.player-restaurant-page-container .more-button {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.player-restaurant-page-container .more-button:hover {
+    background-color: #007bff;
+}
+
+/* --- 모달 관련 스타일: player-restaurant-page-container 접두사 사용으로 구체성 높이기 --- */
+/* 이 모달이 PlayerRestaurantPage 내에서만 사용되는 경우 적합 */
+
+.player-restaurant-page-container .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.player-restaurant-page-container .modal-content {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    max-width: 1120px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: fadeInScale 0.3s ease-out forwards;
+    box-sizing: border-box;
+}
+
+.player-restaurant-page-container .modal-title {
+    font-size: 26px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 25px;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.player-restaurant-page-container .modal-close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 30px;
+    color: #666;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    text-align: right;
+    display: inline-block;
+    width: auto;
+}
+
+.player-restaurant-page-container .modal-close-button:hover {
+    color: #333;
+}
+
+.player-restaurant-page-container .modal-restaurant-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+}
+
+.player-restaurant-page-container .modal-card {
+    flex: 1 1 calc((100% - 60px) / 4);
+    max-width: calc((100% - 60px) / 4);
+    min-width: 220px;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease-in-out;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* 새로 추가된 추천 이유 모달 스타일 */
+.player-restaurant-page-container .reason-modal-content {
+    max-width: 500px; /* 추천 이유 모달은 더 작게 */
+    text-align: center;
+    padding: 25px; /* 내부 패딩 조정 */
+}
+
+.player-restaurant-page-container .reason-modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.player-restaurant-page-container .reason-modal-image {
+    width: 200px; /* 이미지 크기 조정 */
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    margin-bottom: 10px;
+}
+
+.player-restaurant-page-container .reason-modal-player-pick {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #007bff; /* 포인트 색상 */
+    margin: 0;
+}
+
+.player-restaurant-page-container .reason-modal-text {
+    font-size: 1em;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    text-align: justify; /* 텍스트 정렬 */
+    padding: 0 10px;
+}
+
+.player-restaurant-page-container .reason-modal-source {
+    font-size: 0.9em;
+    color: #888;
+    margin-top: 10px;
+}
+
+/* 반응형 유지 */
+@media (max-width: 1024px) {
+    .player-restaurant-page-container .modal-card {
+        flex-basis: calc((100% - 40px) / 3);
+    }
+}
+@media (max-width: 768px) {
+    .player-restaurant-page-container .restaurant-list {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* 모바일에서 카드 크기 조정 */
+        gap: 15px;
+    }
+    .player-restaurant-page-container .nav-button {
+        width: 30px;
+        height: 30px;
+        font-size: 1.2em;
+    }
+    .player-restaurant-page-container .restaurant-list-wrapper {
+        padding: 0 30px;
+    }
+    .player-restaurant-page-container .modal-content {
+        padding: 20px;
+    }
+    .player-restaurant-page-container .modal-restaurant-list {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    .player-restaurant-page-container .reason-modal-content {
+        max-width: 90%;
+    }
+    .player-restaurant-page-container .reason-modal-image {
+        width: 150px;
+        height: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .player-restaurant-page-container .restaurant-list {
+        display: flex; /* 그리드 대신 flex로 변경하여 가로 스크롤 가능하게 */
+        overflow-x: auto; /* 가로 스크롤 허용 */
+        scroll-snap-type: x mandatory; /* 스크롤 스냅 효과 */
+        -webkit-overflow-scrolling: touch; /* iOS 스크롤 부드럽게 */
+        padding-bottom: 10px; /* 스크롤바 때문에 하단 여백 추가 */
+    }
+    .player-restaurant-page-container .restaurant-card {
+        flex-basis: 80%; /* 한 화면에 카드 하나만 크게 보이도록 */
+        min-width: 80%;
+        scroll-snap-align: start; /* 스크롤 스냅 정렬 */
+    }
+    .player-restaurant-page-container .nav-button {
+        display: none; /* 작은 화면에서 네비 버튼 숨김 (스크롤 유도) */
+    }
+    .player-restaurant-page-container .restaurant-list-wrapper {
+        padding: 0; /* 버튼 숨김에 따라 패딩 제거 */
+    }
+    .player-restaurant-page-container .page-title {
+        font-size: 2em;
+    }
+    .player-restaurant-page-container .category-title {
+        font-size: 1.5em;
+    }
+    .player-restaurant-page-container .more-button {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+}
+
+/* 애니메이션 */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

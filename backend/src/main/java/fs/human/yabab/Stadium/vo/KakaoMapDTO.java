@@ -20,4 +20,7 @@ public class KakaoMapDTO extends BaseVO{
     private Double stadiumMapX; // STADIUM_MAPX (경도)
     private Double stadiumMapY; // STADIUM_MAPY (위도)
     private String stadiumContent; // STADIUM_CONTENT (CLOB)
+
+    // !!! 새로 추가된 필드: 경기장 이미지 경로 !!!
+    private String stadiumImagePath; // STADIUM_IMAGE_PATH
 }

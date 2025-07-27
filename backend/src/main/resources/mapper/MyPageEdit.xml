@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
 <mapper namespace="fs.human.yabab.MyPage.dao.MyPageEditDAO">
 
     <select id="selectAllTeams" resultType="fs.human.yabab.MyPage.vo.MyPageTeamDTO">
@@ -13,32 +12,45 @@
         TEAM_NAME ASC
     </select>
 
-    <update id="updateUserInfo" parameterType="fs.human.yabab.MyPage.vo.MyPageEditDTO">
+    <select id="selectUserProfileById" parameterType="string" resultType="fs.human.yabab.MyPage.vo.MyPageEditDTO">
+        SELECT
+        USER_ID AS userId,
+        USER_NICKNAME AS userNickname,
+        USER_NAME AS userName,
+        USER_EMAIL AS userEmail,
+        USER_PHONE AS userPhone,
+        USER_FAVORITE_TEAM AS userFavoriteTeam,
+        USER_IMAGE_PATH AS userImagePath,
+        USER_IMAGE_NAME AS userImageName
+        FROM
+        TB_USER
+        WHERE
+        USER_ID = #{userId}
+    </select>
+
+    <update id="updateUserProfile" parameterType="fs.human.yabab.MyPage.vo.MyPageEditDTO">
         UPDATE TB_USER
         SET
         USER_NICKNAME = #{userNickname},
         USER_NAME = #{userName},
         USER_EMAIL = #{userEmail},
         USER_PHONE = #{userPhone},
-        USER_FAVORITE_TEAM = #{userFavoriteTeam}
+        USER_FAVORITE_TEAM = #{userFavoriteTeam},
+        USER_IMAGE_PATH = #{userImagePath, jdbcType=VARCHAR},  <!-- ⭐ jdbcType=VARCHAR 추가 ⭐ -->
+        USER_IMAGE_NAME = #{userImageName, jdbcType=VARCHAR},  <!-- ⭐ jdbcType=VARCHAR 추가 ⭐ -->
+        UPDATED_DATE = SYSDATE,
+        UPDATED_BY = #{userId}
         WHERE
         USER_ID = #{userId}
     </update>
 
-    <update id="updateUserProfileImage">
-        UPDATE TB_USER
-        SET
-        USER_IMAGE_PATH = #{userImagePath},
-        USER_IMAGE_NAME = #{userImageName}
-        WHERE
-        USER_ID = #{userId}
-    </update>
-
-    <update id="deleteUserProfileImage">
+    <update id="deleteUserProfileImage" parameterType="string">
         UPDATE TB_USER
         SET
         USER_IMAGE_PATH = NULL,
-        USER_IMAGE_NAME = NULL
+        USER_IMAGE_NAME = NULL,
+        UPDATED_DATE = SYSDATE,
+        UPDATED_BY = #{userId}
         WHERE
         USER_ID = #{userId}
     </update>

@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface FeedDAO {
@@ -56,4 +57,13 @@ public interface FeedDAO {
     //  Top 5 피드 조회
     List<FeedVO> selectTop5FeedsByTeamAndCategory(@Param("teamId") int teamId, @Param("category") int category);
 
+    //  댓글 수정/삭제
+    int updateCommentContent(CommentVO commentVO);
+    int softDeleteComment(int commentId);
+
+    //  피드 삭제
+    int markFeedAsDeleted(@Param("feedId") int feedId);
+
+    //  피드 수정
+    int updateFeed(@Param("params") Map<String, String> params, @Param("imagePath") String imagePath);
 }

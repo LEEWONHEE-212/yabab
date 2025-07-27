@@ -1,22 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import './FeedWriteForm.css'
 import Header from "../common/Header";
+import { UserContext } from "../../context/UserContext";
 
-const FeedWriteForm = ({ teamId, onSuccess }) => {
+const FeedWriteForm = ({ onSuccess }) => {
+  const navigate = useNavigate();
+  const { teamId } = useParams();
+  const { user } = useContext(UserContext);
+  
   const [formData, setFormData] = useState({
     feedTitle: "",
     feedContent: "",
     feedCategory: 0, // 기본은 cheer
     feedImage: null,
-    userId: "testuser01", // 🔄 실제 로그인 연동 시 바꿔야 함
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "feedCategory" ? parseInt(value) : value,
     }));
   };
 
@@ -32,20 +37,22 @@ const FeedWriteForm = ({ teamId, onSuccess }) => {
 
     try {
       const data = new FormData();
-      data.append("teamId", teamId);
-      data.append("userId", formData.userId);
+      data.append("teamId", parseInt(teamId));
+      data.append("userId", user.userId);
       data.append("feedTitle", formData.feedTitle);
       data.append("feedContent", formData.feedContent);
       data.append("feedCategory", formData.feedCategory);
       if (formData.feedImage) {
         data.append("feedImage", formData.feedImage);
+        data.append("feedImageName", formData.feedImage.name);
       }
 
-      await axios.post("http://localhost:18090/api/feed/write", data, {
+      await axios.post("http://localhost:18090/feed/write", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       alert("등록 완료!");
+      navigate(`/feed/${teamId}/list`);
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error("등록 실패:", err);
@@ -101,7 +108,7 @@ const FeedWriteForm = ({ teamId, onSuccess }) => {
           <button type="button" onClick={() => window.history.back()}>
             취소
           </button>
-          <button type="submit" onClick={() => window.history.back()}>등록</button>
+          <button type="submit">등록</button>
         </div>
       </form>
     </div>

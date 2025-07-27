@@ -44,7 +44,7 @@ const UserManagement = () => {
                 sortDirection: 'desc' // 기본 정렬 방향
             };
 
-            const response = await axios.get('http://192.168.0.47:18090/api/admin/users', {
+            const response = await axios.get('http://localhost:18090/api/admin/users', {
                 params: params,
                 // 백엔드 API가 인증 토큰을 요구할 경우 아래 주석을 해제하고 토큰을 추가하세요.
                 // headers: { Authorization: `Bearer ${adminUser.token}` }

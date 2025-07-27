@@ -8,6 +8,7 @@ import { teamList } from "../../api/teamList";
 import Top5Section from "./Top5Section";
 
 const FeedBoardSection = () => {
+    const [forceReload, setForceReload] = useState(false)
     const { teamId } = useParams();
     const [sortOption, setSortOption] = useState("latest"); // latest or likes
     const [category, setCategory] = useState(0);             // 0: cheer, 1: food
@@ -26,7 +27,7 @@ const FeedBoardSection = () => {
         <div>
             <Header />
 
-            <Top5Section teamId={parseInt(teamId)} />
+            <Top5Section teamId={parseInt(teamId)} forceReload={forceReload} setForceReload={setForceReload}/>
 
             <section className="team-board-section">
                 <h2>📣 {teamName} 피드</h2>
@@ -38,7 +39,7 @@ const FeedBoardSection = () => {
                     <button className={category === 1 ? "active" : ""} onClick={() => setCategory(1)}>먹거리</button>
                 </div>
 
-                <FeedTable teamId={parseInt(teamId, 10)} sortOption={sortOption} category={category} />
+                <FeedTable teamId={parseInt(teamId, 10)} sortOption={sortOption} category={category} setForceReload={setForceReload} />
 
                 {/* 로그인한 사용자만 글쓰기 버튼 노출 */}
                 {user && (

@@ -5,12 +5,12 @@ import Top5FeedList from "./Top5FeedList";
 
 import "./Top5Section.css";
 
-const Top5Section = ({ teamId }) => {
+const Top5Section = ({ teamId, forceReload }) => {
   return (
     <div className="top5-section-wrapper">
       <div className="top5-card-area">
-        <Top5FeedList teamId={teamId} category={0} />
-        <Top5FeedList teamId={teamId} category={1} /> {/* 먹거리 */}
+        <Top5FeedList teamId={teamId} category={0} forceReload={forceReload} />
+        <Top5FeedList teamId={teamId} category={1} forceReload={forceReload}/> {/* 먹거리 */}
         {/* <Top5RestaurantList teamId={teamId} /> */}
       </div>
     </div>

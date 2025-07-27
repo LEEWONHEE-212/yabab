@@ -1,0 +1,19 @@
+.feed-edit-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.feed-edit-title,
+.feed-edit-content {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.feed-edit-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

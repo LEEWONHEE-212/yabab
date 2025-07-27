@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/Reviews")
-@CrossOrigin(origins = "http://192.168.0.47:3000")
+@CrossOrigin(origins = "http://localhost:3000")
 public class ReviewReportController {
 
     private static final Logger logger = LoggerFactory.getLogger(ReviewReportController.class); // 로거 인스턴스 생성

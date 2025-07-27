@@ -26,7 +26,7 @@ const PlayerRestaurantPick = () => {
     useEffect(() => {
         const fetchPlayerPicks = async () => {
             try {
-                const response = await axios.get('http://192.168.0.47:18090/api/player-picks');
+                const response = await axios.get('http://localhost:18090/api/player-picks');
                 
                 if (response.data === null || !Array.isArray(response.data)) {
                     setFoodCategories([]);
@@ -202,7 +202,7 @@ const PlayerRestaurantPick = () => {
                                             visibleRestaurants.map(restaurant => {
                                                 // 백엔드에서 받은 경로를 새 웹 경로에 맞게 변환
                                                 const correctedImagePath = restaurant.image.replace('/restaurant-images/', '/uploads/');
-                                                const imageUrl = `http://192.168.0.47:18090${correctedImagePath}`;
+                                                const imageUrl = `http://localhost:18090${correctedImagePath}`;
                                                 console.log(`Restaurant: ${restaurant.name}, Original Path: ${restaurant.image}, Corrected Path: ${imageUrl}`);
                                                 return (
                                                     <div 
@@ -270,7 +270,7 @@ const PlayerRestaurantPick = () => {
                                                 onClick={() => handleRestaurantCardClick(restaurant, allRestaurantsModalCategory)} 
                                             >
                                                 <img
-                                                    src={`http://192.168.0.47:18090${restaurant.image.replace('/restaurant-images/', '/uploads/')}`} // <-- 이 부분을 수정했습니다!
+                                                    src={`http://localhost:18090${restaurant.image.replace('/restaurant-images/', '/uploads/')}`} // <-- 이 부분을 수정했습니다!
                                                     alt={restaurant.name}
                                                     className="restaurant-card-image"
                                                     onError={(e) => { e.target.onerror = null; e.target.src = '/assets/default-food.png'; }}
@@ -307,7 +307,7 @@ const PlayerRestaurantPick = () => {
                                 <h2 className="modal-title">{selectedRestaurantForReason.name}</h2>
                                 <div className="reason-modal-body">
                                     <img
-                                        src={`http://192.168.0.47:18090${selectedRestaurantForReason.image.replace('/restaurant-images/', '/uploads/')}`} // <-- 이 부분을 수정했습니다!
+                                        src={`http://localhost:18090${selectedRestaurantForReason.image.replace('/restaurant-images/', '/uploads/')}`} // <-- 이 부분을 수정했습니다!
                                         alt={selectedRestaurantForReason.name}
                                         className="reason-modal-image"
                                         onError={(e) => { e.target.onerror = null; e.target.src = '/assets/default-food.png'; }}

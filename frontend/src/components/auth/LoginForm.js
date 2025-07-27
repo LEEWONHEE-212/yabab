@@ -30,7 +30,7 @@ const LoginForm = () => {
 
         try{
             const response = await axios.post(
-                'http://192.168.0.47:18090/auth/login',
+                'http://localhost:18090/auth/login',
                 formData,
                 {withCredentials: true}     // 쿠키 기반 세션 전달 허용
             );
@@ -61,7 +61,7 @@ const LoginForm = () => {
         // 여기에 카카오 개발자 사이트에서 발급받은 REST API 키를 입력하세요!
         // 예: 'abcdef1234567890abcdef1234567890'
         const KAKAO_REST_API_KEY = '71e3fd28e090838ed02c4b80571eb735';
-        const KAKAO_REDIRECT_URI = 'http://192.168.0.47:3000/oauth/kakao';
+        const KAKAO_REDIRECT_URI = 'http://localhost:3000/oauth/kakao';
         
         const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}`;
         

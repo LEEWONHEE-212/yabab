@@ -16,7 +16,7 @@ const UserDetailModal = ({ user, onClose, getUserRoleText, fetchUsers }) => {
             setLoading(true);
             setError(null);
             try {
-                const response = await axios.get(`http://192.168.0.47:18090/api/admin/users/${user.userId}`, {
+                const response = await axios.get(`http://localhost:18090/api/admin/users/${user.userId}`, {
                     // headers: { Authorization: `Bearer ${adminUser.token}` }
                 });
                 setDetailedUser(response.data);
@@ -37,7 +37,7 @@ const UserDetailModal = ({ user, onClose, getUserRoleText, fetchUsers }) => {
 
         if (window.confirm(`정말로 회원 ID: ${detailedUser.userId} (${detailedUser.userNickname}) 님을 영구적으로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다!`)) {
             try {
-                await axios.delete(`http://192.168.0.47:18090/api/admin/users/${detailedUser.userId}`, {
+                await axios.delete(`http://localhost:18090/api/admin/users/${detailedUser.userId}`, {
                     // headers: { Authorization: `Bearer ${adminUser.token}` }
                 });
                 alert("회원이 성공적으로 삭제되었습니다.");

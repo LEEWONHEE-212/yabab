@@ -102,7 +102,7 @@ const Owner = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get(`http://192.168.0.47:18090/api/owner/restaurants/${ownerId}`);
+            const response = await axios.get(`http://localhost:18090/api/owner/restaurants/${ownerId}`);
             setCurrentRestaurant(response.data);
         } catch (err) {
             console.error("fetchRestaurantInfo failed:", err);
@@ -136,7 +136,7 @@ const Owner = () => {
         setError(null);
         try {
             console.log(`Fetching menu items for restaurant ID: ${restaurantId}`);
-            const response = await axios.get(`http://192.168.0.47:18090/api/owner/restaurants/${restaurantId}/menus`);
+            const response = await axios.get(`http://localhost:18090/api/owner/restaurants/${restaurantId}/menus`);
             setMenuItems(response.data);
             console.log("Successfully fetched menu items:", response.data);
         } catch (err) {
@@ -156,7 +156,7 @@ const Owner = () => {
         setError(null);
         try {
             console.log(`Fetching reservations for restaurant ID: ${restaurantId}`);
-            const response = await axios.get(`http://192.168.0.47:18090/owner/reservations/list/${restaurantId}`);
+            const response = await axios.get(`http://localhost:18090/owner/reservations/list/${restaurantId}`);
             const reservationsWithDetails = response.data.map(reservation => {
                 const totalQuantity = reservation.reservationMenus.reduce((sum, item) => sum + item.quantity, 0);
                 const totalPrice = reservation.reservationMenus.reduce((sum, item) => sum + (item.menuPrice * item.quantity), 0);
@@ -213,7 +213,7 @@ const Owner = () => {
             return;
         }
         try {
-            await axios.put(`http://192.168.0.47:18090/owner/reservations/status`, {
+            await axios.put(`http://localhost:18090/owner/reservations/status`, {
                 resvId: resvId,
                 newStatus: newStatus,
                 updaterId: user?.userId
@@ -272,7 +272,7 @@ const Owner = () => {
                     createdBy: user.userId
                 };
                 const response = await axios.post(
-                    `http://192.168.0.47:18090/api/owner/restaurants/${currentRestaurant.id}/menus`,
+                    `http://localhost:18090/api/owner/restaurants/${currentRestaurant.id}/menus`,
                     menuData
                 );
                 setMenuItems(prev => [...prev, response.data]);
@@ -318,7 +318,7 @@ const Owner = () => {
                     menuName: newMenuItem.name.trim(),
                     menuPrice: price,
                 };
-                await axios.put(`http://192.168.0.47:18090/api/owner/restaurants/menus/${editingMenuId}`, updatedMenu, {
+                await axios.put(`http://localhost:18090/api/owner/restaurants/menus/${editingMenuId}`, updatedMenu, {
                     params: {
                         ownerId: user.userId
                     }
@@ -354,7 +354,7 @@ const Owner = () => {
 
         if (window.confirm('정말로 이 메뉴를 삭제하시겠습니까?')) {
             try {
-                await axios.delete(`http://192.168.0.47:18090/api/owner/restaurants/menus/${menuId}`);
+                await axios.delete(`http://localhost:18090/api/owner/restaurants/menus/${menuId}`);
                 setMenuItems(prevMenuItems => prevMenuItems.filter(item => item.menuId !== menuId));
                 alert('메뉴가 성공적으로 삭제되었습니다.');
             } catch (error) {
@@ -445,7 +445,7 @@ const Owner = () => {
                                 <div className="owner-restaurant-image-placeholder"> {/* 클래스명 변경 */}
                                     {currentRestaurant.restaurantImagePath ? (
                                         <img
-                                            src={`http://192.168.0.47:18090${currentRestaurant.restaurantImagePath}`}
+                                            src={`http://localhost:18090${currentRestaurant.restaurantImagePath}`}
                                             alt={`${currentRestaurant.restaurantName} 이미지`}
                                             className="owner-restaurant-current-image" 
                                         />

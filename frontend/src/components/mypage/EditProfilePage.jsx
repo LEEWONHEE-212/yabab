@@ -26,7 +26,7 @@ function EditProfilePage({ isOpen, onClose }) {
         if (isOpen && user) {
             const initialImageUrl =
                 user.userImagePath && user.userImageName
-                    ? `http://192.168.0.47:18090${user.userImagePath}${user.userImageName}`
+                    ? `http://localhost:18090${user.userImagePath}${user.userImageName}`
                     : '';
 
             setFormData({
@@ -49,7 +49,7 @@ function EditProfilePage({ isOpen, onClose }) {
     const fetchTeams = async () => {
         try {
             // ⭐ 이 URL이 백엔드 MyPageEditController의 /api/mypage/teams 와 일치합니다. ⭐
-            const response = await axios.get('http://192.168.0.47:18090/api/mypage/teams');
+            const response = await axios.get('http://localhost:18090/api/mypage/teams');
             setTeams(response.data);
         } catch (err) {
             console.error('팀 목록 로드 실패:', err);
@@ -91,7 +91,7 @@ function EditProfilePage({ isOpen, onClose }) {
         try {
             const token = sessionStorage.getItem('token');
             // ⭐ 이 URL이 백엔드 MyPageEditController의 /api/mypage/{userId}/profile/image 와 일치합니다. ⭐
-            await axios.delete(`http://192.168.0.47:18090/api/mypage/${user.userId}/profile/image`, {
+            await axios.delete(`http://localhost:18090/api/mypage/${user.userId}/profile/image`, {
                 headers: {
                     ...(token && { Authorization: `Bearer ${token}` })
                 }
@@ -151,7 +151,7 @@ function EditProfilePage({ isOpen, onClose }) {
 
             // ⭐ 이 URL이 백엔드 MyPageEditController의 /api/mypage/profile/{userId} 와 일치해야 합니다. ⭐
             const response = await axios.put(
-                `http://192.168.0.47:18090/api/mypage/profile/${userId}`, // <-- ⭐ 이 부분을 이렇게 수정해야 합니다! ⭐
+                `http://localhost:18090/api/mypage/profile/${userId}`, // <-- ⭐ 이 부분을 이렇게 수정해야 합니다! ⭐
                 formDataToSend,
                 {
                     headers: {

@@ -36,7 +36,7 @@ function UserInfoDisplay({ user, onEditClick }) {
     const profileImageSrc = imageLoadFailed
         ? 'https://via.placeholder.com/150?text=Load+Error'
         : (user.userImagePath && user.userImageName
-            ? `http://192.168.0.47:18090${user.userImagePath}${user.userImageName}`
+            ? `http://localhost:18090${user.userImagePath}${user.userImageName}`
             : 'https://via.placeholder.com/150?text=No+Image');
 
     return (
@@ -275,15 +275,15 @@ function MyPage() {
     const fetchMyPageData = useCallback(async (userId) => {
         setLoadingData(true);
         try {
-            const reservationsResponse = await axios.get(`http://192.168.0.47:18090/api/mypage/${userId}/reservations`);
+            const reservationsResponse = await axios.get(`http://localhost:18090/api/mypage/${userId}/reservations`);
             setReservationsData(reservationsResponse.data);
             console.log("예약 내역:", reservationsResponse.data);
 
-            const reviewsResponse = await axios.get(`http://192.168.0.47:18090/api/mypage/${userId}/reviews`);
+            const reviewsResponse = await axios.get(`http://localhost:18090/api/mypage/${userId}/reviews`);
             setReviewsData(reviewsResponse.data);
             console.log("작성 리뷰:", reviewsResponse.data);
 
-            const postsResponse = await axios.get(`http://192.168.0.47:18090/api/mypage/${userId}/posts`);
+            const postsResponse = await axios.get(`http://localhost:18090/api/mypage/${userId}/posts`);
             setPostsData(postsResponse.data);
             console.log("작성 게시글:", postsResponse.data);
 
@@ -307,7 +307,7 @@ function MyPage() {
 
         if (window.confirm("정말로 이 예약을 취소하시겠습니까?")) {
             try {
-                const response = await axios.delete(`http://192.168.0.47:18090/api/mypage/${user.userId}/reservations/${reservationId}`);
+                const response = await axios.delete(`http://localhost:18090/api/mypage/${user.userId}/reservations/${reservationId}`);
                 console.log(response.data);
                 alert(response.data);
                 fetchMyPageData(user.userId); // 삭제 후 목록 새로고침
@@ -328,7 +328,7 @@ function MyPage() {
 
         if (window.confirm("정말로 이 리뷰를 삭제하시겠습니까?")) {
             try {
-                const response = await axios.delete(`http://192.168.0.47:18090/api/mypage/${user.userId}/reviews/${reviewId}`);
+                const response = await axios.delete(`http://localhost:18090/api/mypage/${user.userId}/reviews/${reviewId}`);
                 console.log(response.data);
                 alert(response.data);
                 fetchMyPageData(user.userId); // 삭제 후 목록 새로고침
@@ -349,7 +349,7 @@ function MyPage() {
 
         if (window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
             try {
-                const response = await axios.delete(`http://192.168.0.47:18090/api/mypage/${user.userId}/posts/${feedId}`);
+                const response = await axios.delete(`http://localhost:18090/api/mypage/${user.userId}/posts/${feedId}`);
                 console.log(response.data);
                 alert(response.data);
                 fetchMyPageData(user.userId);

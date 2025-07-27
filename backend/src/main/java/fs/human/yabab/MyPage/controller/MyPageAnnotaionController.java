@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/mypage") // Assuming this is part of mypage functionality
-@CrossOrigin(origins = "http://192.168.0.47:3000", allowCredentials = "true") // CORS 설정 추가
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true") // CORS 설정 추가
 public class MyPageAnnotaionController{ // Controller 이름은 기존 MyPageFeedController 유지
 
     private final MyPageAnnotaionService myPageAnnotaionService; // Service 타입 및 필드명 변경

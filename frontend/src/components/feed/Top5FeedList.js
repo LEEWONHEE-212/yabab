@@ -3,7 +3,7 @@ import axios from "axios";
 import "./Top5FeedList.css";
 import { Link } from "react-router-dom";
 
-const Top5FeedList = ({ teamId, category }) => {
+const Top5FeedList = ({ teamId, category, forceReload }) => {
   const [topPosts, setTopPosts] = useState([]);
 
   //  카테고리별 제목 설정
@@ -23,7 +23,7 @@ const Top5FeedList = ({ teamId, category }) => {
     };
 
     fetchTop5();
-  }, [teamId, category]);
+  }, [teamId, category, forceReload]);
 
   return (
     <div className="top5-feed-box">

@@ -47,12 +47,12 @@ const ReportDetailModal = ({ report, reportType, onClose, getReportStatusText, f
                     // 리뷰 신고의 경우, report 객체는 TB_REPORT의 reportId를 가짐 (Long 타입)
                     reportIdToFetch = report.reportId;
                     // 가정된 리뷰 신고 상세 API 엔드포인트
-                    endpoint = `http://192.168.0.47:18090/api/admin/reports/reviews/${reportIdToFetch}`;
+                    endpoint = `http://localhost:18090/api/admin/reports/reviews/${reportIdToFetch}`;
                 } else if (reportType === 'post') {
                     // 게시물 신고의 경우, report 객체는 TB_FEED_REPORT의 feedReportId를 가짐 (Long 타입)
                     reportIdToFetch = report.feedReportId;
                     // 실제 게시물 신고 상세 API 엔드포인트
-                    endpoint = `http://192.168.0.47:18090/api/admin/feed-reports/${reportIdToFetch}`;
+                    endpoint = `http://localhost:18090/api/admin/feed-reports/${reportIdToFetch}`;
                 } else {
                     throw new Error("알 수 없는 신고 타입입니다.");
                 }
@@ -105,11 +105,11 @@ const ReportDetailModal = ({ report, reportType, onClose, getReportStatusText, f
                 if (reportType === 'review') {
                     reportIdToProcess = detailedReport.reportId;
                     // 가정된 리뷰 신고 처리 API 엔드포인트
-                    endpoint = `http://192.168.0.47:18090/api/admin/reports/reviews/${reportIdToProcess}/status`;
+                    endpoint = `http://localhost:18090/api/admin/reports/reviews/${reportIdToProcess}/status`;
                 } else if (reportType === 'post') {
                     reportIdToProcess = detailedReport.feedReportId;
                     // 실제 게시물 신고 처리 API 엔드포인트
-                    endpoint = `http://192.168.0.47:18090/api/admin/feed-reports/${reportIdToProcess}/status`;
+                    endpoint = `http://localhost:18090/api/admin/feed-reports/${reportIdToProcess}/status`;
                 } else {
                     throw new Error("알 수 없는 신고 타입입니다.");
                 }

@@ -32,12 +32,12 @@ const FeedTable = ({ teamId, sortOption, category }) => {
     return (
         <table className="feed-table">
             <colgroup>
-                <col style={{ width: "10%" }} />  {/* 카테고리 */}
-                <col style={{ width: "55%" }} />  {/* 제목 */}
-                <col style={{ width: "10%" }} />  {/* 작성자 */}
-                <col style={{ width: "20%" }} />  {/* 작성일 */}
-                <col style={{ width: "5%" }} />   {/* 조회 */}
-                <col style={{ width: "5%" }} />   {/* 추천 */}
+                <col style={{ width: "10%" }} /> 
+                <col style={{ width: "55%" }} />  
+                <col style={{ width: "10%" }} />  
+                <col style={{ width: "20%" }} /> 
+                <col style={{ width: "5%" }} />   
+                <col style={{ width: "5%" }} />   
             </colgroup>
             
             <thead>

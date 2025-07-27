@@ -41,7 +41,7 @@ const PostReportModal = ({ report, onClose, getReportStatusText, fetchReports, a
             setError(null);
             try {
                 const reportIdToFetch = report.feedReportId; // 게시물 신고는 feedReportId 사용
-                const endpoint = `http://192.168.0.47:18090/api/admin/feed-reports/${reportIdToFetch}`; // 게시물 신고 상세 API
+                const endpoint = `http://localhost:18090/api/admin/feed-reports/${reportIdToFetch}`; // 게시물 신고 상세 API
 
                 if (reportIdToFetch === null || reportIdToFetch === undefined) {
                     throw new Error("게시물 신고 ID가 유효하지 않습니다.");
@@ -84,7 +84,7 @@ const PostReportModal = ({ report, onClose, getReportStatusText, fetchReports, a
         if (window.confirm(confirmMessage)) {
             try {
                 const reportIdToProcess = detailedReport.feedReportId;
-                const endpoint = `http://192.168.0.47:18090/api/admin/feed-reports/${reportIdToProcess}/status`; // 게시물 신고 처리 API
+                const endpoint = `http://localhost:18090/api/admin/feed-reports/${reportIdToProcess}/status`; // 게시물 신고 처리 API
 
                 // 백엔드에서 'status'와 'processedBy'를 기대하므로, 이에 맞춰 payload 구성
                 await axios.put(endpoint, {

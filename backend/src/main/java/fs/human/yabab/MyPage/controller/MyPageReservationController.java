@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/mypage")
-@CrossOrigin(origins = "http://192.168.0.47:3000")
+@CrossOrigin(origins = "http://localhost:3000")
 public class MyPageReservationController {
     private final MyPageReservationService myPageReservationService;
 

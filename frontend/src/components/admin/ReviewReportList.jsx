@@ -73,7 +73,7 @@ const ReviewReportList = () => {
                 ...(filterStatus !== '' && { status: parseInt(filterStatus) }),
             };
 
-            const response = await axios.get('http://192.168.0.47:18090/api/admin/reports/reviews', {
+            const response = await axios.get('http://localhost:18090/api/admin/reports/reviews', {
                 params: params,
                 // 백엔드에서 토큰 검증이 필요하다면 아래 주석을 해제하고 adminUser.token을 사용하세요.
                 // headers: { Authorization: `Bearer ${adminUser?.token}` }

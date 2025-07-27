@@ -3,7 +3,7 @@ import axios from 'axios';
 export const fetchGameSchedules = async (date) => {
     try {
         const response = await axios.get(
-            'http://192.168.0.47:18090/api/games',
+            'http://localhost:18090/api/games',
             {params: { date }}
         );
         return response.data;

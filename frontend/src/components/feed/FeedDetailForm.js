@@ -6,7 +6,7 @@ import "./FeedDetailForm.css";
 import Header from "../common/Header";
 import CommentCard from "./CommentCard";
 
-const FeedDetailForm = () => {
+const FeedDetailForm = ({setForceReload}) => {
     const { feedId, teamId } = useParams();
     const navigate = useNavigate();
     const { user } = useContext(UserContext);   //  로그인한 사용자 정보
@@ -15,9 +15,6 @@ const FeedDetailForm = () => {
     const [liked, setLiked] = useState(false);  //  현재 사용자가 이 게시글에 추천했는지 여부
     const [comments, setComments] = useState([]);   //  댓글 목록
     const [newComment, setNewComment] = useState("");   //  댓글 작성(추가)
-
-    const [prevFeed, setPrevFeed] = useState(null);
-    const [nextFeed, setNextFeed] = useState(null);
 
     useEffect(() => {
         const fetchFeed = async() => {
@@ -61,6 +58,49 @@ const FeedDetailForm = () => {
         }
     };
 
+    const handleDelete = async () => {
+        const confirmed = window.confirm("정말 이 게시글을 삭제하시겠습니까?");
+        if (!confirmed) return;
+
+        try {
+            const response = await axios.delete(`http://localhost:18090/feed/delete/${feedId}`);
+            if (response.data.success) {
+                alert("게시글이 삭제되었습니다.");
+
+                if(setForceReload) {
+                    setForceReload(prev => !prev);
+                }
+
+                navigate(`/feed/${teamId}`); // 목록으로 이동
+            } else {
+                alert("삭제 실패");
+            }
+        } catch (err) {
+            console.error("게시글 삭제 실패", err);
+            alert("서버 오류로 삭제 실패");
+        }
+    };
+
+    const handleEdit = () => {
+        console.log("수정 페이지로 이동:", `/feed/edit/${feedId}`);
+        navigate(`/feed/edit/${feedId}`);
+    };
+
+    const refreshFeedAndComments = async () => {
+        try{
+            const response = await axios.get(
+                `http://localhost:18090/feed/detail/${feedId}`,
+                { params: { userId: user?.userId || null }}
+            );
+            if(response.data.success) {
+                setFeed(response.data.feed);
+                setComments(response.data.comments);
+            }
+        } catch (err) {
+            console.error("게시글 + 댓글 갱신 실패", err)
+        }
+    };
+
     const handleCommentSubmit = async () => {
         if(!user || newComment.trim() === "") return;
         const response = await axios.post(
@@ -74,6 +114,7 @@ const FeedDetailForm = () => {
 
         if(response.data.success) {
             setNewComment("");
+            await refreshFeedAndComments();
             const updated = await axios.get(
                 `http://localhost:18090/feed/detail/${feedId}`,
                 { params: {userId: user.userId} }
@@ -117,6 +158,51 @@ const FeedDetailForm = () => {
 
     if(!feed) return <div>로딩 중...</div>;
 
+    const handleEditComment = async (commentId, newContent) => {
+        try {
+            const response = await axios.put(
+                `http://localhost:18090/feed/comment/update`,
+                {
+                    commentId,
+                    commentContent: newContent
+                }
+            );
+
+            if(response.data.success) {
+                setComments((prevComments) =>
+                    prevComments.map((c) => 
+                        c.commentId === commentId ? { ...c, commentContent: newContent } : c
+                    )
+                );
+            }
+        } catch (err) {
+            console.error("댓글 수정 실패", err);
+        }
+    };
+
+    const handleDeleteComment = async (commentId) => {
+        try {
+            const response = await axios.delete(`http://localhost:18090/feed/comment/delete/${commentId}`);
+            if(response.data.success) {
+                await refreshFeedAndComments(); //  feed와 comments 모두 최신 상태로 반영
+            }
+        } catch (err) {
+            console.error("댓글 삭제 실패", err);
+        }
+    };
+
+    const refreshComments = async () => {
+        try {
+            const updated = await axios.get(
+                `http://localhost:18090/feed/detail/${feedId}`,
+                { params: { userId: user?.userId || null } }
+            );
+            setComments(updated.data.comments);
+        } catch (err) {
+            console.error("댓글 목록 갱신 실패", err);
+        }
+    };
+
     return (
         <div>
             <Header />
@@ -143,8 +229,15 @@ const FeedDetailForm = () => {
                     >
                         👍 추천
                     </button>
-                    <button>📢 신고</button>
+                    {/* <button>📢 신고</button> */}
                 </div>
+
+                {user && user.userId === feed.userId && (
+                    <div className="post-edit-delete-buttons">
+                        <button className="edit-btn" onClick={handleEdit}>✏️ 수정</button>
+                        <button className="delete-btn" onClick={handleDelete}>🗑️ 삭제</button>
+                    </div>
+                )}
 
                 {/* <div className="post-ad-area">
                     <img src="#" alt="광고1" />
@@ -184,6 +277,8 @@ const FeedDetailForm = () => {
                                 comment={c}
                                 user={user}
                                 onLike={handleCommentLike}
+                                onEdit={handleEditComment}
+                                onDelete={handleDeleteComment}
                             />
                             </li>
                         ))}

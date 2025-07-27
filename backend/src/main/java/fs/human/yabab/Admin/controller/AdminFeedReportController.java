@@ -14,7 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/feed-reports")
-@CrossOrigin(origins = "http://192.168.0.47:3000", allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class AdminFeedReportController {
 
     private final AdminFeedReportService adminFeedReportService;

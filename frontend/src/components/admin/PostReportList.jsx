@@ -82,7 +82,7 @@ const PostReportList = () => {
                 params.status = filterStatus;
             }
 
-            const response = await axios.get('http://192.168.0.47:18090/api/admin/feed-reports', {
+            const response = await axios.get('http://localhost:18090/api/admin/feed-reports', {
                 params: params,
                 // headers: { Authorization: `Bearer ${adminUser?.token}` }
             });

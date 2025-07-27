@@ -33,10 +33,10 @@ const KakaoRedirectHandler = () => {
             console.log("카카오로부터 받은 인가 코드:", code);
 
             try {
-                // 백엔드 URL 확인: http://192.168.0.47:18090/api/oauth/kakao/callback
+                // 백엔드 URL 확인: http://localhost:18090/api/oauth/kakao/callback
                 // 이 URL은 카카오 개발자 콘솔에 등록된 Redirect URI와 일치해야 합니다.
                 // 백엔드의 kakao.redirect.uri 값도 이 URL과 일치해야 합니다.
-                const backendCallbackUrl = 'http://192.168.0.47:18090/api/oauth/kakao/callback';
+                const backendCallbackUrl = 'http://localhost:18090/api/oauth/kakao/callback';
                 console.log("백엔드 콜백 URL:", backendCallbackUrl); // 디버깅용
 
                 const response = await axios.post(

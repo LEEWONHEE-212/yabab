@@ -5,8 +5,12 @@ import fs.human.yabab.feed.vo.CommentVO;
 import fs.human.yabab.feed.vo.FeedVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class FeedService {
@@ -21,6 +25,7 @@ public class FeedService {
 
     //  피드 등록
     public void registerFeed(FeedVO feedVO) {
+        feedVO.setFeedDeletedFlag(0);
         feedDAO.insertFeed(feedVO);
     }
 
@@ -89,5 +94,42 @@ public class FeedService {
     // Top 5 피드 조회
     public List<FeedVO> getTop5FeedsByTeamAndCategory(int teamId, int category) {
         return feedDAO.selectTop5FeedsByTeamAndCategory(teamId, category);
+    }
+
+    //  댓글 수정
+    public boolean updateCommentContent(CommentVO commentVO) {
+        return feedDAO.updateCommentContent(commentVO) > 0;
+    }
+
+    //  댓글 삭제
+    public boolean softDeleteComment(int commentId) {
+        return feedDAO.softDeleteComment(commentId) > 0;
+    }
+
+    //  피드 삭제
+    public boolean deleteFeedById(int feedId) {
+        return feedDAO.markFeedAsDeleted(feedId) > 0;
+    }
+
+    //  피드 수정
+    public boolean updateFeed(Map<String, String> params, MultipartFile imageFile) {
+        try {
+            String imagePath = null;
+
+            // 1. 이미지가 새로 업로드된 경우 저장 처리
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String uploadDir = "/upload/feed"; // 실제 서버 경로로 변경 필요
+                String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+                File dest = new File(uploadDir, fileName);
+                imageFile.transferTo(dest);
+                imagePath = "/upload/feed/" + fileName; // DB에 저장할 경로
+            }
+
+            // 2. DAO 호출
+            return feedDAO.updateFeed(params, imagePath) > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

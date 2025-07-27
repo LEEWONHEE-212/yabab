@@ -76,7 +76,7 @@ const EditRestaurant = ({ restaurantData, onSave, onCancel }) => {
 
     const [imageFile, setImageFile] = useState(null);
     // 이미지 미리보기 URL은 항상 18000 포트를 사용합니다.
-    const [imagePreviewUrl, setImagePreviewUrl] = useState(initialRestaurantImagePath ? `http://192.168.0.47:18090${initialRestaurantImagePath}` : null);
+    const [imagePreviewUrl, setImagePreviewUrl] = useState(initialRestaurantImagePath ? `http://localhost:18090${initialRestaurantImagePath}` : null);
 
     // --- 구장 선택 옵션 상태 (백엔드에서 가져올 데이터) ---
     const [stadiumOptions, setStadiumOptions] = useState([]);
@@ -119,7 +119,7 @@ const EditRestaurant = ({ restaurantData, onSave, onCancel }) => {
         const fetchStadiums = async () => {
             try {
                 // 백엔드 API 주소를 18000으로 변경
-                const response = await axios.get('http://192.168.0.47:18090/api/owner/restaurants/stadiums/names-ids');
+                const response = await axios.get('http://localhost:18090/api/owner/restaurants/stadiums/names-ids');
                 setStadiumOptions(response.data);
             } catch (error) {
                 console.error("구장 목록을 가져오는 데 실패했습니다:", error.response ? error.response.data : error.message);
@@ -137,7 +137,7 @@ const EditRestaurant = ({ restaurantData, onSave, onCancel }) => {
             setStadiumName(restaurantData.stadiumName || '');
             setRestaurantResvStatus(restaurantData.restaurantResvStatus === 0 ? '예약 가능' : '예약 불가능');
             setRestaurantInsideFlag(restaurantData.restaurantInsideFlag); // 이 값은 계속 받아옵니다.
-            setImagePreviewUrl(restaurantData.restaurantImagePath ? `http://192.168.0.47:18090${restaurantData.restaurantImagePath}` : null);
+            setImagePreviewUrl(restaurantData.restaurantImagePath ? `http://localhost:18090${restaurantData.restaurantImagePath}` : null);
 
             // Set all fields from restaurantData, regardless of restaurantInsideFlag
             setRestaurantPhone(restaurantData.restaurantPhone || '');
@@ -168,7 +168,7 @@ const EditRestaurant = ({ restaurantData, onSave, onCancel }) => {
             setImageFile(null);
             // If user cancels file selection, revert to previous image if available
             if (restaurantData && restaurantData.restaurantImagePath) {
-                setImagePreviewUrl(`http://192.168.0.47:18090${restaurantData.restaurantImagePath}`);
+                setImagePreviewUrl(`http://localhost:18090${restaurantData.restaurantImagePath}`);
             } else {
                 setImagePreviewUrl(null);
             }
@@ -265,7 +265,7 @@ const EditRestaurant = ({ restaurantData, onSave, onCancel }) => {
 
             try {
                 // 백엔드 API 주소를 18000으로 변경
-                const response = await axios.put(`http://192.168.0.47:18090/api/owner/restaurants/${id}`, formData, {
+                const response = await axios.put(`http://localhost:18090/api/owner/restaurants/${id}`, formData, {
                     // headers: {
                     //     'Content-Type': 'multipart/form-data', // axios가 FormData를 감지하여 자동으로 설정하므로 보통 필요 없음
                     // },

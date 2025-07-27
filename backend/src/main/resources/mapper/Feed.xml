@@ -150,7 +150,8 @@
         FROM TB_FEED_COMMENT c
         JOIN TB_USER u ON c.USER_ID = u.USER_ID
         WHERE c.FEED_ID = #{feedId}
-        ORDER BY c.CREATED_DATE ASC
+        AND c.COMMENT_DELETED_FLAG = 0
+        ORDER BY c.CREATED_DATE DESC
     </select>
 
     <!-- 댓글 추가 -->
@@ -229,6 +230,7 @@
             f.FEED_TITLE,
             f.FEED_LIKES
         FROM TB_FEED f
+        JOIN TB_USER u ON f.USER_ID = u.USER_ID
         WHERE f.TEAM_ID = #{teamId}
           AND f.FEED_CATEGORY = #{category}
           AND f.FEED_DELETED_FLAG = 0
@@ -250,5 +252,41 @@
 <!--        ORDER BY reservationCount DESC-->
 <!--            FETCH FIRST 5 ROWS ONLY-->
 <!--    </select>-->
+
+    <!-- 댓글 내용 수정 -->
+    <update id="updateCommentContent">
+        UPDATE TB_FEED_COMMENT
+        SET COMMENT_CONTENT = #{commentContent}
+        WHERE COMMENT_ID = #{commentId}
+          AND COMMENT_DELETED_FLAG = 0
+    </update>
+
+    <!-- 댓글 삭제 -->
+    <update id="softDeleteComment">
+        UPDATE TB_FEED_COMMENT
+        SET COMMENT_DELETED_FLAG = 1
+        WHERE COMMENT_ID = #{commentId}
+    </update>
+
+    <!-- 피드 삭제 -->
+    <update id="markFeedAsDeleted">
+        UPDATE TB_FEED
+        SET FEED_DELETED_FLAG = 1
+        WHERE FEED_ID = #{feedId}
+    </update>
+
+    <!-- 피드 수정 -->
+    <update id="updateFeed">
+        UPDATE TB_FEED
+        SET
+        FEED_TITLE = #{params.feedTitle},
+        FEED_CONTENT = #{params.feedContent},
+        <if test="imagePath != null">
+            FEED_IMAGE_PATH = #{imagePath},
+        </if>
+        UPDATED_DATE = SYSDATE
+        WHERE FEED_ID = #{params.feedId}
+        AND USER_ID = #{params.userId}
+    </update>
 
 </mapper>

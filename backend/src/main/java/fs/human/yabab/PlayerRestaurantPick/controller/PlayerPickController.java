@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController // 이 클래스가 RESTful 웹 서비스의 컨트롤러임을 나타냅니다.
 @RequestMapping("/api/player-picks") // 이 컨트롤러의 모든 핸들러 메서드에 대한 기본 URL 경로를 설정합니다.
-@CrossOrigin(origins = "http://192.168.0.47:3000") // CORS(Cross-Origin Resource Sharing) 설정: 프론트엔드 도메인에서 이 API에 접근할 수 있도록 허용합니다.
+@CrossOrigin(origins = "http://localhost:3000") // CORS(Cross-Origin Resource Sharing) 설정: 프론트엔드 도메인에서 이 API에 접근할 수 있도록 허용합니다.
 public class PlayerPickController {
 
     private final PlayerPickService playerPickService; // Service 계층을 주입받습니다.

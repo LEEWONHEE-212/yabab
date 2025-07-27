@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/mypage") // ⭐ 이 부분이 중요: /api/mypage로 설정되어야 합니다. ⭐
-@CrossOrigin(origins = "http://192.168.0.47:3000", allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class MyPageEditController {
     private final MyPageEditService myPageEditService;
 

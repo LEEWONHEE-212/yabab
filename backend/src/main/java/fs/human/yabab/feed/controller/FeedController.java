@@ -74,6 +74,9 @@ public class FeedController {
             }
         }
 
+        //  feedDeletedFlag 명시적으로 0으로 설정
+        feedVO.setFeedDeletedFlag(0);
+
         //  DB에 글 등록
         feedService.registerFeed(feedVO);
         responseMap.put("success", true);
@@ -175,5 +178,44 @@ public class FeedController {
         responseMap.put("success", true);
         responseMap.put("feedList", top5List);
         return ResponseEntity.ok(responseMap);
+    }
+
+    // 댓글 수정
+    @PutMapping("/comment/update")
+    public ResponseEntity<Map<String, Object>> updateComment(@RequestBody CommentVO commentVO) {
+        Map<String, Object> responseMap = new HashMap<>();
+        boolean updated = feedService.updateCommentContent(commentVO);
+
+        responseMap.put("success", updated);
+        return ResponseEntity.ok(responseMap);
+    }
+
+    // 댓글 삭제
+    @DeleteMapping("/comment/delete/{commentId}")
+    public ResponseEntity<Map<String, Object>> deleteComment(@PathVariable int commentId) {
+        Map<String, Object> responseMap = new HashMap<>();
+        boolean deleted = feedService.softDeleteComment(commentId);
+
+        responseMap.put("success", deleted);
+        return ResponseEntity.ok(responseMap);
+    }
+
+    //  피드 삭제
+    @DeleteMapping("/delete/{feedId}")
+    public Map<String, Object> deleteFeed(@PathVariable int feedId) {
+        Map<String, Object> responseMap = new HashMap<>();
+        boolean deleted = feedService.deleteFeedById(feedId);
+        responseMap.put("success", deleted);
+        return responseMap;
+    }
+
+    //  피드 수정
+    @PutMapping("/update")
+    public Map<String, Object> updateFeed(@RequestParam Map<String, String> params,
+                                          @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+        Map<String, Object> responseMap = new HashMap<>();
+        boolean result = feedService.updateFeed(params, imageFile);
+        responseMap.put("success", result);
+        return responseMap;
     }
 }

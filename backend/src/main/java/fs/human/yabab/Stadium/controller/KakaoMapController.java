@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/kakaomap") // 이 컨트롤러의 기본 URL 경로 설정
-@CrossOrigin(origins = "http://192.168.0.47:3000")
+@CrossOrigin(origins = "http://localhost:3000")
 public class KakaoMapController {
     @Autowired // KakaoMapService 주입
     private KakaoMapService kakaoMapService;

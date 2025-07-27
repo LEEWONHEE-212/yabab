@@ -21,10 +21,8 @@ import java.util.UUID;
 public class MyPageEditService {
     private final MyPageEditDAO myPageEditDAO;
 
-<<<<<<< HEAD
-=======
+
     // 이미지 업로드 물리적 경로 (application.properties 또는 application.yml에 설정)
->>>>>>> 1097d5c4d69149895d4d575f8bd0b4eeb32448b9
     @Value("${upload.uploads.image.dir}")
     private String baseUploadDir;
 

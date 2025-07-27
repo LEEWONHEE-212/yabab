@@ -55,7 +55,7 @@
 }
 
 .check-button, .edit-button {
-    background-color: #cccccc; /* 밝은 회색 */
+    background-color: #007bff;
     color: #333333; /* 진한 회색 텍스트 */
     border: 1px solid #b3b3b3; /* 테두리도 회색 */
     padding: 10px 15px;
@@ -69,7 +69,7 @@
 }
 
 .check-button {
-    background-color: #b3b3b3; /* 진한 회색 */
+    background-color: #0056b3;
     color: white;
 }
 
@@ -84,12 +84,12 @@
 }
 
 .edit-button {
-    background-color: #5a6268; /* 주황색 계열 */
+    background-color: #007bff;
     color: white;
 }
 
 .edit-button:hover {
-    background-color: #5a6268;
+    background-color: #0056b3;
 }
 
 .message {
@@ -183,7 +183,7 @@
 .submit-button {
     width: 100%;
     padding: 15px 20px;
-    background-color: #808080; /* 중간 회색 */
+    background-color: #007bff;
     color: white; /* 흰색 텍스트 */
     border: none;
     border-radius: 8px;
@@ -197,7 +197,7 @@
 }
 
 .submit-button:hover {
-    background-color: #666666;
+    background-color: #0056b3;
     transform: translateY(-2px);
 }
 

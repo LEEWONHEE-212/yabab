@@ -41,6 +41,8 @@ public class KakaoUserInfoResponse {
         @JsonProperty("is_email_verified")
         private Boolean isEmailVerified;
         private String email;
+        @JsonProperty("phone_number") // ⭐ 카카오 응답의 phone_number 필드 ⭐
+        private String phoneNumber;
 
         @Data
         @NoArgsConstructor

@@ -48,6 +48,7 @@ function EditProfilePage({ isOpen, onClose }) {
 
     const fetchTeams = async () => {
         try {
+            // ⭐ 이 URL이 백엔드 MyPageEditController의 /api/mypage/teams 와 일치합니다. ⭐
             const response = await axios.get('http://192.168.0.47:18090/api/mypage/teams');
             setTeams(response.data);
         } catch (err) {
@@ -67,12 +68,11 @@ function EditProfilePage({ isOpen, onClose }) {
         const file = e.target.files[0];
         if (file) {
             setImageFile(file);
-            // When a new file is selected, clear existing path/name in formData
             setFormData(prev => ({
                 ...prev,
                 currentProfileImageUrl: URL.createObjectURL(file),
-                userImagePath: '', // Clear existing path as a new image is selected
-                userImageName: ''  // Clear existing name as a new image is selected
+                userImagePath: '',
+                userImageName: ''
             }));
         }
     };
@@ -90,6 +90,7 @@ function EditProfilePage({ isOpen, onClose }) {
 
         try {
             const token = sessionStorage.getItem('token');
+            // ⭐ 이 URL이 백엔드 MyPageEditController의 /api/mypage/{userId}/profile/image 와 일치합니다. ⭐
             await axios.delete(`http://192.168.0.47:18090/api/mypage/${user.userId}/profile/image`, {
                 headers: {
                     ...(token && { Authorization: `Bearer ${token}` })
@@ -107,10 +108,10 @@ function EditProfilePage({ isOpen, onClose }) {
             setFormData(prev => ({
                 ...prev,
                 currentProfileImageUrl: '',
-                userImagePath: null, // Update formData to reflect deletion
-                userImageName: null  // Update formData to reflect deletion
+                userImagePath: null,
+                userImageName: null
             }));
-            setImageFile(null); // Clear any selected new file
+            setImageFile(null);
 
             alert('프로필 이미지가 성공적으로 삭제되었습니다.');
         } catch (err) {
@@ -133,32 +134,28 @@ function EditProfilePage({ isOpen, onClose }) {
 
             const formDataToSend = new FormData();
 
-            // Append each field individually as @RequestPart is used on backend
             formDataToSend.append('userNickname', formData.userNickname);
             formDataToSend.append('userName', formData.userName);
             formDataToSend.append('userEmail', formData.userEmail);
             formDataToSend.append('userPhone', formData.userPhone);
             formDataToSend.append('userFavoriteTeam', formData.userFavoriteTeam);
 
-            // If a new image file is selected, append it
             if (imageFile) {
                 formDataToSend.append('profileImage', imageFile);
             } else {
-                // If no new image file is selected, send the existing image path/name
-                // This is crucial for the backend logic to maintain the image if not changed
                 formDataToSend.append('userImagePath', formData.userImagePath || '');
                 formDataToSend.append('userImageName', formData.userImageName || '');
             }
 
             const token = sessionStorage.getItem('token');
 
+            // ⭐ 이 URL이 백엔드 MyPageEditController의 /api/mypage/profile/{userId} 와 일치해야 합니다. ⭐
             const response = await axios.put(
-                `http://192.168.0.47:18090/api/user/profile/${userId}`, // Corrected endpoint based on MyPageEditController
+                `http://192.168.0.47:18090/api/mypage/profile/${userId}`, // <-- ⭐ 이 부분을 이렇게 수정해야 합니다! ⭐
                 formDataToSend,
                 {
                     headers: {
                         ...(token && { Authorization: `Bearer ${token}` }),
-                        // Do NOT set Content-Type for FormData, Axios handles it automatically
                     },
                 }
             );
@@ -179,7 +176,7 @@ function EditProfilePage({ isOpen, onClose }) {
             sessionStorage.setItem("user", JSON.stringify(newUserContext));
 
             alert('정보가 성공적으로 수정되었습니다!');
-            onClose(); // Close modal and trigger data refresh in MyPage
+            onClose();
         } catch (err) {
             console.error('프로필 업데이트 실패:', err);
             const errorMessage = err.response?.data?.message || '정보 수정에 실패했습니다. 다시 시도해주세요.';
@@ -198,12 +195,12 @@ function EditProfilePage({ isOpen, onClose }) {
                         <label htmlFor="userProfileImage">프로필 이미지</label>
                         <div className="profile-image-preview">
                             {formData.currentProfileImageUrl ? (
-                                <img src={formData.currentProfileImageUrl} alt="Profile Preview"/>
+                                <img src={formData.currentProfileImageUrl}/>
                             ) : (
                                 <div className="placeholder-image">이미지 없음</div>
                             )}
                         </div>
-                        <div className="file-input-controls"> {/* New wrapper for file input and delete button */}
+                        <div className="file-input-controls">
                             <input
                                 type="file"
                                 id="userProfileImage"

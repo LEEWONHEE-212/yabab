@@ -23,6 +23,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class KakaoAuthService {
@@ -126,14 +128,16 @@ public class KakaoAuthService {
 
             String userName = "카카오 사용자";
             String userEmail = null;
-            String kakaoProfileImageUrl = null; // 카카오에서 받은 원본 프로필 이미지 URL
+            String userPhone = null;
+            String kakaoProfileImageUrl = null;
 
             if (userInfo.getKakaoAccount() != null) {
                 if (userInfo.getKakaoAccount().getProfile() != null) {
                     userName = userInfo.getKakaoAccount().getProfile().getNickname();
-                    kakaoProfileImageUrl = userInfo.getKakaoAccount().getProfile().getProfileImageUrl(); // 카카오 프로필 이미지 URL 가져오기
+                    kakaoProfileImageUrl = userInfo.getKakaoAccount().getProfile().getProfileImageUrl();
                 }
                 userEmail = userInfo.getKakaoAccount().getEmail();
+                userPhone = userInfo.getKakaoAccount().getPhoneNumber();
             }
 
             if (userEmail == null || userEmail.isEmpty()) {
@@ -143,15 +147,25 @@ public class KakaoAuthService {
             }
 
             newUser.setUserName(userName);
-            newUser.setUserNickname(userName); // 닉네임은 이름과 동일하게 설정 (필요시 변경)
+            newUser.setUserNickname(userName);
 
-            // --- 카카오 프로필 이미지 다운로드 및 저장 로직 (핵심 변경 부분) ---
+            if (userPhone != null && !userPhone.isEmpty()) {
+                String normalizedPhone = userPhone.replaceAll("[^0-9]", "");
+                if (normalizedPhone.startsWith("82") && normalizedPhone.length() > 2) {
+                    normalizedPhone = "0" + normalizedPhone.substring(2);
+                }
+                newUser.setUserPhone(normalizedPhone);
+                System.out.println("DEBUG: Normalized phone number: " + normalizedPhone);
+            } else {
+                newUser.setUserPhone(null);
+            }
+
             if (kakaoProfileImageUrl != null && !kakaoProfileImageUrl.isEmpty()) {
                 try {
-                    String fileName = UUID.randomUUID().toString() + ".jpg"; // 고유한 파일명 생성
+                    String fileName = UUID.randomUUID().toString() + ".jpg";
                     Path uploadPath = Paths.get(uploadProfileImageDir);
                     if (!Files.exists(uploadPath)) {
-                        Files.createDirectories(uploadPath); // 디렉토리가 없으면 생성
+                        Files.createDirectories(uploadPath);
                     }
                     Path filePath = uploadPath.resolve(fileName);
 
@@ -164,12 +178,11 @@ public class KakaoAuthService {
                             fos.write(buffer, 0, bytesRead);
                         }
                     }
-                    newUser.setUserImagePath("/uploads/"); // 웹 접근 경로 (프론트엔드에서 사용할 경로)
+                    newUser.setUserImagePath("/profile_images/");
                     newUser.setUserImageName(fileName);
                     System.out.println("DEBUG: 카카오 프로필 이미지 저장 성공: " + filePath.toString());
                 } catch (IOException e) {
                     System.err.println("DEBUG: 카카오 프로필 이미지 저장 실패: " + e.getMessage());
-                    // 이미지 저장 실패 시에도 사용자 등록은 진행 (이미지 필드는 null)
                     newUser.setUserImagePath(null);
                     newUser.setUserImageName(null);
                 }
@@ -178,11 +191,10 @@ public class KakaoAuthService {
                 newUser.setUserImageName(null);
             }
 
-            newUser.setUserFavoriteTeam(null); // 초기에는 null 또는 빈 문자열로 설정. 사용자가 마이페이지에서 수정 가능.
+            newUser.setUserFavoriteTeam(null);
 
             try {
                 userMapper.insertUser(newUser);
-                // 삽입 후 다시 조회하여 DB에 저장된 최신 정보 (기본값, 자동 생성된 값 등 포함)를 가져옴
                 user = userMapper.findByUserId(socialId);
                 System.out.println("DEBUG: [processUserLogin] New Kakao user registered: " + user.getUserId());
             } catch (Exception e) {
@@ -193,45 +205,100 @@ public class KakaoAuthService {
         } else {
             // 기존 사용자 로그인: DB에서 조회된 user 객체는 이미 모든 필드를 포함하고 있음
             System.out.println("DEBUG: [processUserLogin] Existing Kakao user found: " + user.getUserId() + ". Logging in.");
-            // 기존 사용자의 경우, 카카오 프로필 이미지 URL이 변경되었을 수 있으므로 업데이트 로직 추가 (선택적)
-            // 이 부분은 기존 이미지를 삭제하고 새 이미지를 다운로드 받아야 하므로 좀 더 복잡해질 수 있습니다.
-            // 여기서는 간단히 기존 이미지가 없고 새로운 카카오 이미지 URL이 있을 때만 업데이트하도록 예시를 듭니다.
+
+            boolean needsUpdate = false;
             String currentKakaoProfileImageUrl = null;
-            if (userInfo.getKakaoAccount() != null && userInfo.getKakaoAccount().getProfile() != null) {
-                currentKakaoProfileImageUrl = userInfo.getKakaoAccount().getProfile().getProfileImageUrl();
+            String currentKakaoPhoneNumber = null;
+
+            if (userInfo.getKakaoAccount() != null) {
+                if (userInfo.getKakaoAccount().getProfile() != null) {
+                    currentKakaoProfileImageUrl = userInfo.getKakaoAccount().getProfile().getProfileImageUrl();
+                }
+                currentKakaoPhoneNumber = userInfo.getKakaoAccount().getPhoneNumber();
             }
 
-            // 기존 userImagePath나 userImageName이 null이고, 새로운 카카오 이미지 URL이 있다면 업데이트 시도
-            if ((user.getUserImagePath() == null || user.getUserImageName() == null) && currentKakaoProfileImageUrl != null && !currentKakaoProfileImageUrl.isEmpty()) {
-                try {
-                    String fileName = UUID.randomUUID().toString() + ".jpg";
-                    Path uploadPath = Paths.get(uploadProfileImageDir);
-                    if (!Files.exists(uploadPath)) {
-                        Files.createDirectories(uploadPath);
-                    }
-                    Path filePath = uploadPath.resolve(fileName);
+            String normalizedCurrentKakaoPhone = null;
+            if (currentKakaoPhoneNumber != null && !currentKakaoPhoneNumber.isEmpty()) {
+                normalizedCurrentKakaoPhone = currentKakaoPhoneNumber.replaceAll("[^0-9]", "");
+                if (normalizedCurrentKakaoPhone.startsWith("82") && normalizedCurrentKakaoPhone.length() > 2) {
+                    normalizedCurrentKakaoPhone = "0" + normalizedCurrentKakaoPhone.substring(2);
+                }
+            }
 
-                    URL url = new URL(currentKakaoProfileImageUrl);
-                    try (InputStream in = url.openStream();
-                         FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
-                        byte[] buffer = new byte[1024];
-                        int bytesRead;
-                        while ((bytesRead = in.read(buffer)) != -1) {
-                            fos.write(buffer, 0, bytesRead);
+            if ((user.getUserPhone() == null && normalizedCurrentKakaoPhone != null) ||
+                    (user.getUserPhone() != null && !user.getUserPhone().equals(normalizedCurrentKakaoPhone))) {
+                user.setUserPhone(normalizedCurrentKakaoPhone);
+                needsUpdate = true;
+                System.out.println("DEBUG: Existing user phone number updated to: " + normalizedCurrentKakaoPhone);
+            }
+
+            if (currentKakaoProfileImageUrl != null && !currentKakaoProfileImageUrl.isEmpty()) {
+                boolean imageChanged = (user.getUserImagePath() == null || user.getUserImageName() == null) ||
+                        !currentKakaoProfileImageUrl.endsWith(user.getUserImageName()); // URL의 끝 부분만 비교 (완벽하진 않음)
+
+                if (imageChanged) {
+                    // ⭐ 여기에 try-catch 블록 추가 ⭐
+                    try {
+                        if (user.getUserImageName() != null && !user.getUserImageName().isEmpty()) {
+                            Path oldFilePath = Paths.get(uploadProfileImageDir, user.getUserImageName());
+                            Files.deleteIfExists(oldFilePath);
+                            System.out.println("DEBUG: Old profile image physical file deleted for existing user: " + oldFilePath);
                         }
+
+                        String fileName = UUID.randomUUID().toString() + ".jpg";
+                        Path uploadPath = Paths.get(uploadProfileImageDir);
+                        if (!Files.exists(uploadPath)) {
+                            Files.createDirectories(uploadPath);
+                        }
+                        Path filePath = uploadPath.resolve(fileName);
+
+                        URL url = new URL(currentKakaoProfileImageUrl);
+                        try (InputStream in = url.openStream();
+                             FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+                            byte[] buffer = new byte[1024];
+                            int bytesRead;
+                            while ((bytesRead = in.read(buffer)) != -1) {
+                                fos.write(buffer, 0, bytesRead);
+                            }
+                        }
+                        user.setUserImagePath("/profile_images/");
+                        user.setUserImageName(fileName);
+                        needsUpdate = true;
+                        System.out.println("DEBUG: Existing user profile image updated: " + filePath.toString());
+                    } catch (IOException e) {
+                        System.err.println("DEBUG: Existing user profile image update failed: " + e.getMessage());
+                        // 이미지 업데이트 실패 시에도 사용자 정보는 계속 진행
                     }
-                    user.setUserImagePath("/uploads/profile/");
-                    user.setUserImageName(fileName);
-                    // TODO: userMapper.updateUserImagePathAndName(user.getUserId(), user.getUserImagePath(), user.getUserImageName());
-                    // 실제 DB 업데이트 로직이 필요합니다.
-                    System.out.println("DEBUG: 기존 카카오 사용자 프로필 이미지 업데이트 성공: " + filePath.toString());
-                } catch (IOException e) {
-                    System.err.println("DEBUG: 기존 카카오 사용자 프로필 이미지 업데이트 실패: " + e.getMessage());
+                }
+            } else {
+                if (user.getUserImagePath() != null || user.getUserImageName() != null) {
+                    // ⭐ 여기에 try-catch 블록 추가 ⭐
+                    try {
+                        if (user.getUserImageName() != null && !user.getUserImageName().isEmpty()) {
+                            Path oldFilePath = Paths.get(uploadProfileImageDir, user.getUserImageName());
+                            Files.deleteIfExists(oldFilePath);
+                            System.out.println("DEBUG: Old profile image physical file deleted (Kakao image removed): " + oldFilePath);
+                        }
+                        user.setUserImagePath(null);
+                        user.setUserImageName(null);
+                        needsUpdate = true;
+                    } catch (IOException e) {
+                        System.err.println("DEBUG: Failed to delete old profile image when Kakao image is null: " + e.getMessage());
+                    }
+                }
+            }
+
+            if (needsUpdate) {
+                try {
+                    userMapper.updateUserForKakaoLogin(user);
+                    System.out.println("DEBUG: Existing Kakao user DB updated: " + user.getUserId());
+                } catch (Exception e) {
+                    System.err.println("Error updating existing Kakao user: " + e.getMessage());
                 }
             }
         }
 
-        String serviceToken = "SERVICE_TOKEN_FOR_" + user.getUserId(); // 실제 JWT 토큰 생성 로직으로 대체 필요
+        String serviceToken = "SERVICE_TOKEN_FOR_" + user.getUserId();
         return new UserLoginResponse(user, serviceToken);
     }
 }

@@ -49,7 +49,6 @@ const FeedBoardSection = () => {
                     </div>
                 )}
             </section>
-            <Footer/>
         </div>
     );
 };

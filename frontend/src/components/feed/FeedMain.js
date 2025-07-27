@@ -28,7 +28,6 @@ const FeedMain = () => {
           ))}
         </div>
       </div>
-      <Footer/>
     </div>
   );
 };

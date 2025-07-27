@@ -245,7 +245,7 @@ const AddRestaurant = () => {
                 setInnerZoneName('');
                 setDetailZone('');
 
-                navigate('/OwnerPage');
+                navigate('/owner');
             }
         } catch (error) {
             console.error("식당 등록 중 에러:", error);

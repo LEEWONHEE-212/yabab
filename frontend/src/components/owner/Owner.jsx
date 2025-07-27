@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import axios from 'axios';
-import './Owner.css'; // CSS 파일 (이 파일에 변경된 클래스명이 정의되어 있어야 합니다)
+import './Owner.css';
 import EditRestaurant from './EditRestaurant';
 import { useNavigate, Link } from 'react-router-dom';
 import Header from '../common/Header';
@@ -23,10 +23,10 @@ const ReservationDetailModal = ({ reservation, onClose }) => {
     const currentStatusText = getStatusText(reservation.resvStatus);
 
     return (
-        <div className="owner-modal-overlay" onClick={onClose}> {/* 클래스명 변경 */}
-            <div className="owner-modal-content" onClick={e => e.stopPropagation()}> {/* 클래스명 변경 */}
-                <h2 className="owner-modal-title">주문 번호: {reservation.resvId}</h2> {/* 클래스명 변경 */}
-                <div className="owner-modal-section"> {/* 클래스명 변경 */}
+        <div className="owner-modal-overlay" onClick={onClose}>
+            <div className="owner-modal-content" onClick={e => e.stopPropagation()}>
+                <h2 className="owner-modal-title">주문 번호: {reservation.resvId}</h2>
+                <div className="owner-modal-section">
                     <h3>총 주문 정보</h3>
                     <p><strong>주문 번호:</strong> {reservation.resvId}</p>
                     <p><strong>총 주문 개수:</strong> {reservation.quantity}개</p>
@@ -37,10 +37,10 @@ const ReservationDetailModal = ({ reservation, onClose }) => {
                     <p><strong>주문 고객 전화:</strong> {reservation.customerPhone || '알 수 없음'}</p>
                 </div>
 
-                <div className="owner-modal-section"> {/* 클래스명 변경 */}
+                <div className="owner-modal-section">
                     <h3>주문 메뉴 상세</h3>
                     {reservation.reservationMenus && reservation.reservationMenus.length > 0 ? (
-                        <table className="owner-modal-menu-table"> {/* 클래스명 변경 */}
+                        <table className="owner-modal-menu-table">
                             <thead>
                                 <tr>
                                     <th>메뉴 이름</th>
@@ -64,7 +64,7 @@ const ReservationDetailModal = ({ reservation, onClose }) => {
                         <p>주문된 메뉴가 없습니다.</p>
                     )}
                 </div>
-                <button className="owner-modal-close-button" onClick={onClose}>닫기</button> {/* 클래스명 변경 */}
+                <button className="owner-modal-close-button" onClick={onClose}>닫기</button>
             </div>
         </div>
     );
@@ -212,11 +212,20 @@ const Owner = () => {
         if (!window.confirm(`예약 번호 ${resvId}의 상태를 '${statusText}'(으)로 변경하시겠습니까?`)) {
             return;
         }
+
+        // currentRestaurant이 null이거나 id가 없는 경우 처리
+        if (!currentRestaurant || !currentRestaurant.id) {
+            alert("식당 정보를 찾을 수 없어 예약 상태를 변경할 수 없습니다. 페이지를 새로고침하거나 다시 로그인해주세요.");
+            console.error("Failed to update status: currentRestaurant or currentRestaurant.id is null/undefined.");
+            return;
+        }
+
         try {
             await axios.put(`http://localhost:18090/owner/reservations/status`, {
                 resvId: resvId,
                 newStatus: newStatus,
-                updaterId: user?.userId
+                // 백엔드 컨트롤러에서 'restaurantId'를 기대하므로 'updaterId' 대신 'restaurantId'를 보냅니다.
+                restaurantId: currentRestaurant.id // <-- 이 부분을 수정했습니다.
             });
             setReservations(prevReservations =>
                 prevReservations.map(reservation =>
@@ -226,7 +235,8 @@ const Owner = () => {
             alert(`예약 번호 ${resvId}의 상태가 '${statusText}'로 변경되었습니다.`);
         } catch (error) {
             console.error("Failed to update reservation status:", error);
-            alert("예약 상태 업데이트에 실패했습니다. 서버 로그를 확인해주세요: " + (error.response?.data?.message || error.message));
+            // 백엔드에서 보낸 에러 메시지를 더 구체적으로 표시
+            alert("예약 상태 업데이트에 실패했습니다. " + (error.response?.data || error.message));
         }
     };
 
@@ -239,10 +249,19 @@ const Owner = () => {
         }
     };
 
-    const handleReturnToOwnerPage = () => {
+    // --- 여기부터 수정된 부분 ---
+    const handleReturnToOwnerPage = (shouldRefresh = false) => {
         setShowEditPage(false);
-        fetchRestaurantInfo();
+        if (shouldRefresh) {
+            console.log("EditRestaurant에서 수정 완료 신호 받음. 식당 정보 및 관련 데이터 새로고침 시작.");
+            fetchRestaurantInfo(); // 식당 정보 다시 불러오기
+            // 메뉴와 예약 정보는 fetchRestaurantInfo가 currentRestaurant을 업데이트하면
+            // useEffect(() => { if (currentRestaurant) ... })에 의해 자동으로 다시 불러와집니다.
+        } else {
+            console.log("EditRestaurant에서 취소 신호 받음. 새로고침 없음.");
+        }
     };
+    // --- 여기까지 수정된 부분 ---
 
     const handleAddMenu = async () => {
         if (!newMenuItem.name.trim() || !newMenuItem.price) {
@@ -415,13 +434,13 @@ const Owner = () => {
     }
 
     if (!currentRestaurant) {
-           return (
-             <div className="owner-page-container no-restaurant">
-                 <Header />
-                 <p>아직 등록된 식당 정보가 없습니다. 식당을 등록해주세요.</p>
-                 <button className="add-restaurant-button" onClick={() => navigate('/add-AddRestaurant')}>식당 등록하기</button>
-             </div>
-         );
+            return (
+              <div className="owner-page-container no-restaurant">
+                  <Header />
+                  <p>아직 등록된 식당 정보가 없습니다. 식당을 등록해주세요.</p>
+                  <button className="add-restaurant-button" onClick={() => navigate('/add-AddRestaurant')}>식당 등록하기</button>
+              </div>
+            );
     }
 
     return (
@@ -432,33 +451,33 @@ const Owner = () => {
                 {showEditPage ? (
                     <EditRestaurant
                         restaurantData={currentRestaurant}
-                        onSave={handleReturnToOwnerPage}
-                        onCancel={handleReturnToOwnerPage}
+                        onSave={() => handleReturnToOwnerPage(true)}
+                        onCancel={() => handleReturnToOwnerPage(false)}
                     />
                 ) : (
                     <>
-                        <h1 className="owner-section-title owner-main-title">사장님 페이지</h1> {/* 클래스명 변경 */}
+                        <h1 className="owner-section-title owner-main-title">사장님 페이지</h1>
 
                         {/* 식당 정보 섹션 */}
-                        <div className="owner-restaurant-info-section"> 
-                            <div className="owner-restaurant-image-and-button-container"> {/* 클래스명 변경 */}
-                                <div className="owner-restaurant-image-placeholder"> {/* 클래스명 변경 */}
+                        <div className="owner-restaurant-info-section">
+                            <div className="owner-restaurant-image-and-button-container">
+                                <div className="owner-restaurant-image-placeholder">
                                     {currentRestaurant.restaurantImagePath ? (
                                         <img
                                             src={`http://localhost:18090${currentRestaurant.restaurantImagePath}`}
                                             alt={`${currentRestaurant.restaurantName} 이미지`}
-                                            className="owner-restaurant-current-image" 
+                                            className="owner-restaurant-current-image"
                                         />
                                     ) : (
                                         <p>이미지 없음</p>
                                     )}
                                 </div>
-                                <button className="owner-edit-button" onClick={handleEditClick}>정보 수정</button> {/* 클래스명 변경 */}
+                                <button className="owner-edit-button" onClick={handleEditClick}>정보 수정</button>
                             </div>
 
-                            <div className="owner-restaurant-text-content"> {/* 클래스명 변경 */}
-                                <div className="owner-restaurant-name">{currentRestaurant.restaurantName}</div> {/* 클래스명 변경 */}
-                                <div className="owner-restaurant-additional-info"> {/* 클래스명 변경 */}
+                            <div className="owner-restaurant-text-content">
+                                <div className="owner-restaurant-name">{currentRestaurant.restaurantName}</div>
+                                <div className="owner-restaurant-additional-info">
                                     <p>구장 이름: {currentRestaurant.stadiumName || 'N/A'}</p>
                                     <p>구역: {currentRestaurant.zoneName || 'N/A'}</p>
                                     <p>상세 구역: {currentRestaurant.restaurantLocation || 'N/A'}</p>
@@ -468,7 +487,7 @@ const Owner = () => {
                         </div>
 
                         {/* 탭 메뉴 - mypage-tabs 스타일로 변경 */}
-                        <div className="owner-mypage-tabs"> {/* 기존 owner-tabs-container에서 변경 */}
+                        <div className="owner-mypage-tabs">
                             <button
                                 className={`owner-mypage-tab-button ${activeTab === 'reservations' ? 'active' : ''}`}
                                 onClick={() => setActiveTab('reservations')}
@@ -485,9 +504,9 @@ const Owner = () => {
 
                         {/* 예약 내역 리스트 섹션 */}
                         {activeTab === 'reservations' && (
-                            <div className="owner-mypage-tab-content"> {/* mypage-tab-content 스타일 적용 */}
-                                <h2 className="owner-section-title">예약 내역 리스트</h2> {/* 클래스명 변경 */}
-                                <div className="owner-reservation-table-wrapper"> {/* 클래스명 변경 */}
+                            <div className="owner-mypage-tab-content">
+                                <h2 className="owner-section-title">예약 내역 리스트</h2>
+                                <div className="owner-reservation-table-wrapper">
                                     <table>
                                         <thead>
                                             <tr>
@@ -520,7 +539,7 @@ const Owner = () => {
                                                         <td>{(typeof reservation.totalPrice === 'number' ? reservation.totalPrice : 0).toLocaleString()}원</td>
                                                         <td>
                                                             {reservation.resvStatus === 0 ? (
-                                                                <div className="owner-status-buttons"> 
+                                                                <div className="owner-status-buttons">
                                                                     <button
                                                                         className="owner-status-confirm-btn"
                                                                         onClick={() => handleStatusChange(reservation.resvId, 1)}
@@ -528,14 +547,14 @@ const Owner = () => {
                                                                         확인
                                                                     </button>
                                                                     <button
-                                                                        className="owner-status-cancel-btn" 
+                                                                        className="owner-status-cancel-btn"
                                                                         onClick={() => handleStatusChange(reservation.resvId, 2)}
                                                                     >
                                                                         취소
                                                                     </button>
                                                                 </div>
                                                             ) : (
-                                                                <span className={`owner-status-text owner-status-${getStatusText(reservation.resvStatus).replace(/\s/g, '').toLowerCase()}`}> {/* 클래스명 변경 */}
+                                                                <span className={`owner-status-text owner-status-${getStatusText(reservation.resvStatus).replace(/\s/g, '').toLowerCase()}`}>
                                                                     {getStatusText(reservation.resvStatus)}
                                                                 </span>
                                                             )}
@@ -551,11 +570,11 @@ const Owner = () => {
 
                         {/* 메뉴 관리 섹션 */}
                         {activeTab === 'menu' && (
-                            <div className="owner-mypage-tab-content"> {/* mypage-tab-content 스타일 적용 */}
-                                <h2 className="owner-section-title">메뉴 관리</h2> {/* 클래스명 변경 */}
+                            <div className="owner-mypage-tab-content">
+                                <h2 className="owner-section-title">메뉴 관리</h2>
 
                                 {/* 메뉴 추가/수정 폼 */}
-                                <div className="owner-menu-input-form"> {/* 클래스명 변경 */}
+                                <div className="owner-menu-input-form">
                                     <input
                                         type="text"
                                         placeholder="메뉴 이름"
@@ -572,16 +591,16 @@ const Owner = () => {
                                     />
                                     {editingMenuId ? (
                                         <>
-                                            <button className="owner-save-button" onClick={handleEditMenuSave}>수정 완료</button> {/* 클래스명 변경 */}
-                                            <button className="owner-cancel-button" onClick={handleEditMenuCancel}>취소</button> {/* 클래스명 변경 */}
+                                            <button className="owner-save-button" onClick={handleEditMenuSave}>수정 완료</button>
+                                            <button className="owner-cancel-button" onClick={handleEditMenuCancel}>취소</button>
                                         </>
                                     ) : (
-                                        <button className="owner-add-menu-button" onClick={handleAddMenu}>메뉴 추가</button> 
+                                        <button className="owner-add-menu-button" onClick={handleAddMenu}>메뉴 추가</button>
                                     )}
                                 </div>
 
                                 {/* 메뉴 리스트 */}
-                                <div className="owner-menu-list-table-wrapper"> {/* 클래스명 변경 */}
+                                <div className="owner-menu-list-table-wrapper">
                                     <table>
                                         <thead>
                                             <tr>
@@ -603,8 +622,8 @@ const Owner = () => {
                                                         <td>{item.menuName}</td>
                                                         <td>{(typeof item.menuPrice === 'number' ? item.menuPrice : 0).toLocaleString()}원</td>
                                                         <td>
-                                                            <button className="owner-edit-button" onClick={() => handleEditMenuStart(item)}>수정</button> {/* 클래스명 변경 */}
-                                                            <button className="owner-delete-button" onClick={() => handleDeleteMenu(item.menuId)}>삭제</button> {/* 클래스명 변경 */}
+                                                            <button className="owner-edit-button" onClick={() => handleEditMenuStart(item)}>수정</button>
+                                                            <button className="owner-delete-button" onClick={() => handleDeleteMenu(item.menuId)}>삭제</button>
                                                         </td>
                                                     </tr>
                                                 ))

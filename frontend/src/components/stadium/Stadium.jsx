@@ -4,6 +4,7 @@ import './Stadium.css';
 import Restaurant from '../restaurant/Restaurant';
 import Header from '../common/Header';
 import { useParams } from 'react-router-dom';
+import Footer from '../common/Footer';
 
 // ImageModal 컴포넌트 정의
 const ImageModal = ({ imageUrl, onClose }) => {
@@ -535,14 +536,7 @@ const Stadium = () => {
                 />
             )}
 
-            {/* Footer */}
-            <footer className="stadium-footer">
-                <div className="stadium-container">
-                    <div className="stadium-footer-content">
-                        <p>&copy; 2024 Stadium Info. All rights reserved.</p>
-                    </div>
-                </div>
-            </footer>
+           <Footer/>
         </div>
     );
 };

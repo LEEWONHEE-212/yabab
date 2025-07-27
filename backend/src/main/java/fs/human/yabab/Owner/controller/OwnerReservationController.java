@@ -35,7 +35,8 @@ public class OwnerReservationController {
 
         if (reservations.isEmpty()) {
             // 예약이 없을 경우 No Content (204) 또는 OK (200)에 빈 리스트 반환
-            return new ResponseEntity<>(reservations, HttpStatus.OK); // 빈 리스트여도 200 OK가 일반적입니다.
+            // 빈 리스트여도 200 OK가 일반적입니다.
+            return new ResponseEntity<>(reservations, HttpStatus.OK);
         }
         return new ResponseEntity<>(reservations, HttpStatus.OK);
     }
@@ -48,31 +49,51 @@ public class OwnerReservationController {
      * {
      * "resvId": 123,
      * "newStatus": 1,
-     * "updaterId": "owner123" // 이 필드는 현재 DAO/XML에서 직접 사용되지 않을 수 있으나, 요청 데이터로 받을 수 있습니다.
+     * "restaurantId": 456 // UPDATED_BY 필드에 사용될 식당 ID (Long 타입)
      * }
      *
-     * @param payload 변경할 예약 ID, 새로운 상태, 업데이트한 사용자 ID를 포함하는 JSON 요청 본문
+     * @param payload 변경할 예약 ID, 새로운 상태, 업데이트한 식당 ID를 포함하는 JSON 요청 본문
      * @return 성공/실패 메시지 및 HTTP 상태 코드
      */
     @PutMapping("/status")
     public ResponseEntity<String> updateReservationStatus(@RequestBody Map<String, Object> payload) {
-        Long resvId = ((Number) payload.get("resvId")).longValue();
-        Integer newStatus = (Integer) payload.get("newStatus");
-        String updaterId = (String) payload.get("updaterId"); // 요청에서 updaterId를 받습니다.
+        // payload에서 각 값을 추출합니다. Map의 get() 메서드는 Object를 반환하므로 적절한 타입 캐스팅이 필요합니다.
+        // 숫자 타입은 Number로 받은 후 LongValue()를 사용하여 Long으로 변환하는 것이 안전합니다.
 
-        if (resvId == null || newStatus == null) {
-            return new ResponseEntity<>("Required parameters (resvId, newStatus) are missing.", HttpStatus.BAD_REQUEST);
+        // NullPointerException 방지를 위해 Map.get() 결과가 null인지 먼저 확인합니다.
+        Object resvIdObj = payload.get("resvId");
+        Long resvId = null;
+        if (resvIdObj instanceof Number) {
+            resvId = ((Number) resvIdObj).longValue();
+        }
+
+        Object newStatusObj = payload.get("newStatus");
+        Integer newStatus = null;
+        if (newStatusObj instanceof Integer) {
+            newStatus = (Integer) newStatusObj;
+        } else if (newStatusObj instanceof Number) { // Integer가 아닐 수도 있으니 Number로도 받아서 처리
+            newStatus = ((Number) newStatusObj).intValue();
+        }
+
+        Object restaurantIdObj = payload.get("restaurantId");
+        Long restaurantId = null;
+        if (restaurantIdObj instanceof Number) {
+            restaurantId = ((Number) restaurantIdObj).longValue();
+        }
+
+        // 모든 필수 파라미터가 유효한지 최종적으로 검증합니다.
+        if (resvId == null || newStatus == null || restaurantId == null) {
+            return new ResponseEntity<>("Required parameters (resvId, newStatus, restaurantId) are missing or invalid type.", HttpStatus.BAD_REQUEST);
         }
 
         // 서비스 계층 호출하여 예약 상태 변경
-        // updaterId는 현재 DAO에서 사용되지 않으므로, 이 파라미터를 사용하려면 DAO/XML 수정이 필요합니다.
-        // 여기서는 서비스 메서드에 맞춰 updaterId를 전달합니다.
-        boolean isUpdated = ownerReservationService.updateReservationStatus(resvId, newStatus, updaterId);
+        boolean isUpdated = ownerReservationService.updateReservationStatus(resvId, newStatus, restaurantId);
 
         if (isUpdated) {
             return new ResponseEntity<>("Reservation status updated successfully.", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Failed to update reservation status or reservation not found.", HttpStatus.NOT_FOUND); // 404 Not Found 또는 500 Internal Server Error
+            // 업데이트 실패의 경우, 예약 ID가 없거나 다른 문제일 수 있습니다.
+            return new ResponseEntity<>("Failed to update reservation status or reservation not found.", HttpStatus.NOT_FOUND);
         }
     }
 }

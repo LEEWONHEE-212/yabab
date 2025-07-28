@@ -38,7 +38,7 @@ public class PlayerPickService {
                     teamId = "HanwhaEagles";
                     teamName = "한화 이글스";
                     youtubeChannelName = "한화이글스 TV";
-                    youtubeChannelUrl = "https://www.youtube.com/@hanwhaeagles_tv";
+                    youtubeChannelUrl = "https://www.youtube.com/@HanwhaEagles_official";
                     break;
                 case "KT 위즈":
                     teamId = "KtWiz";

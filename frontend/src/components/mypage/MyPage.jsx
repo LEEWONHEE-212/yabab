@@ -34,18 +34,32 @@ function UserInfoDisplay({ user, onEditClick }) {
     const email = user.userEmail || '이메일 정보 없음';
     const phoneNumber = user.userPhone || '전화번호 정보 없음';
 
-    const profileImageSrc = imageLoadFailed
+    // ⭐ 이미지 URL 구성 로직 수정 시작 ⭐
+    let profileImageUrl = 'https://via.placeholder.com/150?text=No+Image'; // 기본 이미지 설정
+
+    if (user.userImagePath && user.userImageName) {
+        let imagePath = user.userImagePath;
+
+        // 기존 '/profile_images/' 경로를 '/uploads/'로 변환
+        if (imagePath === '/profile_images/') {
+            imagePath = '/uploads/';
+        }
+
+        profileImageUrl = `http://localhost:18090${imagePath}${user.userImageName}`;
+    }
+
+    // 이미지 로드 실패 시 대체 이미지 사용
+    const finalProfileImageSrc = imageLoadFailed
         ? 'https://via.placeholder.com/150?text=Load+Error'
-        : (user.userImagePath && user.userImageName
-            ? `http://localhost:18090${user.userImagePath}${user.userImageName}`
-            : 'https://via.placeholder.com/150?text=No+Image');
+        : profileImageUrl;
+    // ⭐ 이미지 URL 구성 로직 수정 끝 ⭐
 
     return (
         <div className="mypage-user-info-section">
             <div className="mypage-profile-container">
                 <div className="mypage-user-image">
                     <img
-                        src={profileImageSrc}
+                        src={finalProfileImageSrc} // 수정된 URL 사용
                         onError={(e) => {
                             if (!imageLoadFailed) {
                                 e.target.onerror = null;

@@ -1,4 +1,3 @@
-// src/main/java/fs/human/yabab/MyPage/service/MyPageEditService.java
 package fs.human.yabab.MyPage.service;
 
 import fs.human.yabab.MyPage.dao.MyPageEditDAO;
@@ -27,7 +26,8 @@ public class MyPageEditService {
     private String baseUploadDir;
 
     // 웹 접근 경로 접두사 (프론트엔드에서 이미지를 요청할 때 사용)
-    private final String WEB_IMAGE_PREFIX = "/profile_images/";
+    // ⭐ 이 부분을 "/uploads/"로 변경해야 합니다. ⭐
+    private final String WEB_IMAGE_PREFIX = "/uploads/"; // <--- 이 부분을 수정하세요!
 
     @Autowired // Constructor injection
     public MyPageEditService(MyPageEditDAO myPageEditDAO) {
@@ -91,7 +91,7 @@ public class MyPageEditService {
             }
             Files.copy(profileImage.getInputStream(), targetFilePath); // 파일 저장
 
-            finalImagePath = WEB_IMAGE_PREFIX; // 웹 접근 경로 설정
+            finalImagePath = WEB_IMAGE_PREFIX; // 웹 접근 경로 설정 (이제 "/uploads/"가 됩니다)
 
             System.out.println("DEBUG: New profile image saved successfully: " + targetFilePath.toString());
 
@@ -137,12 +137,12 @@ public class MyPageEditService {
         if (updatedRows > 0) {
             // 2. 실제 파일 시스템에서 이미지 파일 삭제
             if (existingUserProfile.getUserImagePath() != null && existingUserProfile.getUserImageName() != null) {
-                Path filePath = Paths.get(baseUploadDir, existingUserProfile.getUserImageName()); // ⭐ filePath로 변경 ⭐
+                Path filePath = Paths.get(baseUploadDir, existingUserProfile.getUserImageName());
                 try {
                     Files.deleteIfExists(filePath);
-                    System.out.println("DEBUG: Profile image physical file deleted successfully: " + filePath); // ⭐ filePath로 변경 ⭐
+                    System.out.println("DEBUG: Profile image physical file deleted successfully: " + filePath);
                 } catch (IOException e) {
-                    System.err.println("DEBUG: Failed to delete profile image physical file (file not found or permission issue): " + filePath + " - " + e.getMessage()); // ⭐ filePath로 변경 ⭐
+                    System.err.println("DEBUG: Failed to delete profile image physical file (file not found or permission issue): " + filePath + " - " + e.getMessage());
                     // 파일 삭제 실패해도 DB 업데이트는 유지되므로, 예외를 다시 던지지 않음
                 }
             }

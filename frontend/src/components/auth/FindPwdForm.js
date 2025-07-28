@@ -112,7 +112,7 @@ const FindPwdForm = () => {
     //  모달 닫고 페이지 이동
     const handleCloseModal = () => {
         setShowModal(false);
-        navigate('/login');
+        navigate('/auth/login');
     }
 
     //  비밀번호 확인 input의 값이 바뀔 때 호출

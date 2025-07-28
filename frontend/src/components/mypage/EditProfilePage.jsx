@@ -24,10 +24,19 @@ function EditProfilePage({ isOpen, onClose }) {
 
     useEffect(() => {
         if (isOpen && user) {
+            // ⭐ 이미지 URL 구성 로직 수정 시작 ⭐
+            let initialImagePath = user.userImagePath;
+            if (initialImagePath === '/profile_images/') {
+                initialImagePath = '/uploads/';
+            } else if (!initialImagePath) {
+                initialImagePath = ''; // 경로가 없을 경우 빈 문자열로 설정
+            }
+
             const initialImageUrl =
-                user.userImagePath && user.userImageName
-                    ? `http://localhost:18090${user.userImagePath}${user.userImageName}`
+                user.userImageName
+                    ? `http://localhost:18090${initialImagePath}${user.userImageName}`
                     : '';
+            // ⭐ 이미지 URL 구성 로직 수정 끝 ⭐
 
             setFormData({
                 userNickname: user.userNickname || '',
@@ -35,9 +44,9 @@ function EditProfilePage({ isOpen, onClose }) {
                 userFavoriteTeam: user.userFavoriteTeam || '',
                 userEmail: user.userEmail || '',
                 userPhone: user.userPhone || '',
-                userImagePath: user.userImagePath || '', // Initialize with existing path
-                userImageName: user.userImageName || '', // Initialize with existing name
-                currentProfileImageUrl: initialImageUrl,
+                userImagePath: user.userImagePath || '', // Initialize with existing path (DB 값 그대로 유지)
+                userImageName: user.userImageName || '', // Initialize with existing name (DB 값 그대로 유지)
+                currentProfileImageUrl: initialImageUrl, // 수정된 URL 사용
             });
             setImageFile(null);
             setError(null);
@@ -71,7 +80,7 @@ function EditProfilePage({ isOpen, onClose }) {
             setFormData(prev => ({
                 ...prev,
                 currentProfileImageUrl: URL.createObjectURL(file),
-                userImagePath: '',
+                userImagePath: '', // 새 이미지 업로드 시 기존 경로/이름 초기화
                 userImageName: ''
             }));
         }
@@ -143,6 +152,8 @@ function EditProfilePage({ isOpen, onClose }) {
             if (imageFile) {
                 formDataToSend.append('profileImage', imageFile);
             } else {
+                // 이미지가 변경되지 않았거나 삭제된 경우, 기존 경로/이름을 백엔드로 다시 보냅니다.
+                // 백엔드 서비스에서 이 값을 기반으로 DB 업데이트 여부를 결정합니다.
                 formDataToSend.append('userImagePath', formData.userImagePath || '');
                 formDataToSend.append('userImageName', formData.userImageName || '');
             }
@@ -151,7 +162,7 @@ function EditProfilePage({ isOpen, onClose }) {
 
             // ⭐ 이 URL이 백엔드 MyPageEditController의 /api/mypage/profile/{userId} 와 일치해야 합니다. ⭐
             const response = await axios.put(
-                `http://localhost:18090/api/mypage/profile/${userId}`, // <-- ⭐ 이 부분을 이렇게 수정해야 합니다! ⭐
+                `http://localhost:18090/api/mypage/profile/${userId}`,
                 formDataToSend,
                 {
                     headers: {
@@ -195,7 +206,7 @@ function EditProfilePage({ isOpen, onClose }) {
                         <label htmlFor="userProfileImage">프로필 이미지</label>
                         <div className="profile-image-preview">
                             {formData.currentProfileImageUrl ? (
-                                <img src={formData.currentProfileImageUrl}/>
+                                <img src={formData.currentProfileImageUrl} alt="프로필 이미지 미리보기"/>
                             ) : (
                                 <div className="placeholder-image">이미지 없음</div>
                             )}

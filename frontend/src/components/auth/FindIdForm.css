@@ -145,3 +145,117 @@ body {
   border-radius: 5px;
   cursor: pointer;
 }
+
+/* FindIdResultModal.css 에 있던 내용입니다. 이 내용을 FindIdForm.css 파일에 추가해주세요. */
+
+/* 모달 오버레이 스타일 */
+.modal-overlay {
+    position: fixed; /* 화면에 고정 */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* 반투명 검정 배경 */
+    display: flex; /* 자식 요소를 중앙에 배치 */
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    z-index: 1000; /* 다른 요소 위에 표시 */
+}
+
+/* 모달 내용 컨테이너 스타일 */
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%; /* 반응형 디자인을 위해 너비 조정 */
+    max-width: 400px; /* 최대 너비 설정 */
+    text-align: center;
+    position: relative; /* 닫기 버튼 위치 지정을 위해 */
+    animation: fadeIn 0.3s ease-out; /* 모달 등장 애니메이션 */
+}
+
+/* 모달 등장 애니메이션 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 닫기 버튼 스타일 */
+.modal-close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.2s ease;
+}
+
+.modal-close-button:hover {
+    color: #333;
+}
+
+/* 모달 본문 스타일 */
+.modal-body {
+    margin: 20px 0;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.modal-body strong {
+    color: #007bff; /* 아이디 강조 색상 */
+    font-size: 1.2em;
+    word-break: break-all; /* 긴 아이디의 경우 줄바꿈 */
+}
+
+/* 모달 푸터 (확인 버튼) 스타일 */
+.modal-footer {
+    margin-top: 20px;
+}
+
+.modal-confirm-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+}
+
+.modal-confirm-button:hover {
+    background-color: #0056b3;
+}
+
+/* 반응형 디자인을 위한 미디어 쿼리 */
+@media (max-width: 600px) {
+    .modal-content {
+        padding: 20px;
+        max-width: 300px;
+    }
+    .modal-close-button {
+        font-size: 1.2rem;
+        top: 10px;
+        right: 10px;
+    }
+    .modal-body {
+        font-size: 1em;
+    }
+    .modal-body strong {
+        font-size: 1.1em;
+    }
+    .modal-confirm-button {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+}

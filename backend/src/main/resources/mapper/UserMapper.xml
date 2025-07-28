@@ -33,8 +33,7 @@
         USER_ROLE,
         USER_JOINDATE,
         CREATED_DATE,
-        USER_FAVORITE_TEAM,
-        USER_IMAGE_PATH,
+        USER_FAVORITE_TEAM, USER_IMAGE_PATH,
         USER_IMAGE_NAME
         ) VALUES (
         #{userId},
@@ -46,8 +45,7 @@
         1,
         SYSDATE,
         SYSDATE,
-        #{userFavoriteTeam},
-        #{userImagePath, jdbcType=VARCHAR},
+        #{userFavoriteTeam, jdbcType=VARCHAR}, #{userImagePath, jdbcType=VARCHAR},
         #{userImageName, jdbcType=VARCHAR}
         )
     </insert>

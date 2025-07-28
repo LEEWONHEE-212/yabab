@@ -31,8 +31,8 @@ const Main = () => {
             <Header />
             {/* 광고 배너 */}
             <div className="banner">
-                <a href="https://example.com" target="_blank" rel="noreferrer">
-                    <img src="./human.jpg" alt="광고 배너" />
+                <a href="https://myseatcheck.com/" target="_blank" rel="noreferrer">
+                    <img src="./banner001.jpg" alt="광고 배너" />
                 </a>
             </div>
 

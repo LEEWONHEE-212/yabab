@@ -67,7 +67,6 @@ const CommentCard = ({ comment, user, onLike, onDelete, onEdit }) => {
                 >
                     👍 ({comment.commentLikes || 0})
                 </button>
-                <button className="comment-report-btn">📢 신고</button>
 
                 {/* 본인 댓글일 경우에만 수정/삭제/저장/취소 버튼 표시 */}
                 {user?.userId === comment.userId && (
@@ -79,8 +78,8 @@ const CommentCard = ({ comment, user, onLike, onDelete, onEdit }) => {
                             </>
                         ) : (
                             <>
-                                <button className="comment-edit-btn" onClick={handleEditClick}>✏ 수정</button>
-                                <button className="comment-delete-btn" onClick={handleDeleteClick}>🗑 삭제</button>
+                                <button className="comment-edit-btn" onClick={handleEditClick}>수정</button>
+                                <button className="comment-delete-btn" onClick={handleDeleteClick}>삭제</button>
                             </>
                         )}
                     </>

@@ -8,25 +8,25 @@
     <!-- 피드 목록 조회 -->
     <select id="selectFeedList" parameterType="map" resultType="fs.human.yabab.feed.vo.FeedVO">
         SELECT
-            f.FEED_ID,
-            f.USER_ID,
-            u.USER_NICKNAME AS userNickname,
-            f.CREATED_DATE,
-            f.FEED_TITLE,
-            f.FEED_CATEGORY,
-            f.FEED_VIEWS,
-            f.FEED_LIKES,
-            (
-            SELECT COUNT(*)
-            FROM TB_FEED_COMMENT c
-            WHERE c.FEED_ID = f.FEED_ID
-            AND c.COMMENT_DELETED_FLAG = 0
-            ) AS feedCommentCount
+        f.FEED_ID,
+        f.USER_ID,
+        u.USER_NICKNAME AS userNickname,
+        f.CREATED_DATE,
+        f.FEED_TITLE,
+        f.FEED_CATEGORY,
+        f.FEED_VIEWS,
+        f.FEED_LIKES,
+        (
+        SELECT COUNT(*)
+        FROM TB_FEED_COMMENT c
+        WHERE c.FEED_ID = f.FEED_ID
+        AND c.COMMENT_DELETED_FLAG = 0
+        ) AS feedCommentCount
         FROM TB_FEED f
         JOIN TB_USER u ON f.USER_ID = u.USER_ID
         WHERE f.TEAM_ID = #{teamId}
-            AND f.FEED_CATEGORY = #{category}
-            AND f.FEED_DELETED_FLAG = 0
+        AND f.FEED_CATEGORY = #{category}
+        AND f.FEED_DELETED_FLAG = 0
         <choose>
             <when test="sort == 'likes'">
                 ORDER BY f.FEED_LIKES DESC
@@ -40,50 +40,50 @@
     <!-- 피드 등록 -->
     <insert id="insertFeed" parameterType="fs.human.yabab.feed.vo.FeedVO">
         INSERT INTO TB_FEED (
-            FEED_ID,
-            TEAM_ID,
-            USER_ID,
-            FEED_TITLE,
-            FEED_CONTENT,
-            FEED_CATEGORY,
-            FEED_IMAGE_PATH,
-            FEED_IMAGE_NAME,
-            CREATED_DATE,
-            CREATED_BY,
-            FEED_VIEWS,
-            FEED_LIKES,
-            FEED_COMMENT_COUNT,
-            FEED_DELETED_FLAG
+        FEED_ID,
+        TEAM_ID,
+        USER_ID,
+        FEED_TITLE,
+        FEED_CONTENT,
+        FEED_CATEGORY,
+        FEED_IMAGE_PATH,
+        FEED_IMAGE_NAME,
+        CREATED_DATE,
+        CREATED_BY,
+        FEED_VIEWS,
+        FEED_LIKES,
+        FEED_COMMENT_COUNT,
+        FEED_DELETED_FLAG
         ) VALUES (
-             SEQ_FEED_ID.NEXTVAL,
-             #{teamId},
-             #{userId},
-             #{feedTitle},
-             #{feedContent},
-             #{feedCategory},
-             #{feedImagePath, jdbcType=VARCHAR},
-             #{feedImageName, jdbcType=VARCHAR},
-             SYSDATE,
-             #{userId},
-             0, 0, 0, 0
+        SEQ_FEED_ID.NEXTVAL,
+        #{teamId},
+        #{userId},
+        #{feedTitle},
+        #{feedContent},
+        #{feedCategory},
+        #{feedImagePath, jdbcType=VARCHAR},
+        #{feedImageName, jdbcType=VARCHAR},
+        SYSDATE,
+        #{userId},
+        0, 0, 0, 0
         )
     </insert>
 
     <!-- 피드 상세 -->
     <select id="selectFeedDetail" resultType="fs.human.yabab.feed.vo.FeedVO">
         SELECT
-            f.FEED_ID,
-            f.USER_ID,
-            u.USER_NICKNAME AS userNickname,
-            f.FEED_TITLE,
-            f.FEED_CONTENT,
-            f.FEED_CATEGORY,
-            f.FEED_IMAGE_PATH,
-            f.FEED_IMAGE_NAME,
-            f.FEED_LIKES,
-            f.FEED_VIEWS,
-            f.FEED_COMMENT_COUNT,
-            f.CREATED_DATE
+        f.FEED_ID,
+        f.USER_ID,
+        u.USER_NICKNAME AS userNickname,
+        f.FEED_TITLE,
+        f.FEED_CONTENT,
+        f.FEED_CATEGORY,
+        f.FEED_IMAGE_PATH,
+        f.FEED_IMAGE_NAME,
+        f.FEED_LIKES,
+        f.FEED_VIEWS,
+        f.FEED_COMMENT_COUNT,
+        f.CREATED_DATE
         FROM TB_FEED f
         JOIN TB_USER u ON f.USER_ID = u.USER_ID
         WHERE f.FEED_ID = #{feedId}
@@ -96,7 +96,7 @@
         SELECT COUNT(*)
         FROM TB_FEED_LIKE
         WHERE FEED_ID = #{feedId}
-          AND USER_ID = #{userId}
+        AND USER_ID = #{userId}
     </select>
 
     <!-- 추천 등록 -->
@@ -128,26 +128,26 @@
     <!-- 댓글 목록 -->
     <select id="selectCommentsByFeedId" resultType="fs.human.yabab.feed.vo.CommentVO">
         SELECT
-            c.COMMENT_ID,
-            c.FEED_ID,
-            c.USER_ID,
-            u.USER_NICKNAME,
-            c.COMMENT_CONTENT,
-            c.CREATED_DATE,
-            c.COMMENT_LIKES AS commentLikes,
-            CASE
-                WHEN c.COMMENT_ID IN(
-                    SELECT COMMENT_ID
-                    FROM (
-                        SELECT COMMENT_ID
-                        FROM TB_FEED_COMMENT
-                        WHERE FEED_ID = #{feedId}
-                        ORDER BY COMMENT_LIKES DESC, CREATED_DATE ASC
-                     )
-                    WHERE ROWNUM &lt;= 4
-                ) THEN 1
-                ELSE 0
-            END AS commentBest
+        c.COMMENT_ID,
+        c.FEED_ID,
+        c.USER_ID,
+        u.USER_NICKNAME,
+        c.COMMENT_CONTENT,
+        c.CREATED_DATE,
+        c.COMMENT_LIKES AS commentLikes,
+        CASE
+        WHEN c.COMMENT_ID IN(
+        SELECT COMMENT_ID
+        FROM (
+        SELECT COMMENT_ID
+        FROM TB_FEED_COMMENT
+        WHERE FEED_ID = #{feedId}
+        ORDER BY COMMENT_LIKES DESC, CREATED_DATE ASC
+        )
+        WHERE ROWNUM &lt;= 4
+        ) THEN 1
+        ELSE 0
+        END AS commentBest
         FROM TB_FEED_COMMENT c
         JOIN TB_USER u ON c.USER_ID = u.USER_ID
         WHERE c.FEED_ID = #{feedId}
@@ -158,17 +158,17 @@
     <!-- 댓글 추가 -->
     <insert id="insertComment" parameterType="fs.human.yabab.feed.vo.CommentVO">
         INSERT INTO TB_FEED_COMMENT (
-            COMMENT_ID,
-            FEED_ID,
-            USER_ID,
-            COMMENT_CONTENT,
-            CREATED_DATE
+        COMMENT_ID,
+        FEED_ID,
+        USER_ID,
+        COMMENT_CONTENT,
+        CREATED_DATE
         ) VALUES (
-            SEQ_FEED_COMMENT_ID.NEXTVAL,
-            #{feedId},
-            #{userId, jdbcType=VARCHAR},
-            #{commentContent, jdbcType=VARCHAR},
-            SYSDATE
+        SEQ_FEED_COMMENT_ID.NEXTVAL,
+        #{feedId},
+        #{userId, jdbcType=VARCHAR},
+        #{commentContent, jdbcType=VARCHAR},
+        SYSDATE
         )
     </insert>
 
@@ -178,7 +178,7 @@
         SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
         FROM TB_COMMENT_LIKE
         WHERE COMMENT_ID = #{commentId}
-          AND USER_ID = #{userId}
+        AND USER_ID = #{userId}
     </select>
 
     <!-- 추천 추가 -->
@@ -204,9 +204,9 @@
     <update id="decrementCommentLikes">
         UPDATE TB_FEED_COMMENT
         SET COMMENT_LIKES = CASE
-                                WHEN COMMENT_LIKES > 0 THEN COMMENT_LIKES - 1
-                                ELSE 0
-            END
+        WHEN COMMENT_LIKES > 0 THEN COMMENT_LIKES - 1
+        ELSE 0
+        END
         WHERE COMMENT_ID = #{commentId}
     </update>
 
@@ -227,39 +227,24 @@
     <!-- Top 5 피드 조회 -->
     <select id="selectTop5FeedsByTeamAndCategory" resultType="fs.human.yabab.feed.vo.FeedVO">
         SELECT
-            f.FEED_ID,
-            f.FEED_TITLE,
-            f.FEED_LIKES
+        f.FEED_ID,
+        f.FEED_TITLE,
+        f.FEED_LIKES
         FROM TB_FEED f
         JOIN TB_USER u ON f.USER_ID = u.USER_ID
         WHERE f.TEAM_ID = #{teamId}
-          AND f.FEED_CATEGORY = #{category}
-          AND f.FEED_DELETED_FLAG = 0
+        AND f.FEED_CATEGORY = #{category}
+        AND f.FEED_DELETED_FLAG = 0
         ORDER BY f.FEED_LIKES DESC
-            FETCH FIRST 5 ROWS ONLY
+        FETCH FIRST 5 ROWS ONLY
     </select>
-
-    <!-- 예약 많은 음식점 Top 5 -->
-<!--    <select id="selectTop5ReservedRestaurantsByTeam" resultType="fs.human.yabab.feed.vo.RestaurantVO">-->
-<!--        SELECT-->
-<!--            r.RESTAURANT_ID,-->
-<!--            r.RESTAURANT_NAME,-->
-<!--            COUNT(rv.RESV_ID) AS reservationCount-->
-<!--        FROM TB_RESTAURANT r-->
-<!--                 JOIN TB_STADIUM s ON r.STADIUM_ID = s.STADIUM_ID-->
-<!--                 LEFT JOIN TB_RESERVATION rv ON r.RESTAURANT_ID = rv.RESTAURANT_ID-->
-<!--        WHERE s.TEAM_ID = #{teamId}-->
-<!--        GROUP BY r.RESTAURANT_ID, r.RESTAURANT_NAME-->
-<!--        ORDER BY reservationCount DESC-->
-<!--            FETCH FIRST 5 ROWS ONLY-->
-<!--    </select>-->
 
     <!-- 댓글 내용 수정 -->
     <update id="updateCommentContent">
         UPDATE TB_FEED_COMMENT
         SET COMMENT_CONTENT = #{commentContent}
         WHERE COMMENT_ID = #{commentId}
-          AND COMMENT_DELETED_FLAG = 0
+        AND COMMENT_DELETED_FLAG = 0
     </update>
 
     <!-- 댓글 삭제 -->
@@ -277,17 +262,30 @@
     </update>
 
     <!-- 피드 수정 -->
-    <update id="updateFeed">
+    <update id="updateFeed" parameterType="map">
         UPDATE TB_FEED
         SET
-        FEED_TITLE = #{params.feedTitle},
-        FEED_CONTENT = #{params.feedContent},
-        <if test="imagePath != null">
-            FEED_IMAGE_PATH = #{imagePath},
-        </if>
-        UPDATED_DATE = SYSDATE
-        WHERE FEED_ID = #{params.feedId}
-        AND USER_ID = #{params.userId}
+        FEED_TITLE = #{feedTitle},
+        FEED_CONTENT = #{feedContent},
+        UPDATED_DATE = SYSDATE,
+        UPDATED_BY = #{userId}
+        <choose>
+            <when test="feedImagePath != null and feedImageName != null and feedImagePath != ''">
+                -- 새로운 이미지가 업로드되거나 기존 이미지를 유지하는 경우
+                , FEED_IMAGE_PATH = #{feedImagePath, jdbcType=VARCHAR}
+                , FEED_IMAGE_NAME = #{feedImageName, jdbcType=VARCHAR}
+            </when>
+            <when test="feedImagePath == null and feedImageName == null">
+                -- 이미지를 삭제하는 경우 (NULL로 설정)
+                , FEED_IMAGE_PATH = NULL
+                , FEED_IMAGE_NAME = NULL
+            </when>
+            <!-- else: 이미지 관련 필드가 변경되지 않는 경우 (기존 값 유지) -->
+            <!-- 이 else는 사실상 필요 없음. 위의 두 when이 모든 케이스를 커버함. -->
+            <!-- (새 이미지/기존 이미지 유지) OR (이미지 삭제) -->
+        </choose>
+        WHERE FEED_ID = #{feedId}
+        AND USER_ID = #{userId}
     </update>
 
 </mapper>

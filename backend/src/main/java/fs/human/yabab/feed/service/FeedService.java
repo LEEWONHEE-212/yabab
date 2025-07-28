@@ -4,10 +4,16 @@ import fs.human.yabab.feed.dao.FeedDAO;
 import fs.human.yabab.feed.vo.CommentVO;
 import fs.human.yabab.feed.vo.FeedVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -17,6 +23,9 @@ public class FeedService {
 
     @Autowired
     private FeedDAO feedDAO;
+
+    @Value("${upload.uploads.image.dir}")
+    private String uploadDirectory;
 
     //  피드 목록 조회
     public List<FeedVO> getFeedList(int teamId, int category, String sort) {
@@ -114,20 +123,52 @@ public class FeedService {
     //  피드 수정
     public boolean updateFeed(Map<String, String> params, MultipartFile imageFile) {
         try {
-            String imagePath = null;
+            String imagePathForDb = null; // DB에 저장할 경로 (웹 접근 경로)
+            String imageNameForDb = null; // DB에 저장할 파일명
 
             // 1. 이미지가 새로 업로드된 경우 저장 처리
             if (imageFile != null && !imageFile.isEmpty()) {
-                String uploadDir = "/upload/feed"; // 실제 서버 경로로 변경 필요
-                String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-                File dest = new File(uploadDir, fileName);
-                imageFile.transferTo(dest);
-                imagePath = "/upload/feed/" + fileName; // DB에 저장할 경로
+                String originalFilename = imageFile.getOriginalFilename();
+                String uniqueFileName = UUID.randomUUID().toString() + "_" + originalFilename;
+
+                // application.properties에서 주입받은 상대 경로를 절대 경로로 변환하여 사용
+                Path targetDirectory = Paths.get(new File(uploadDirectory).getAbsolutePath());
+                Path targetFilePath = targetDirectory.resolve(uniqueFileName);
+
+                // 업로드 디렉토리가 없으면 생성 (FeedController의 writeFeed와 동일하게)
+                if (!Files.exists(targetDirectory)) {
+                    Files.createDirectories(targetDirectory);
+                }
+
+                imageFile.transferTo(targetFilePath.toFile()); // 파일 저장
+
+                // ⭐ 이 부분이 수정되었습니다: 파일명을 포함한 전체 웹 경로 ⭐
+                imagePathForDb = "/uploads/" + uniqueFileName;
+                imageNameForDb = uniqueFileName;
+            } else {
+                // 이미지가 새로 업로드되지 않은 경우, 기존 정보 유지 또는 삭제
+                // params에서 기존 imagePath와 imageName을 가져와 사용
+                imagePathForDb = params.get("feedImagePath");
+                imageNameForDb = params.get("feedImageName");
+
+                // 만약 프론트에서 이미지 삭제를 요청했다면 (imagePath, imageName이 null로 옴)
+                // 이 경우, DB에 NULL을 저장하도록 DAO에서 처리할 것임.
+                // 여기서는 물리 파일 삭제 로직은 포함하지 않음 (별도 API 또는 로직으로 처리 권장)
             }
 
-            // 2. DAO 호출
-            return feedDAO.updateFeed(params, imagePath) > 0;
+            // 2. DAO 호출을 위한 Map에 이미지 정보 추가
+            // params 맵은 불변일 수 있으므로 새로운 맵을 만들거나, params를 수정 가능한 맵으로 변환
+            Map<String, String> updateParams = new HashMap<>(params);
+            updateParams.put("feedImagePath", imagePathForDb);
+            updateParams.put("feedImageName", imageNameForDb);
+
+            return feedDAO.updateFeed(updateParams) > 0; // DAO 호출 시 수정된 맵 사용
+        } catch (IOException e) {
+            System.err.println("파일 저장 실패: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         } catch (Exception e) {
+            System.err.println("피드 업데이트 중 오류 발생: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

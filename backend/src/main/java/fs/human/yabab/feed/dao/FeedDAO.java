@@ -65,5 +65,6 @@ public interface FeedDAO {
     int markFeedAsDeleted(@Param("feedId") int feedId);
 
     //  피드 수정
-    int updateFeed(@Param("params") Map<String, String> params, @Param("imagePath") String imagePath);
+    // ⭐ 파라미터를 Map 하나로 통일합니다. ⭐
+    int updateFeed(Map<String, String> params);
 }

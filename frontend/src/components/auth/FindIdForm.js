@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import './FindIdForm.css'; // 기존 FindIdForm 스타일
-// import './FindIdResultModal.css'; // FindIdResultModal의 스타일은 FindIdForm.css에 통합하거나 별도로 관리해야 합니다.
 import Header from "../common/Header";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // useNavigate를 import 합니다.
 
 // FindIdResultModal 컴포넌트를 FindIdForm.jsx 파일 내부에 정의합니다.
-// 이렇게 하면 하나의 파일에서 두 컴포넌트를 관리할 수 있습니다.
 const FindIdResultModal = ({ isOpen, onClose, foundId }) => {
     if (!isOpen) return null;
 
@@ -32,8 +30,9 @@ const FindIdResultModal = ({ isOpen, onClose, foundId }) => {
     );
 };
 
-
 const FindIdForm = () => {
+    const navigate = useNavigate(); // useNavigate 훅을 사용합니다.
+
     const [formData, setFormData] = useState({
         userName: '',
         userEmail: '',
@@ -137,7 +136,7 @@ const FindIdForm = () => {
         }
     };
 
-    // 모달 닫기 함수
+    // 모달 닫기 함수: 로그인 페이지로 리다이렉트 추가
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setFoundId(''); // 모달 닫을 때 찾은 아이디 초기화
@@ -145,6 +144,9 @@ const FindIdForm = () => {
         // setFormData({ userName: '', userEmail: '' });
         // setEmailCode('');
         // setEmailverified(false);
+
+        // 로그인 페이지로 이동
+        navigate('/auth/login');
     };
 
     return (

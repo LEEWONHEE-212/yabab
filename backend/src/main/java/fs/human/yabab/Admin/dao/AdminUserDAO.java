@@ -56,6 +56,53 @@ public interface AdminUserDAO {
      * @param userId 삭제할 회원의 ID
      * @return 삭제된 레코드 수 (성공 시 1)
      */
-    int deleteUser(@Param("userId") String userId); // 메서드 이름 변경
+    int deleteUser(@Param("userId") String userId);
 
+    // ⭐ New methods for hard deleting user-related data (child records) ⭐
+
+    /**
+     * Deletes all comment like records associated with a specific user.
+     * @param userId The ID of the user whose comment likes will be deleted.
+     * @return The number of deleted records.
+     */
+    int deleteCommentLikesByUserId(@Param("userId") String userId);
+
+    /**
+     * Deletes all feed like records associated with a specific user.
+     * @param userId The ID of the user whose feed likes will be deleted.
+     * @return The number of deleted records.
+     */
+    int deleteFeedLikesByUserId(@Param("userId") String userId);
+
+    /**
+     * Deletes all reservation records associated with a specific user.
+     * @param userId The ID of the user whose reservations will be deleted.
+     * @return The number of deleted records.
+     */
+    int deleteReservationsByUserId(@Param("userId") String userId);
+
+    /**
+     * Deletes all feed comments written by a specific user.
+     * @param userId The ID of the user whose comments will be deleted.
+     * @return The number of deleted records.
+     */
+    int deleteFeedCommentsByUserId(@Param("userId") String userId);
+
+    /**
+     * Deletes all feed posts written by a specific user.
+     * Note: This only deletes the feed entries themselves. Related comments and likes for these feeds
+     * must be handled separately (e.g., by cascading deletes in DB or by calling other DAO methods).
+     * @param userId The ID of the user whose feeds will be deleted.
+     * @return The number of deleted records.
+     */
+    int deleteFeedsByUserId(@Param("userId") String userId);
+
+    /**
+     * Deletes all restaurant records owned by a specific user (if the user is an owner).
+     * Note: This only deletes the restaurant entries themselves. Related menus, reservations for these restaurants
+     * must be handled separately (e.g., by cascading deletes in DB or by calling other DAO methods).
+     * @param userId The ID of the owner whose restaurants will be deleted.
+     * @return The number of deleted records.
+     */
+    int deleteRestaurantsByOwnerId(@Param("userId") String userId);
 }

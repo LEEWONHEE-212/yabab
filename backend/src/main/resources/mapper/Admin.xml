@@ -101,9 +101,55 @@
         </if>
     </select>
 
+    <!-- 사용자 삭제 (실제 삭제는 서비스 레이어에서 종속성 먼저 제거 후 호출) -->
     <delete id="deleteUser" parameterType="string">
         DELETE FROM TB_USER
         WHERE USER_ID = #{userId}
+    </delete>
+
+    <!-- ⭐ 새로 추가된 쿼리: 사용자가 누른 댓글 좋아요 기록 삭제 ⭐ -->
+    <delete id="deleteCommentLikesByUserId" parameterType="string">
+        DELETE FROM TB_COMMENT_LIKE
+        WHERE USER_ID = #{userId}
+    </delete>
+
+    <!-- ⭐ 새로 추가된 쿼리: 사용자가 누른 피드 좋아요 기록 삭제 ⭐ -->
+    <delete id="deleteFeedLikesByUserId" parameterType="string">
+        DELETE FROM TB_FEED_LIKE
+        WHERE USER_ID = #{userId}
+    </delete>
+
+    <!-- ⭐ 새로 추가된 쿼리: 사용자의 예약 기록 삭제 ⭐ -->
+    <delete id="deleteReservationsByUserId" parameterType="string">
+        DELETE FROM TB_RESERVATION
+        WHERE USER_ID = #{userId}
+    </delete>
+
+    <!-- ⭐ 새로 추가된 쿼리: 사용자가 작성한 댓글 물리적 삭제 ⭐ -->
+    <delete id="deleteFeedCommentsByUserId" parameterType="string">
+        DELETE FROM TB_FEED_COMMENT
+        WHERE USER_ID = #{userId}
+    </delete>
+
+    <!-- ⭐ 새로 추가된 쿼리: 사용자가 작성한 피드 물리적 삭제 ⭐ -->
+    <!-- 주의: 피드 삭제 전 해당 피드의 댓글/좋아요는 먼저 삭제되어야 함. -->
+    <!-- 이 쿼리는 사용자가 작성한 피드만 삭제하며, 해당 피드의 자식 레코드는 별도로 처리해야 함. -->
+    <!-- FeedService의 hardDeleteFeedById를 활용하거나, 여기서 직접 자식 레코드 삭제 쿼리들을 추가해야 함. -->
+    <!-- 여기서는 사용자 ID로 직접 피드를 삭제하는 쿼리를 추가합니다. -->
+    <!-- 만약 TB_FEED의 USER_ID가 FK로 걸려있고 ON DELETE CASCADE가 아니라면, -->
+    <!-- TB_FEED_COMMENT와 TB_FEED_LIKE에서 해당 FEED_ID를 가진 레코드를 먼저 삭제해야 합니다. -->
+    <!-- 이 쿼리만으로는 충분하지 않을 수 있습니다. 서비스 레이어에서 복합적인 삭제 로직을 구현해야 합니다. -->
+    <delete id="deleteFeedsByUserId" parameterType="string">
+        DELETE FROM TB_FEED
+        WHERE USER_ID = #{userId}
+    </delete>
+
+    <!-- ⭐ 새로 추가된 쿼리: 사용자가 소유한 식당 삭제 (사장님 계정일 경우) ⭐ -->
+    <!-- 주의: 식당 삭제 전 해당 식당의 메뉴, 예약 등은 먼저 삭제되어야 함. -->
+    <!-- 이 쿼리만으로는 충분하지 않을 수 있습니다. 서비스 레이어에서 복합적인 삭제 로직을 구현해야 합니다. -->
+    <delete id="deleteRestaurantsByOwnerId" parameterType="string">
+        DELETE FROM TB_RESTAURANT
+        WHERE OWNER_ID = #{userId}
     </delete>
 
     <select id="selectUserById"

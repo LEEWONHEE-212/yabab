@@ -5,9 +5,11 @@ import fs.human.yabab.feed.vo.CommentVO;
 import fs.human.yabab.feed.vo.FeedVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus; // ⭐ HttpStatus import 추가 ⭐
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException; // ⭐ ResponseStatusException import 추가 ⭐
 
 import java.io.File;
 import java.io.IOException;
@@ -24,16 +26,16 @@ public class FeedController {
     @Autowired
     private FeedService feedService;
 
-    //  application.properties에서 이미지 업로드 디렉토리 경로 주입
+    // application.properties에서 이미지 업로드 디렉토리 경로 주입
     @Value("${upload.uploads.image.dir}")
     private String uploadDirectory;
 
-    //  피드 목록 조회(팀 ID 기준)
+    // 피드 목록 조회(팀 ID 기준)
     @GetMapping("/team/{teamId}")
     public ResponseEntity<List<FeedVO>> fetchFeedList(
             @PathVariable int teamId,
-            @RequestParam(name = "category", required = false) int category,                         //  0 or 1
-            @RequestParam(name = "sort", required = false, defaultValue = "latest") String sort  //  latest or likes
+            @RequestParam(name = "category", required = false) int category,                         // 0 or 1
+            @RequestParam(name = "sort", required = false, defaultValue = "latest") String sort  // latest or likes
     ) {
         List<FeedVO> list = feedService.getFeedList(teamId, category, sort);
         return ResponseEntity.ok(list);
@@ -46,7 +48,7 @@ public class FeedController {
     ) {
         Map<String, Object> responseMap = new HashMap<>();
 
-        //  이미지 파일이 있을 경우 저장 처리
+        // 이미지 파일이 있을 경우 저장 처리
         if (feedImage != null && !feedImage.isEmpty()) {
             String originalFilename = feedImage.getOriginalFilename();
             String uniqueFileName = UUID.randomUUID() + "_" + originalFilename;
@@ -74,17 +76,17 @@ public class FeedController {
             }
         }
 
-        //  feedDeletedFlag 명시적으로 0으로 설정
+        // feedDeletedFlag 명시적으로 0으로 설정
         feedVO.setFeedDeletedFlag(0);
 
-        //  DB에 글 등록
+        // DB에 글 등록
         feedService.registerFeed(feedVO);
         responseMap.put("success", true);
         responseMap.put("message", "등록 성공");
         return ResponseEntity.ok(responseMap);
     }
 
-    //  피드 상세 조회(피드 ID 기준)
+    // 피드 상세 조회(피드 ID 기준)
     @GetMapping("/detail/{feedId}")
     public ResponseEntity<Map<String, Object>> fetchFeedDetail(
             @PathVariable int feedId,
@@ -111,15 +113,15 @@ public class FeedController {
         return ResponseEntity.ok(responseMap);
     }
 
-    //  추천 기능
+    // 추천 기능
     @PostMapping("/like/{feedId}")
     public ResponseEntity<Map<String, Object>> toggleLike(
             @PathVariable int feedId,
             @RequestBody Map<String, String> requestMap
     ) {
-        String userId = requestMap.get("userId");  //  프론트에서 보내준 userId
+        String userId = requestMap.get("userId");  // 프론트에서 보내준 userId
 
-        //  로그인 여부 확인
+        // 로그인 여부 확인
         if(userId == null || userId.trim().isEmpty()) {
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("success", false);
@@ -130,12 +132,12 @@ public class FeedController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("liked", liked);   //  true: 추천됨, false: 추천 취소됨
+        response.put("liked", liked);   // true: 추천됨, false: 추천 취소됨
 
         return ResponseEntity.ok(response);
     }
 
-    //  댓글 등록
+    // 댓글 등록
     @PostMapping("/comment")
     public ResponseEntity<Map<String, Object>> addComment(@RequestBody CommentVO commentVO) {
         feedService.addComment(commentVO);
@@ -194,22 +196,42 @@ public class FeedController {
     @DeleteMapping("/comment/delete/{commentId}")
     public ResponseEntity<Map<String, Object>> deleteComment(@PathVariable int commentId) {
         Map<String, Object> responseMap = new HashMap<>();
-        boolean deleted = feedService.softDeleteComment(commentId);
+        boolean deleted = feedService.softDeleteComment(commentId); // ⭐ 소프트 삭제 유지 ⭐
 
         responseMap.put("success", deleted);
         return ResponseEntity.ok(responseMap);
     }
 
-    //  피드 삭제
+    // 피드 삭제 (물리적 삭제로 변경)
     @DeleteMapping("/delete/{feedId}")
-    public Map<String, Object> deleteFeed(@PathVariable int feedId) {
+    public ResponseEntity<Map<String, Object>> deleteFeed(@PathVariable int feedId) { // ⭐ 반환 타입 ResponseEntity로 변경 ⭐
         Map<String, Object> responseMap = new HashMap<>();
-        boolean deleted = feedService.deleteFeedById(feedId);
-        responseMap.put("success", deleted);
-        return responseMap;
+        try {
+            boolean deleted = feedService.deleteFeedById(feedId); // ⭐ 물리적 삭제 서비스 메서드 호출 ⭐
+            if (deleted) {
+                responseMap.put("success", true);
+                responseMap.put("message", "피드 및 관련 데이터가 성공적으로 삭제되었습니다.");
+                return ResponseEntity.ok(responseMap); // 200 OK
+            } else {
+                responseMap.put("success", false);
+                responseMap.put("message", "피드 삭제에 실패했습니다.");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap); // 500 Internal Server Error
+            }
+        } catch (RuntimeException e) { // Service에서 던지는 RuntimeException을 캐치
+            System.err.println("피드 삭제 중 오류 발생: " + e.getMessage());
+            responseMap.put("success", false);
+            responseMap.put("message", "피드 삭제 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap); // 500 Internal Server Error
+        } catch (Exception e) {
+            System.err.println("예상치 못한 피드 삭제 오류 발생: " + e.getMessage());
+            e.printStackTrace();
+            responseMap.put("success", false);
+            responseMap.put("message", "피드 삭제 중 예상치 못한 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap); // 500 Internal Server Error
+        }
     }
 
-    //  피드 수정
+    // 피드 수정
     @PutMapping("/update")
     public Map<String, Object> updateFeed(@RequestParam Map<String, String> params,
                                           @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {

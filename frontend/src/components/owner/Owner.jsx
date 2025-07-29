@@ -33,8 +33,6 @@ const ReservationDetailModal = ({ reservation, onClose }) => {
                     <p><strong>총 결제 금액:</strong> {(typeof reservation.totalPrice === 'number' ? reservation.totalPrice : 0).toLocaleString()}원</p>
                     <p><strong>현재 상태:</strong> {currentStatusText}</p>
                     <p><strong>요청 사항:</strong> {reservation.resvRequest || '없음'}</p>
-                    <p><strong>주문 고객명:</strong> {reservation.customerName || '알 수 없음'}</p>
-                    <p><strong>주문 고객 전화:</strong> {reservation.customerPhone || '알 수 없음'}</p>
                 </div>
 
                 <div className="owner-modal-section">
@@ -224,8 +222,7 @@ const Owner = () => {
             await axios.put(`http://localhost:18090/owner/reservations/status`, {
                 resvId: resvId,
                 newStatus: newStatus,
-                // 백엔드 컨트롤러에서 'restaurantId'를 기대하므로 'updaterId' 대신 'restaurantId'를 보냅니다.
-                restaurantId: currentRestaurant.id // <-- 이 부분을 수정했습니다.
+                restaurantId: currentRestaurant.id
             });
             setReservations(prevReservations =>
                 prevReservations.map(reservation =>
@@ -235,7 +232,6 @@ const Owner = () => {
             alert(`예약 번호 ${resvId}의 상태가 '${statusText}'로 변경되었습니다.`);
         } catch (error) {
             console.error("Failed to update reservation status:", error);
-            // 백엔드에서 보낸 에러 메시지를 더 구체적으로 표시
             alert("예약 상태 업데이트에 실패했습니다. " + (error.response?.data || error.message));
         }
     };
@@ -249,19 +245,17 @@ const Owner = () => {
         }
     };
 
-    // --- 여기부터 수정된 부분 ---
     const handleReturnToOwnerPage = (shouldRefresh = false) => {
         setShowEditPage(false);
         if (shouldRefresh) {
             console.log("EditRestaurant에서 수정 완료 신호 받음. 식당 정보 및 관련 데이터 새로고침 시작.");
             fetchRestaurantInfo(); // 식당 정보 다시 불러오기
-            // 메뉴와 예약 정보는 fetchRestaurantInfo가 currentRestaurant을 업데이트하면
-            // useEffect(() => { if (currentRestaurant) ... })에 의해 자동으로 다시 불러와집니다.
+            // fetchRestaurantInfo가 currentRestaurant을 업데이트하면,
+            // useEffect(() => { if (currentRestaurant) ... })에 의해 메뉴와 예약 정보가 자동으로 다시 불러와집니다.
         } else {
             console.log("EditRestaurant에서 취소 신호 받음. 새로고침 없음.");
         }
     };
-    // --- 여기까지 수정된 부분 ---
 
     const handleAddMenu = async () => {
         if (!newMenuItem.name.trim() || !newMenuItem.price) {
@@ -294,9 +288,10 @@ const Owner = () => {
                     `http://localhost:18090/api/owner/restaurants/${currentRestaurant.id}/menus`,
                     menuData
                 );
-                setMenuItems(prev => [...prev, response.data]);
+                // setMenuItems(prev => [...prev, response.data]); // 즉각적인 UI 업데이트 대신, 새로고침을 위해 주석 처리하거나 제거 가능
                 setNewMenuItem({ name: '', price: '' });
                 alert('메뉴가 성공적으로 추가되었습니다.');
+                fetchMenuItems(currentRestaurant.id); // ⭐ 메뉴 목록 새로고침 ⭐
             } catch (error) {
                 console.error('Failed to add menu:', error);
                 alert('메뉴 추가에 실패했습니다: ' + (error.response?.data?.message || error.message));
@@ -343,16 +338,17 @@ const Owner = () => {
                     }
                 });
 
-                setMenuItems(prevMenuItems =>
-                    prevMenuItems.map(item =>
-                        item.menuId === editingMenuId
-                            ? { ...item, menuName: newMenuItem.name.trim(), menuPrice: price }
-                            : item
-                    )
-                );
+                // setMenuItems(prevMenuItems => // 즉각적인 UI 업데이트 대신, 새로고침을 위해 주석 처리하거나 제거 가능
+                //     prevMenuItems.map(item =>
+                //         item.menuId === editingMenuId
+                //             ? { ...item, menuName: newMenuItem.name.trim(), menuPrice: price }
+                //             : item
+                //     )
+                // );
                 setEditingMenuId(null);
                 setNewMenuItem({ name: '', price: '' });
                 alert('메뉴가 성공적으로 수정되었습니다.');
+                fetchMenuItems(currentRestaurant.id); // ⭐ 메뉴 목록 새로고침 ⭐
             } catch (error) {
                 console.error('Failed to save menu edit:', error);
                 alert('메뉴 수정에 실패했습니다: ' + (error.response?.data?.message || error.message));
@@ -434,13 +430,13 @@ const Owner = () => {
     }
 
     if (!currentRestaurant) {
-            return (
-              <div className="owner-page-container no-restaurant">
-                  <Header />
-                  <p>아직 등록된 식당 정보가 없습니다. 식당을 등록해주세요.</p>
-                  <button className="add-restaurant-button" onClick={() => navigate('/add-AddRestaurant')}>식당 등록하기</button>
-              </div>
-            );
+                return (
+                    <div className="owner-page-container no-restaurant">
+                        <Header />
+                        <p>아직 등록된 식당 정보가 없습니다. 식당을 등록해주세요.</p>
+                        <button className="add-restaurant-button" onClick={() => navigate('/add-AddRestaurant')}>식당 등록하기</button>
+                    </div>
+                );
     }
 
     return (

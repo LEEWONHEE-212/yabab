@@ -5,7 +5,7 @@
 
 <mapper namespace="fs.human.yabab.feed.dao.FeedDAO">
 
-    <!-- 피드 목록 조회 -->
+    <!-- 피드 목록 조회 (기존과 동일) -->
     <select id="selectFeedList" parameterType="map" resultType="fs.human.yabab.feed.vo.FeedVO">
         SELECT
         f.FEED_ID,
@@ -37,7 +37,7 @@
         </choose>
     </select>
 
-    <!-- 피드 등록 -->
+    <!-- 피드 등록 (기존과 동일) -->
     <insert id="insertFeed" parameterType="fs.human.yabab.feed.vo.FeedVO">
         INSERT INTO TB_FEED (
         FEED_ID,
@@ -69,7 +69,7 @@
         )
     </insert>
 
-    <!-- 피드 상세 -->
+    <!-- 피드 상세 (TEAM_ID 컬럼 추가) -->
     <select id="selectFeedDetail" resultType="fs.human.yabab.feed.vo.FeedVO">
         SELECT
         f.FEED_ID,
@@ -83,15 +83,15 @@
         f.FEED_LIKES,
         f.FEED_VIEWS,
         f.FEED_COMMENT_COUNT,
-        f.CREATED_DATE
+        f.CREATED_DATE,
+        f.TEAM_ID  <!-- ⭐ 이 부분을 추가했습니다! ⭐ -->
         FROM TB_FEED f
         JOIN TB_USER u ON f.USER_ID = u.USER_ID
         WHERE f.FEED_ID = #{feedId}
         AND f.FEED_DELETED_FLAG = 0
     </select>
 
-    <!-- 게시글 -->
-    <!-- 사용자가 이미 추천했는지 확인 -->
+    <!-- 게시글 추천 관련 쿼리들 (기존과 동일) -->
     <select id="hasUserLikedFeed" resultType="int">
         SELECT COUNT(*)
         FROM TB_FEED_LIKE
@@ -99,33 +99,29 @@
         AND USER_ID = #{userId}
     </select>
 
-    <!-- 추천 등록 -->
     <insert id="insertFeedLike">
         INSERT INTO TB_FEED_LIKE (FEED_ID, USER_ID)
         VALUES (#{feedId}, #{userId})
     </insert>
 
-    <!-- 추천 취소 -->
     <delete id="deleteFeedLike">
         DELETE FROM TB_FEED_LIKE
         WHERE FEED_ID = #{feedId} AND USER_ID = #{userId}
     </delete>
 
-    <!-- 게시글 추천 수 증가 -->
     <update id="incrementFeedLikes">
         UPDATE TB_FEED
         SET FEED_LIKES = FEED_LIKES + 1
         WHERE FEED_ID = #{feedId}
     </update>
 
-    <!-- 게시글 추천 수 감소 (0 이하 방지) -->
     <update id="decrementFeedLikes">
         UPDATE TB_FEED
         SET FEED_LIKES = CASE WHEN FEED_LIKES > 0 THEN FEED_LIKES - 1 ELSE 0 END
         WHERE FEED_ID = #{feedId}
     </update>
 
-    <!-- 댓글 목록 -->
+    <!-- 댓글 목록 (기존과 동일) -->
     <select id="selectCommentsByFeedId" resultType="fs.human.yabab.feed.vo.CommentVO">
         SELECT
         c.COMMENT_ID,
@@ -155,7 +151,7 @@
         ORDER BY c.CREATED_DATE DESC
     </select>
 
-    <!-- 댓글 추가 -->
+    <!-- 댓글 추가 (기존과 동일) -->
     <insert id="insertComment" parameterType="fs.human.yabab.feed.vo.CommentVO">
         INSERT INTO TB_FEED_COMMENT (
         COMMENT_ID,
@@ -172,8 +168,7 @@
         )
     </insert>
 
-    <!-- 댓글 -->
-    <!-- 특정 사용자가 이 댓글 추천했는지 -->
+    <!-- 댓글 추천 관련 쿼리들 (기존과 동일) -->
     <select id="hasUserLikedComment" resultType="boolean">
         SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
         FROM TB_COMMENT_LIKE
@@ -181,26 +176,22 @@
         AND USER_ID = #{userId}
     </select>
 
-    <!-- 추천 추가 -->
     <insert id="insertCommentLike">
         INSERT INTO TB_COMMENT_LIKE (COMMENT_ID, USER_ID)
         VALUES (#{commentId}, #{userId})
     </insert>
 
-    <!-- 추천 삭제 -->
     <delete id="deleteCommentLike">
         DELETE FROM TB_COMMENT_LIKE
         WHERE COMMENT_ID = #{commentId} AND USER_ID = #{userId}
     </delete>
 
-    <!-- 추천 수 증가 -->
     <update id="incrementCommentLikes">
         UPDATE TB_FEED_COMMENT
         SET COMMENT_LIKES = COMMENT_LIKES + 1
         WHERE COMMENT_ID = #{commentId}
     </update>
 
-    <!-- 추천 수 감소 -->
     <update id="decrementCommentLikes">
         UPDATE TB_FEED_COMMENT
         SET COMMENT_LIKES = CASE
@@ -210,21 +201,20 @@
         WHERE COMMENT_ID = #{commentId}
     </update>
 
-    <!-- 댓글 추천 수 -->
     <select id="countLikesForComment" resultType="int">
         SELECT COUNT(*)
         FROM TB_COMMENT_LIKE
         WHERE COMMENT_ID = #{commentId}
     </select>
 
-    <!-- 조회수 -->
+    <!-- 조회수 (기존과 동일) -->
     <update id="incrementFeedViews">
         UPDATE TB_FEED
         SET FEED_VIEWS = FEED_VIEWS + 1
         WHERE FEED_ID = #{feedId}
     </update>
 
-    <!-- Top 5 피드 조회 -->
+    <!-- Top 5 피드 조회 (기존과 동일) -->
     <select id="selectTop5FeedsByTeamAndCategory" resultType="fs.human.yabab.feed.vo.FeedVO">
         SELECT
         f.FEED_ID,
@@ -239,7 +229,7 @@
         FETCH FIRST 5 ROWS ONLY
     </select>
 
-    <!-- 댓글 내용 수정 -->
+    <!-- 댓글 내용 수정 (기존과 동일) -->
     <update id="updateCommentContent">
         UPDATE TB_FEED_COMMENT
         SET COMMENT_CONTENT = #{commentContent}
@@ -247,21 +237,21 @@
         AND COMMENT_DELETED_FLAG = 0
     </update>
 
-    <!-- 댓글 삭제 -->
+    <!-- 댓글 삭제 (소프트 삭제) (기존과 동일) -->
     <update id="softDeleteComment">
         UPDATE TB_FEED_COMMENT
         SET COMMENT_DELETED_FLAG = 1
         WHERE COMMENT_ID = #{commentId}
     </update>
 
-    <!-- 피드 삭제 -->
+    <!-- 피드 삭제 (소프트 삭제) (기존과 동일) -->
     <update id="markFeedAsDeleted">
         UPDATE TB_FEED
         SET FEED_DELETED_FLAG = 1
         WHERE FEED_ID = #{feedId}
     </update>
 
-    <!-- 피드 수정 -->
+    <!-- 피드 수정 (기존과 동일) -->
     <update id="updateFeed" parameterType="map">
         UPDATE TB_FEED
         SET
@@ -280,12 +270,27 @@
                 , FEED_IMAGE_PATH = NULL
                 , FEED_IMAGE_NAME = NULL
             </when>
-            <!-- else: 이미지 관련 필드가 변경되지 않는 경우 (기존 값 유지) -->
-            <!-- 이 else는 사실상 필요 없음. 위의 두 when이 모든 케이스를 커버함. -->
-            <!-- (새 이미지/기존 이미지 유지) OR (이미지 삭제) -->
         </choose>
         WHERE FEED_ID = #{feedId}
         AND USER_ID = #{userId}
     </update>
+
+    <!-- 새로 추가된 쿼리: 피드 관련 모든 댓글 물리적 삭제 (기존과 동일) -->
+    <delete id="hardDeleteFeedCommentsByFeedId">
+        DELETE FROM TB_FEED_COMMENT
+        WHERE FEED_ID = #{feedId}
+    </delete>
+
+    <!-- 새로 추가된 쿼리: 피드 관련 모든 추천 기록 물리적 삭제 (기존과 동일) -->
+    <delete id="hardDeleteFeedLikesByFeedId">
+        DELETE FROM TB_FEED_LIKE
+        WHERE FEED_ID = #{feedId}
+    </delete>
+
+    <!-- 새로 추가된 쿼리: 피드 물리적 삭제 (기존과 동일) -->
+    <delete id="hardDeleteFeedById">
+        DELETE FROM TB_FEED
+        WHERE FEED_ID = #{feedId}
+    </delete>
 
 </mapper>

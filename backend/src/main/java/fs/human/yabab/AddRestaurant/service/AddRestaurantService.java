@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File; // ⭐ File 클래스 import 추가 ⭐
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,8 +24,7 @@ import java.util.UUID;
 public class AddRestaurantService {
     private final AddRestaurantDAO addRestaurantDAO;
 
-    // application.properties에서 업로드 경로를 주입받도록 설정
-    @Value("${upload.uploads.image.dir}") // application.properties에서 실제 파일 시스템 경로를 주입받음
+    @Value("${upload.uploads.image.dir}")
     private String uploadDir;
 
     @Autowired
@@ -52,13 +52,15 @@ public class AddRestaurantService {
 
         if (imageFile != null && !imageFile.isEmpty()) {
             // 1. 파일 저장 디렉토리 확인 및 생성
-            // uploadDir에서 "file:" 접두사를 제거해야 Paths.get이 올바른 파일 시스템 경로를 인식합니다.
-            Path uploadPath = Paths.get(uploadDir.replace("file:", "")); // 'file:' 접두사 제거 중요!
+            // WebConfig와 동일하게 File 객체를 통해 uploadDir의 절대 경로를 얻습니다.
+            // 이렇게 하면 "uploads"가 JVM의 현재 작업 디렉토리를 기준으로 해석되어 일관성이 유지됩니다.
+            Path uploadPath = Paths.get(new File(uploadDir).getAbsolutePath()); // ⭐ 이 부분이 수정되었습니다. ⭐
+
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            // 2. 파일명 생성 및 저장 (이전과 동일)
+            // 2. 파일명 생성 및 저장
             String originalFileName = imageFile.getOriginalFilename();
             String fileExtension = "";
             if (originalFileName != null && originalFileName.contains(".")) {
@@ -70,14 +72,14 @@ public class AddRestaurantService {
 
             // 3. 데이터베이스에 저장할 이미지 경로 설정
             // 웹에서 접근 가능한 URL 경로를 저장합니다. WebConfig의 ResourceHandler와 일치해야 합니다.
-            request.setRestaurantImagePath("" + newFileName);
+            request.setRestaurantImagePath("/uploads/" + newFileName);
             request.setRestaurantImageName(newFileName);
         } else {
             request.setRestaurantImagePath(null);
             request.setRestaurantImageName(null);
         }
 
-        // DAO를 호출하여 식당 정보를 DB에 삽입/uploads/
+        // DAO를 호출하여 식당 정보를 DB에 삽입
         int insertedRows = addRestaurantDAO.insertRestaurant(request);
         return insertedRows == 1;
     }
